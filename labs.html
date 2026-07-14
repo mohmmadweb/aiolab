@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آزمایشگاه‌های عضو | آیولب</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="labs.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / آزمایشگاه‌ها</div>
+    <h1>آزمایشگاه‌های عضو پلتفرم</h1>
+    <p>پروفایل رسمی آزمایشگاه‌ها، بیمارستان‌ها، مراکز پژوهشی و شرکت‌های تجهیزات آزمایشگاهی</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:36px">
+  <div class="container">
+    <div class="toolbar" style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+      <input type="text" id="f-q" placeholder="نام آزمایشگاه..." style="flex:1;min-width:200px;padding:11px 16px;border:1px solid var(--navy-200);border-radius:9px;font-size:14px;outline:none">
+      <select id="f-city" style="padding:11px 16px;border:1px solid var(--navy-200);border-radius:9px;font-size:14px">
+        <option value="">همه شهرها</option>
+      </select>
+      <select id="f-type" style="padding:11px 16px;border:1px solid var(--navy-200);border-radius:9px;font-size:14px">
+        <option value="">همه انواع مراکز</option>
+        <option>آزمایشگاه تشخیص طبی</option>
+        <option>آزمایشگاه بیمارستانی</option>
+        <option>آزمایشگاه ژنتیک</option>
+        <option>مرکز پژوهشی</option>
+        <option>شرکت تجهیزات</option>
+      </select>
+    </div>
+    <div class="lab-grid" id="lab-grid"></div>
+    <div class="empty-state" id="empty" style="display:none">
+      <b>آزمایشگاهی یافت نشد</b>
+      فیلترها را تغییر دهید.
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="cta-band">
+      <div>
+        <h2>آزمایشگاه شما هنوز عضو آیولب نیست؟</h2>
+        <p>پروفایل رسمی بسازید، برند کارفرمایی‌تان را تقویت کنید و به هزاران متخصص آزمایشگاهی دسترسی پیدا کنید.</p>
+      </div>
+      <a href="login.html?role=employer" class="btn btn-lg">ایجاد پروفایل آزمایشگاه</a>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const citySel = document.getElementById("f-city");
+  AIO_CITIES.forEach(c => citySel.insertAdjacentHTML("beforeend", `<option>${c}</option>`));
+  ["f-q", "f-city", "f-type"].forEach(id => document.getElementById(id).addEventListener("input", render));
+  render();
+});
+function render() {
+  const q = document.getElementById("f-q").value.trim();
+  const city = document.getElementById("f-city").value;
+  const type = document.getElementById("f-type").value;
+  const list = AIO_LABS.filter(l =>
+    (!q || l.name.includes(q)) && (!city || l.city === city) && (!type || l.type === type));
+  document.getElementById("lab-grid").innerHTML = list.map(labCardHTML).join("");
+  document.getElementById("empty").style.display = list.length ? "none" : "block";
+}
+</script>
+</body>
+</html>

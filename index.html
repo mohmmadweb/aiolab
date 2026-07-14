@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آیولب | کاریابی تخصصی پرسنل آزمایشگاه</title>
+<meta name="description" content="آیولب — پلتفرم تخصصی کاریابی پرسنل آزمایشگاه‌های تشخیص طبی و پژوهشی ایران">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3Cpath d='M20 12v8.5L13.5 32a4 4 0 0 0 3.5 6h14a4 4 0 0 0 3.5-6L28 20.5V12' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="index.html">
+
+<header id="site-header" class="site-header"></header>
+
+<!-- ================= HERO ================= -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <h1>مسیر شغلی تو در <em>آزمایشگاه</em>،<br>از همین‌جا شروع می‌شود</h1>
+      <p class="sub">آیولب، پلتفرم تخصصی کاریابی پرسنل آزمایشگاه‌های تشخیص طبی و پژوهشی؛ جایی که کارجو و آزمایشگاه هوشمندانه به هم می‌رسند.</p>
+
+      <form class="search-box" onsubmit="goSearch(event)">
+        <div class="field">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+          <input id="q" type="text" placeholder="عنوان شغلی، مهارت یا بخش آزمایشگاهی...">
+        </div>
+        <div class="field">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <select id="city">
+            <option value="">همه شهرها</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" type="submit">جستجو</button>
+      </form>
+
+      <div class="hero-tags">
+        <span>جستجوهای پرتکرار:</span>
+        <a href="jobs.html?dept=hematology">هماتولوژی</a>
+        <a href="jobs.html?dept=sampling">نمونه‌گیری</a>
+        <a href="jobs.html?dept=biochemistry">بیوشیمی</a>
+        <a href="jobs.html?shift=شب">شیفت شب</a>
+        <a href="jobs.html?dept=genetics">ژنتیک</a>
+      </div>
+    </div>
+
+    <!-- Test tubes illustration -->
+    <div class="hero-art">
+      <svg viewBox="0 0 420 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- background blob -->
+        <circle cx="210" cy="180" r="150" fill="#ccfbf1" opacity=".55"/>
+        <circle cx="330" cy="80" r="14" fill="#5eead4" opacity=".6"/>
+        <circle cx="70" cy="90" r="8" fill="#0d9488" opacity=".35"/>
+        <circle cx="352" cy="270" r="10" fill="#0d9488" opacity=".25"/>
+        <circle cx="55" cy="250" r="6" fill="#f59e0b" opacity=".5"/>
+        <!-- rack -->
+        <rect x="80" y="252" width="260" height="18" rx="9" fill="#115e59"/>
+        <rect x="92" y="270" width="14" height="46" rx="6" fill="#115e59"/>
+        <rect x="314" y="270" width="14" height="46" rx="6" fill="#115e59"/>
+        <rect x="80" y="196" width="260" height="14" rx="7" fill="#0f766e"/>
+        <!-- tube 1 -->
+        <g>
+          <rect x="112" y="118" width="40" height="6" rx="3" fill="#94a3b8"/>
+          <path d="M118 124h28v104a14 14 0 0 1-28 0V124z" fill="#fff" stroke="#cbd5e1" stroke-width="2.5"/>
+          <path d="M120 170h24v58a12 12 0 0 1-24 0v-58z" fill="#f43f5e" opacity=".85"/>
+          <circle cx="128" cy="186" r="3" fill="#fff" opacity=".55"/>
+          <circle cx="136" cy="205" r="2.2" fill="#fff" opacity=".45"/>
+        </g>
+        <!-- tube 2 (tall) -->
+        <g>
+          <rect x="176" y="86" width="40" height="6" rx="3" fill="#94a3b8"/>
+          <path d="M182 92h28v136a14 14 0 0 1-28 0V92z" fill="#fff" stroke="#cbd5e1" stroke-width="2.5"/>
+          <path d="M184 150h24v78a12 12 0 0 1-24 0v-78z" fill="#14b8a6" opacity=".9"/>
+          <circle cx="192" cy="170" r="3" fill="#fff" opacity=".55"/>
+          <circle cx="201" cy="196" r="2.4" fill="#fff" opacity=".5"/>
+          <circle cx="194" cy="215" r="1.8" fill="#fff" opacity=".4"/>
+        </g>
+        <!-- tube 3 -->
+        <g>
+          <rect x="240" y="118" width="40" height="6" rx="3" fill="#94a3b8"/>
+          <path d="M246 124h28v104a14 14 0 0 1-28 0V124z" fill="#fff" stroke="#cbd5e1" stroke-width="2.5"/>
+          <path d="M248 182h24v46a12 12 0 0 1-24 0v-46z" fill="#f59e0b" opacity=".85"/>
+          <circle cx="256" cy="196" r="2.6" fill="#fff" opacity=".5"/>
+        </g>
+        <!-- erlenmeyer flask -->
+        <g>
+          <path d="M296 130h24v34l22 52a12 12 0 0 1-11 16h-46a12 12 0 0 1-11-16l22-52v-34z" fill="#fff" stroke="#cbd5e1" stroke-width="2.5"/>
+          <path d="M303 186l-12.5 30a6 6 0 0 0 5.5 8h40a6 6 0 0 0 5.5-8L329 186h-26z" fill="#8b5cf6" opacity=".8"/>
+          <rect x="292" y="124" width="32" height="7" rx="3.5" fill="#94a3b8"/>
+          <circle cx="312" cy="202" r="2.6" fill="#fff" opacity=".55"/>
+          <circle cx="320" cy="212" r="2" fill="#fff" opacity=".45"/>
+        </g>
+        <!-- bubbles rising -->
+        <circle cx="196" cy="70" r="5" fill="#14b8a6" opacity=".45"/>
+        <circle cx="210" cy="52" r="3.5" fill="#14b8a6" opacity=".3"/>
+        <circle cx="186" cy="44" r="2.5" fill="#14b8a6" opacity=".25"/>
+        <!-- molecule -->
+        <g stroke="#0f766e" stroke-width="2" opacity=".7">
+          <line x1="76" y1="150" x2="102" y2="136"/>
+          <line x1="102" y1="136" x2="98" y2="108"/>
+          <circle cx="76" cy="150" r="7" fill="#0d9488" stroke="none"/>
+          <circle cx="102" cy="136" r="5" fill="#5eead4" stroke="none"/>
+          <circle cx="98" cy="108" r="6" fill="#0d9488" stroke="none"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STATS ================= -->
+<div class="container">
+  <div class="stats-strip">
+    <div class="stat-card">
+      <div class="ic" style="background:#ccfbf1;color:#0f766e" id="ic-1"></div>
+      <div><b>+۱٬۲۴۰</b><span>فرصت شغلی فعال</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="ic" style="background:#e0f2fe;color:#0369a1" id="ic-2"></div>
+      <div><b>+۸٬۵۰۰</b><span>کارجوی متخصص</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="ic" style="background:#ede9fe;color:#6d28d9" id="ic-3"></div>
+      <div><b>+۴۶۰</b><span>آزمایشگاه عضو</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="ic" style="background:#fef3c7;color:#92400e" id="ic-4"></div>
+      <div><b>+۲٬۱۰۰</b><span>استخدام موفق</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= CATEGORIES ================= -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>جستجو بر اساس بخش آزمایشگاهی</h2>
+        <p>فرصت‌های شغلی را در تخصص خودت پیدا کن</p>
+      </div>
+      <a class="more" href="jobs.html">همه فرصت‌ها ←</a>
+    </div>
+    <div class="cat-grid" id="cat-grid"></div>
+  </div>
+</section>
+
+<!-- ================= FEATURED JOBS ================= -->
+<section class="section alt">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>تازه‌ترین فرصت‌های شغلی</h2>
+        <p>آگهی‌های ویژه و فوری آزمایشگاه‌های عضو</p>
+      </div>
+      <a class="more" href="jobs.html">مشاهده همه ←</a>
+    </div>
+    <div class="job-grid" id="featured-jobs"></div>
+  </div>
+</section>
+
+<!-- ================= HOW IT WORKS ================= -->
+<section class="section">
+  <div class="container">
+    <div class="section-head" style="justify-content:center;text-align:center">
+      <div>
+        <h2>در ۳ قدم استخدام شو</h2>
+        <p>مسیر ساده از ساخت رزومه تا قرارداد</p>
+      </div>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="num">۱</div>
+        <h3>پروفایل حرفه‌ای بساز</h3>
+        <p>رزومه تخصصی آزمایشگاهی‌ات را با مهارت‌ها، دستگاه‌ها و سوابق کاری کامل کن.</p>
+      </div>
+      <div class="step-card">
+        <div class="num">۲</div>
+        <h3>فرصت مناسب را پیدا کن</h3>
+        <p>با فیلترهای تخصصی (بخش، شیفت، شهر، حقوق) دقیقاً همان شغلی که می‌خواهی را بیاب.</p>
+      </div>
+      <div class="step-card">
+        <div class="num">۳</div>
+        <h3>درخواست بده و استخدام شو</h3>
+        <p>با یک کلیک رزومه بفرست، وضعیت درخواستت را دنبال کن و به مصاحبه دعوت شو.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LABS ================= -->
+<section class="section alt">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>آزمایشگاه‌های عضو پلتفرم</h2>
+        <p>با برندهای معتبر حوزه آزمایشگاه همکار شو</p>
+      </div>
+      <a class="more" href="labs.html">همه آزمایشگاه‌ها ←</a>
+    </div>
+    <div class="lab-grid" id="home-labs"></div>
+  </div>
+</section>
+
+<!-- ================= MAGAZINE ================= -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>در آزمایشگاه چه می‌گذرد؟</h2>
+        <p>مجله تخصصی آیولب؛ بازار کار، علوم آزمایشگاهی و مسیر شغلی</p>
+      </div>
+      <a class="more" href="magazine.html">مجله آیولب ←</a>
+    </div>
+    <div class="content-grid" id="home-articles"></div>
+  </div>
+</section>
+
+<!-- ================= CTA ================= -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="cta-band">
+      <div>
+        <h2>آزمایشگاه هستید و نیرو می‌خواهید؟</h2>
+        <p>آگهی استخدام ثبت کنید، به بانک رزومه تخصصی دسترسی بگیرید و با تطبیق هوشمند، بهترین نیروها را سریع‌تر جذب کنید.</p>
+      </div>
+      <a href="login.html?role=employer" class="btn btn-lg">ثبت آگهی استخدام</a>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // stat icons
+  document.getElementById("ic-1").innerHTML = ICONS.briefcase;
+  document.getElementById("ic-2").innerHTML = ICONS.users;
+  document.getElementById("ic-3").innerHTML = ICONS.flask;
+  document.getElementById("ic-4").innerHTML = ICONS.shield;
+
+  // cities
+  const citySel = document.getElementById("city");
+  AIO_CITIES.forEach(c => citySel.insertAdjacentHTML("beforeend", `<option>${c}</option>`));
+
+  // categories
+  document.getElementById("cat-grid").innerHTML = AIO_DEPARTMENTS.map(d => {
+    const count = AIO_JOBS.filter(j => j.dept === d.id).length;
+    return `<a class="cat-card" href="jobs.html?dept=${d.id}">
+      <div class="ic" style="background:${d.bg};color:${d.color}">${ICONS[d.icon] || ICONS.flask}</div>
+      <b>${d.name}</b>
+      <span>${count.toLocaleString("fa-IR")} فرصت فعال</span>
+    </a>`;
+  }).join("");
+
+  // featured jobs (urgent+featured first)
+  const sorted = [...AIO_JOBS].sort((a, b) => (b.urgent - a.urgent) || (b.featured - a.featured) || (a.days - b.days));
+  document.getElementById("featured-jobs").innerHTML = sorted.slice(0, 6).map(jobCardHTML).join("");
+
+  // labs
+  document.getElementById("home-labs").innerHTML = AIO_LABS.slice(0, 6).map(labCardHTML).join("");
+
+  // articles
+  document.getElementById("home-articles").innerHTML = AIO_ARTICLES.slice(0, 3).map(a => `
+    <a class="content-card" href="magazine.html">
+      <div class="thumb" style="background:${a.bg};color:${a.color}">${ICONS[a.icon] || ICONS.doc}</div>
+      <div class="body">
+        <span class="cat">${a.cat}</span>
+        <h3>${a.title}</h3>
+        <div class="meta"><span>مطالعه ${a.time}</span><span>${a.date}</span></div>
+      </div>
+    </a>`).join("");
+});
+
+function goSearch(e) {
+  e.preventDefault();
+  const q = document.getElementById("q").value.trim();
+  const c = document.getElementById("city").value;
+  const p = new URLSearchParams();
+  if (q) p.set("q", q);
+  if (c) p.set("city", c);
+  location.href = "jobs.html" + (p.toString() ? "?" + p.toString() : "");
+}
+</script>
+</body>
+</html>

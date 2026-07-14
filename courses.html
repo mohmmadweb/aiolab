@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آموزش و رشد حرفه‌ای | آیولب</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="courses.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / آموزش و رشد حرفه‌ای</div>
+    <h1>آموزش و رشد حرفه‌ای 🎓</h1>
+    <p>دوره‌های تخصصی، آزمون‌های مهارت و گواهی‌هایی که رزومه‌ات را متمایز می‌کنند</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:36px">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>دوره‌های آموزشی</h2>
+        <p>با گذراندن دوره و دریافت گواهی، شانس استخدامت را چند برابر کن</p>
+      </div>
+    </div>
+    <div class="content-grid" id="courses"></div>
+  </div>
+</section>
+
+<section class="section alt">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>آزمون‌های مهارت و نشان تخصصی</h2>
+        <p>در آزمون شرکت کن، نشان بگیر و به کارفرما ثابت کن که بلدی</p>
+      </div>
+    </div>
+    <div class="cat-grid" id="exams"></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="cta-band">
+      <div>
+        <h2>مسیر ارتقاء شغلی خودت را بساز</h2>
+        <p>شغل هدفت را انتخاب کن تا سیستم فاصله مهارتی‌ات را تحلیل کند و دوره‌ها و گواهی‌های لازم را پیشنهاد دهد. (نسخه ۳ پلتفرم)</p>
+      </div>
+      <a href="dashboard.html" class="btn btn-lg">تعیین شغل هدف</a>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("courses").innerHTML = AIO_COURSES.map(c => `
+    <a class="content-card" href="#" onclick="toast('ثبت‌نام دوره در نسخه بعدی فعال می‌شود (دمو)');return false">
+      <div class="thumb" style="background:${c.bg};color:${c.color}">${ICONS.grad}</div>
+      <div class="body">
+        <span class="cat">${c.cat} ${c.cert ? "· دارای گواهی" : ""}</span>
+        <h3>${c.title}</h3>
+        <div class="meta">
+          <span>${c.hours.toLocaleString("fa-IR")} ساعت · ${c.students.toLocaleString("fa-IR")} فراگیر</span>
+          <span class="price">${c.price}</span>
+        </div>
+      </div>
+    </a>`).join("");
+
+  const exams = [
+    ["نمونه‌گیری و فلبوتومی", "syringe", "#f59e0b", "#fef3c7"],
+    ["هماتولوژی", "drop", "#f43f5e", "#ffe4e6"],
+    ["بیوشیمی بالینی", "flask", "#0d9488", "#ccfbf1"],
+    ["میکروب‌شناسی", "microbe", "#8b5cf6", "#ede9fe"],
+    ["کنترل کیفیت", "shield", "#059669", "#d1fae5"],
+    ["ایمنی آزمایشگاه", "shield", "#0ea5e9", "#e0f2fe"],
+    ["کار با LIS", "machine", "#6366f1", "#e0e7ff"],
+    ["تفسیر نتایج", "doc", "#115e59", "#ccfbf1"]
+  ];
+  document.getElementById("exams").innerHTML = exams.map(([name, icon, color, bg]) => `
+    <a class="cat-card" href="#" onclick="toast('آزمون‌های مهارت در نسخه بعدی (دمو)');return false">
+      <div class="ic" style="background:${bg};color:${color}">${ICONS[icon]}</div>
+      <b>آزمون ${name}</b>
+      <span>نشان تخصصی + گواهی</span>
+    </a>`).join("");
+});
+</script>
+</body>
+</html>

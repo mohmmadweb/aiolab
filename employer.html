@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل کارفرما | آیولب</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>body{background:var(--navy-50)}</style>
+</head>
+<body data-page="employer.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="container dash-layout">
+  <!-- Sidebar -->
+  <aside class="dash-side">
+    <div class="dash-profile">
+      <div class="avatar" id="p-avatar" style="border-radius:16px">آ</div>
+      <b id="p-name">...</b>
+      <span>کارفرمای تأییدشده ✔️</span>
+    </div>
+    <nav class="dash-nav" id="dash-nav">
+      <a href="#overview" class="active" data-sec="overview"></a>
+      <a href="#post" data-sec="post"></a>
+      <a href="#jobs" data-sec="jobs"></a>
+      <a href="#applicants" data-sec="applicants"></a>
+      <a href="#resumes" data-sec="resumes"></a>
+      <a href="#pricing" data-sec="pricing"></a>
+      <button class="danger" onclick="Auth.logout()"></button>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="dash-main">
+
+    <!-- ===== Overview ===== -->
+    <section id="sec-overview" class="active">
+      <h1 class="dash-title">پنل کارفرما</h1>
+      <div class="dash-cards">
+        <div class="dash-stat"><b>۳</b><span>آگهی فعال</span></div>
+        <div class="dash-stat"><b>۱۲۲</b><span>درخواست دریافتی</span> <span class="trend">▲ ۱۸٪</span></div>
+        <div class="dash-stat"><b>۴٬۶۳۰</b><span>بازدید آگهی‌ها (۳۰ روز)</span></div>
+        <div class="dash-stat"><b>۲</b><span>استخدام موفق</span></div>
+      </div>
+      <div class="progress-card">
+        <b style="font-size:16px">اشتراک فعلی: پلن حرفه‌ای</b>
+        <div class="bar"><i style="width:60%"></i></div>
+        <small>۶ آگهی از ۱۰ آگهی ماهانه استفاده شده · اعتبار مشاهده رزومه: ۴۴ از ۱۰۰ · تمدید: ۱۴۰۵/۰۴/۲۰</small>
+      </div>
+      <h2 style="font-size:17px;margin:8px 0 14px">متقاضیان جدید <span class="chip teal">رتبه‌بندی با تطبیق هوشمند</span></h2>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>متقاضی</th><th>شهر</th><th>تطابق</th><th>وضعیت</th><th></th></tr></thead>
+          <tbody id="applicants-mini"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== Post job ===== -->
+    <section id="sec-post">
+      <h1 class="dash-title">ثبت آگهی استخدام</h1>
+      <div class="panel">
+        <div class="form-grid">
+          <div class="form-field full"><label>عنوان شغلی *</label><input type="text" placeholder="مثلاً: کارشناس هماتولوژی"></div>
+          <div class="form-field"><label>بخش آزمایشگاهی *</label><select id="pj-dept"></select></div>
+          <div class="form-field"><label>شهر *</label><select id="pj-city"></select></div>
+          <div class="form-field"><label>نوع همکاری</label><select><option>تمام‌وقت</option><option>پاره‌وقت</option><option>شیفتی</option><option>موقت</option><option>قراردادی</option></select></div>
+          <div class="form-field"><label>شیفت کاری</label><select><option>صبح</option><option>عصر</option><option>شب</option><option>چرخشی</option></select></div>
+          <div class="form-field"><label>حداقل سابقه</label><select><option>بدون نیاز به سابقه</option><option>۱ سال</option><option>۲ سال</option><option>۳ سال</option><option>۵ سال +</option></select></div>
+          <div class="form-field"><label>حقوق پیشنهادی</label><input type="text" placeholder="مثلاً: ۱۸ تا ۲۴ میلیون تومان"></div>
+          <div class="form-field full"><label>شرح موقعیت و شرایط احراز</label><textarea rows="5" placeholder="شرح وظایف، مهارت‌های ضروری، دستگاه‌ها، مدرک تحصیلی و..."></textarea></div>
+          <div class="form-field full"><label>مهارت‌های موردنیاز (با ویرگول جدا کنید)</label><input type="text" placeholder="مثلاً: سل‌کانتر Sysmex، کنترل کیفیت، LIS"></div>
+        </div>
+        <div style="background:var(--teal-50);border:1px solid var(--teal-100);border-radius:10px;padding:16px;margin:8px 0 20px">
+          <b style="font-size:14px;color:var(--teal-800)">نوع آگهی</b>
+          <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap">
+            <label class="check-item"><input type="radio" name="plan" checked> پایه (رایگان در ماه اول)</label>
+            <label class="check-item"><input type="radio" name="plan"> ⭐ ویژه — نمایش در صدر نتایج</label>
+            <label class="check-item"><input type="radio" name="plan"> 🔥 فوری — اطلاع‌رسانی پیامکی به کارجویان آماده‌به‌کار</label>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-lg" onclick="toast('آگهی ثبت شد و پس از تأیید مدیر منتشر می‌شود ✓ (دمو)')">ثبت و ارسال برای تأیید</button>
+      </div>
+    </section>
+
+    <!-- ===== My jobs ===== -->
+    <section id="sec-jobs">
+      <h1 class="dash-title">آگهی‌های من</h1>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>عنوان</th><th>نوع</th><th>بازدید</th><th>متقاضی</th><th>انقضا</th><th>وضعیت</th><th></th></tr></thead>
+          <tbody id="jobs-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== Applicants ===== -->
+    <section id="sec-applicants">
+      <h1 class="dash-title">مدیریت متقاضیان — کارشناس هماتولوژی</h1>
+      <p style="color:var(--navy-500);font-size:14px;margin-bottom:16px">قیف استخدام: دریافت رزومه ← بررسی ← مصاحبه ← پیشنهاد همکاری ← استخدام</p>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>متقاضی</th><th>شهر</th><th>تطابق هوشمند</th><th>وضعیت</th><th>اقدام</th></tr></thead>
+          <tbody id="applicants-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== Resume bank ===== -->
+    <section id="sec-resumes">
+      <h1 class="dash-title">بانک رزومه</h1>
+      <div class="panel" style="margin-bottom:16px">
+        <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr">
+          <div class="form-field"><label>مهارت / عنوان</label><input type="text" placeholder="مثلاً: هماتولوژی"></div>
+          <div class="form-field"><label>شهر</label><select id="rb-city"></select></div>
+          <div class="form-field"><label>وضعیت</label><select><option>همه</option><option>فقط آماده به کار</option><option>دارای نشان مهارت</option></select></div>
+        </div>
+        <button class="btn btn-primary" onclick="toast('جستجو انجام شد (دمو)')">جستجوی رزومه</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>کارجو</th><th>عنوان</th><th>شهر</th><th>وضعیت</th><th></th></tr></thead>
+          <tbody id="resumes-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== Pricing ===== -->
+    <section id="sec-pricing">
+      <h1 class="dash-title">تعرفه‌ها و اشتراک</h1>
+      <div class="pricing-grid">
+        <div class="price-card">
+          <h3>اقتصادی</h3>
+          <div class="price">۱٬۵۰۰٬۰۰۰</div>
+          <div class="per">تومان / ماهانه</div>
+          <ul>
+            <li>۳ آگهی در ماه</li>
+            <li>مشاهده ۲۰ رزومه</li>
+            <li>پشتیبانی ایمیلی</li>
+          </ul>
+          <button class="btn btn-outline btn-block" onclick="toast('پرداخت در نسخه متصل به درگاه (دمو)')">انتخاب پلن</button>
+        </div>
+        <div class="price-card featured">
+          <span class="plan-badge">پیشنهاد آیولب</span>
+          <h3>حرفه‌ای</h3>
+          <div class="price">۳٬۹۰۰٬۰۰۰</div>
+          <div class="per">تومان / ماهانه</div>
+          <ul>
+            <li>۱۰ آگهی در ماه + ۲ آگهی ویژه</li>
+            <li>مشاهده ۱۰۰ رزومه + اطلاعات تماس</li>
+            <li>تطبیق هوشمند و رتبه‌بندی متقاضیان</li>
+            <li>گزارش عملکرد آگهی</li>
+          </ul>
+          <button class="btn btn-primary btn-block" onclick="toast('پرداخت در نسخه متصل به درگاه (دمو)')">انتخاب پلن</button>
+        </div>
+        <div class="price-card">
+          <h3>سازمانی</h3>
+          <div class="price">تماس بگیرید</div>
+          <div class="per">ویژه بیمارستان‌ها و زنجیره‌ای‌ها</div>
+          <ul>
+            <li>آگهی نامحدود</li>
+            <li>دسترسی کامل بانک رزومه</li>
+            <li>معرفی نیروی گزینش‌شده</li>
+            <li>گزارش تحلیلی بازار کار</li>
+            <li>مدیر حساب اختصاصی</li>
+          </ul>
+          <button class="btn btn-outline btn-block" onclick="toast('کارشناسان ما با شما تماس می‌گیرند (دمو)')">درخواست مشاوره</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const NAV_ITEMS = [
+  ["overview", "پیشخوان", "home"],
+  ["post", "ثبت آگهی جدید", "plus"],
+  ["jobs", "آگهی‌های من", "briefcase"],
+  ["applicants", "متقاضیان", "users"],
+  ["resumes", "بانک رزومه", "search"],
+  ["pricing", "تعرفه و اشتراک", "chart"]
+];
+
+document.addEventListener("DOMContentLoaded", () => {
+  const u = requireLogin("employer");
+  if (!u) return;
+  document.getElementById("p-avatar").textContent = u.name.charAt(0);
+  document.getElementById("p-name").textContent = u.name;
+
+  const nav = document.getElementById("dash-nav");
+  nav.querySelectorAll("a").forEach((a, i) => {
+    const [sec, label, icon] = NAV_ITEMS[i];
+    a.innerHTML = ICONS[icon] + " " + label;
+    a.onclick = e => { e.preventDefault(); showSec(sec); history.replaceState(null, "", "#" + sec); };
+  });
+  nav.querySelector("button").innerHTML = ICONS.logout + " خروج از حساب";
+  if (location.hash) showSec(location.hash.slice(1));
+
+  // post-job selects
+  const deptSel = document.getElementById("pj-dept");
+  AIO_DEPARTMENTS.forEach(d => deptSel.insertAdjacentHTML("beforeend", `<option>${d.name}</option>`));
+  const citySel = document.getElementById("pj-city");
+  const rbCity = document.getElementById("rb-city");
+  rbCity.insertAdjacentHTML("beforeend", "<option>همه شهرها</option>");
+  AIO_CITIES.forEach(c => { citySel.insertAdjacentHTML("beforeend", `<option>${c}</option>`); rbCity.insertAdjacentHTML("beforeend", `<option>${c}</option>`); });
+
+  // my jobs
+  document.getElementById("jobs-body").innerHTML = AIO_EMPLOYER_JOBS.map(j => `
+    <tr>
+      <td><b>${j.title}</b></td><td>${j.plan}</td>
+      <td>${j.views.toLocaleString("fa-IR")}</td><td>${j.applicants.toLocaleString("fa-IR")}</td>
+      <td>${j.expire}</td><td><span class="status ${j.status}">${j.statusText}</span></td>
+      <td><button class="btn btn-sm btn-ghost" onclick="toast('ویرایش آگهی (دمو)')">ویرایش</button></td>
+    </tr>`).join("");
+
+  // applicants
+  const rows = AIO_APPLICANTS.map(a => `
+    <tr>
+      <td><div style="display:flex;gap:10px;align-items:center">
+        <div style="width:36px;height:36px;border-radius:50%;background:${a.color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">${a.name.charAt(0)}</div>
+        <div><b>${a.name}</b><div style="font-size:12px;color:var(--navy-400)">${a.title}</div></div>
+      </div></td>
+      <td>${a.city}</td>
+      <td><b style="color:${a.match >= 85 ? "var(--teal-700)" : a.match >= 75 ? "#92400e" : "var(--navy-500)"}">${a.match.toLocaleString("fa-IR")}٪</b></td>
+      <td><span class="status ${a.status}">${a.statusText}</span></td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-sm btn-outline" onclick="toast('رزومه باز شد (دمو)')">رزومه</button>
+        <button class="btn btn-sm btn-primary" onclick="toast('دعوت به مصاحبه ارسال شد ✓ (دمو)')">دعوت</button>
+      </td>
+    </tr>`).join("");
+  document.getElementById("applicants-body").innerHTML = rows;
+  document.getElementById("applicants-mini").innerHTML = AIO_APPLICANTS.slice(0, 3).map(a => `
+    <tr><td><b>${a.name}</b></td><td>${a.city}</td><td><b>${a.match.toLocaleString("fa-IR")}٪</b></td>
+    <td><span class="status ${a.status}">${a.statusText}</span></td>
+    <td><button class="btn btn-sm btn-outline" onclick="showSec('applicants')">جزئیات</button></td></tr>`).join("");
+
+  // resume bank
+  const seekers = [
+    ["مینا رحیمی", "کارشناس بیوشیمی — ۵ سال", "تهران", "آماده به کار", "#0d9488"],
+    ["پارسا ملکی", "تکنسین نمونه‌گیری — ۲ سال", "کرج", "آماده به کار", "#0ea5e9"],
+    ["شیدا کاویانی", "کارشناس میکروب‌شناسی — ۳ سال", "تهران", "شاغل", "#8b5cf6"],
+    ["آرش نعمتی", "کارشناس QC — ۷ سال", "اصفهان", "آماده به کار", "#f59e0b"],
+    ["نازنین شریفی", "کارشناس ژنتیک — ۱ سال", "تهران", "شاغل", "#f43f5e"]
+  ];
+  document.getElementById("resumes-body").innerHTML = seekers.map(([n, t, c, s, col]) => `
+    <tr>
+      <td><div style="display:flex;gap:10px;align-items:center">
+        <div style="width:36px;height:36px;border-radius:50%;background:${col};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">${n.charAt(0)}</div>
+        <b>${n}</b></div></td>
+      <td>${t}</td><td>${c}</td>
+      <td><span class="status ${s === "آماده به کار" ? "active" : "expired"}">${s}</span></td>
+      <td><button class="btn btn-sm btn-outline" onclick="toast('مشاهده رزومه کامل — از اعتبار پلن شما کسر می‌شود (دمو)')">مشاهده رزومه</button></td>
+    </tr>`).join("");
+});
+
+function showSec(sec) {
+  document.querySelectorAll(".dash-main > section").forEach(s => s.classList.remove("active"));
+  const el = document.getElementById("sec-" + sec);
+  if (el) el.classList.add("active");
+  document.querySelectorAll("#dash-nav a").forEach(a => a.classList.toggle("active", a.dataset.sec === sec));
+  window.scrollTo({ top: 0 });
+}
+</script>
+</body>
+</html>

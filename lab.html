@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پروفایل آزمایشگاه | آیولب</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="labs.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+    <div class="job-logo" id="l-logo" style="width:84px;height:84px;font-size:32px;border-radius:20px"></div>
+    <div style="flex:1">
+      <div class="breadcrumb"><a href="index.html">خانه</a> / <a href="labs.html">آزمایشگاه‌ها</a></div>
+      <h1 id="l-name">...</h1>
+      <p id="l-sub"></p>
+    </div>
+    <button class="btn btn-outline" onclick="toast('دنبال شد ✓ از این پس آگهی‌های جدید این مجموعه را در اعلان‌ها می‌بینید')">+ دنبال کردن</button>
+  </div>
+</div>
+
+<div class="container detail-layout">
+  <main>
+    <div class="panel">
+      <h2>درباره مجموعه</h2>
+      <p id="l-about"></p>
+      <h3>مزایای همکاری</h3>
+      <div class="job-meta" id="l-perks"></div>
+    </div>
+    <div class="panel">
+      <h2>فرصت‌های شغلی فعال <span id="l-count" class="chip teal" style="font-size:12px"></span></h2>
+      <div class="job-list" id="l-jobs"></div>
+    </div>
+  </main>
+  <aside>
+    <div class="side-card">
+      <h2 style="font-size:16px;margin-bottom:10px">اطلاعات مجموعه</h2>
+      <div class="row"><span>نوع مرکز</span><b id="s-type"></b></div>
+      <div class="row"><span>شهر</span><b id="s-city"></b></div>
+      <div class="row"><span>تعداد پرسنل</span><b id="s-staff"></b></div>
+      <div class="row"><span>سال تأسیس</span><b id="s-founded"></b></div>
+      <div class="row"><span>وضعیت احراز</span><b id="s-verified"></b></div>
+      <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="msgLab()">ارسال پیام به آزمایشگاه</button>
+    </div>
+  </aside>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const L = AIO_LABS.find(l => l.id === (parseInt(qs("id")) || 1)) || AIO_LABS[0];
+  document.title = L.name + " | آیولب";
+  const logo = document.getElementById("l-logo");
+  logo.style.background = L.color;
+  logo.textContent = L.name.replace("آزمایشگاه ", "").charAt(0);
+  document.getElementById("l-name").textContent = L.name;
+  document.getElementById("l-sub").textContent = L.type + " · " + L.city;
+  document.getElementById("l-about").textContent = L.about;
+  document.getElementById("l-perks").innerHTML = L.perks.map(p => `<span class="chip teal">${p}</span>`).join("");
+  const jobs = AIO_JOBS.filter(j => j.labId === L.id);
+  document.getElementById("l-count").textContent = jobs.length.toLocaleString("fa-IR") + " آگهی";
+  document.getElementById("l-jobs").innerHTML = jobs.length
+    ? jobs.map(jobCardHTML).join("")
+    : '<p style="color:var(--navy-400);font-size:14px">در حال حاضر آگهی فعالی ندارد.</p>';
+  document.getElementById("s-type").textContent = L.type;
+  document.getElementById("s-city").textContent = L.city;
+  document.getElementById("s-staff").textContent = L.staff.toLocaleString("fa-IR") + " نفر";
+  document.getElementById("s-founded").textContent = L.founded.toLocaleString("fa-IR").replace(/٬/g, "");
+  document.getElementById("s-verified").textContent = L.verified ? "✔️ تأییدشده" : "در انتظار احراز";
+});
+function msgLab() {
+  if (!Auth.user) { location.href = "login.html"; return; }
+  toast("پیام‌رسانی داخلی در نسخه بعدی فعال می‌شود (دمو)");
+}
+</script>
+</body>
+</html>

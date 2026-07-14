@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>جامعه آزمایشگاهی | آیولب</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="community.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / جامعه آزمایشگاهی</div>
+    <h1>جامعه آزمایشگاهی آیولب 🧬</h1>
+    <p>شبکه اجتماعی تخصصی پرسنل آزمایشگاه — تجربه به اشتراک بگذار، ارتباط بساز، دیده شو</p>
+  </div>
+</div>
+
+<div class="container feed-layout">
+  <main>
+    <!-- new post -->
+    <div class="post-card">
+      <div style="display:flex;gap:12px">
+        <div class="avatar" id="me-avatar" style="width:44px;height:44px;border-radius:50%;background:var(--teal-600);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0">؟</div>
+        <textarea id="new-post" placeholder="تجربه، سؤال یا نکته‌ای از دنیای آزمایشگاه بنویس..." style="flex:1;border:1.5px solid var(--navy-200);border-radius:12px;padding:12px 14px;font-size:14px;resize:vertical;min-height:64px;outline:none"></textarea>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:12px">
+        <button class="btn btn-primary btn-sm" onclick="publishPost()">انتشار پست</button>
+      </div>
+    </div>
+    <div id="feed"></div>
+  </main>
+
+  <aside>
+    <div class="side-card" style="margin-bottom:18px">
+      <h2 style="font-size:16px;margin-bottom:14px">گروه‌های تخصصی</h2>
+      <div id="groups"></div>
+    </div>
+    <div class="side-card" style="position:static">
+      <h2 style="font-size:16px;margin-bottom:14px">افراد پیشنهادی</h2>
+      <div id="people"></div>
+    </div>
+  </aside>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const u = Auth.user;
+  if (u) document.getElementById("me-avatar").textContent = u.name.charAt(0);
+  renderFeed();
+
+  document.getElementById("groups").innerHTML = [
+    ["هماتولوژیست‌های ایران", "۲٬۴۰۰ عضو"],
+    ["تازه‌کارهای آزمایشگاه", "۵٬۱۰۰ عضو"],
+    ["مسئولین فنی", "۸۹۰ عضو"],
+    ["بحث تجهیزات و LIS", "۱٬۷۰۰ عضو"]
+  ].map(([n, m]) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--navy-100)">
+      <div><b style="font-size:13.5px;color:var(--navy-900)">${n}</b><div style="font-size:12px;color:var(--navy-400)">${m}</div></div>
+      <button class="btn btn-outline btn-sm" onclick="toast('به گروه پیوستید ✓')">عضویت</button>
+    </div>`).join("");
+
+  document.getElementById("people").innerHTML = [
+    ["رضا کاظمی", "سوپروایزر آزمایشگاه", "#0d9488"],
+    ["الهام صادقی", "کارشناس ژنتیک", "#8b5cf6"],
+    ["محمد قاسمی", "کارشناس QC", "#f59e0b"]
+  ].map(([n, r, c]) => `
+    <div style="display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px dashed var(--navy-100)">
+      <div style="width:38px;height:38px;border-radius:50%;background:${c};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">${n.charAt(0)}</div>
+      <div style="flex:1"><b style="font-size:13.5px;color:var(--navy-900)">${n}</b><div style="font-size:12px;color:var(--navy-400)">${r}</div></div>
+      <button class="btn btn-ghost btn-sm" style="color:var(--teal-700)" onclick="toast('درخواست ارتباط ارسال شد ✓')">+ ارتباط</button>
+    </div>`).join("");
+});
+
+function renderFeed() {
+  document.getElementById("feed").innerHTML = AIO_POSTS.map(p => `
+    <div class="post-card">
+      <div class="author">
+        <div class="avatar" style="background:${p.color}">${p.author.charAt(0)}</div>
+        <div><b>${p.author}</b><span>${p.role} · ${p.time}</span></div>
+      </div>
+      <div class="body"><p>${p.text}</p></div>
+      <div class="actions">
+        <button onclick="likePost(this)" data-likes="${p.likes}">${ICONS.heart} <span>${p.likes.toLocaleString("fa-IR")}</span></button>
+        <button onclick="toast('نظرات در نسخه بعدی (دمو)')">${ICONS.comment} <span>${p.comments.toLocaleString("fa-IR")}</span></button>
+        <button onclick="toast('لینک پست کپی شد ✓')">${ICONS.share} <span>اشتراک</span></button>
+      </div>
+    </div>`).join("");
+}
+
+function likePost(btn) {
+  const liked = btn.classList.toggle("liked");
+  const n = parseInt(btn.dataset.likes) + (liked ? 1 : 0);
+  btn.querySelector("span").textContent = n.toLocaleString("fa-IR");
+}
+
+function publishPost() {
+  const u = Auth.user;
+  if (!u) { location.href = "login.html"; return; }
+  const txt = document.getElementById("new-post").value.trim();
+  if (!txt) { toast("متنی بنویسید!"); return; }
+  AIO_POSTS.unshift({ author: u.name, role: u.role === "employer" ? "کارفرما" : "کارجوی آزمایشگاه", color: "#0d9488", time: "هم‌اکنون", likes: 0, comments: 0, text: txt });
+  document.getElementById("new-post").value = "";
+  renderFeed();
+  toast("پست شما منتشر شد ✓");
+}
+</script>
+</body>
+</html>

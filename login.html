@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ورود | آیولب</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="login.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="auth-wrap">
+  <div class="auth-form-wrap">
+    <form class="auth-form" onsubmit="doLogin(event)">
+      <h1>ورود به آیولب</h1>
+      <p class="sub">به پلتفرم تخصصی کاریابی آزمایشگاهی خوش آمدید</p>
+
+      <div class="demo-note">
+        🧪 <b>حالت دمو:</b> این نسخه پروتوتایپ است و به سرور متصل نیست. با هر ایمیل و رمزی می‌توانید وارد شوید.
+      </div>
+
+      <div class="role-switch">
+        <button type="button" id="rb-seeker" class="active" onclick="setRole('seeker')">👤 کارجو هستم</button>
+        <button type="button" id="rb-employer" onclick="setRole('employer')">🏥 کارفرما هستم</button>
+      </div>
+
+      <div class="form-field">
+        <label>ایمیل یا شماره موبایل</label>
+        <input type="text" id="email" placeholder="example@mail.com" required>
+      </div>
+      <div class="form-field">
+        <label>رمز عبور</label>
+        <input type="password" id="pass" placeholder="••••••••" required>
+      </div>
+
+      <button class="btn btn-primary btn-block btn-lg" type="submit">ورود</button>
+      <div class="alt-link">حساب کاربری ندارید؟ <a href="register.html" id="reg-link">ثبت‌نام کنید</a></div>
+    </form>
+  </div>
+
+  <div class="auth-art">
+    <svg viewBox="0 0 420 360" fill="none">
+      <circle cx="210" cy="180" r="140" fill="#ffffff" opacity=".08"/>
+      <rect x="90" y="250" width="240" height="16" rx="8" fill="#0f3d3e"/>
+      <g>
+        <rect x="122" y="110" width="36" height="6" rx="3" fill="#99f6e4"/>
+        <path d="M128 116h24v96a12 12 0 0 1-24 0v-96z" fill="#f0fdfa" opacity=".9"/>
+        <path d="M130 160h20v52a10 10 0 0 1-20 0v-52z" fill="#fb7185"/>
+      </g>
+      <g>
+        <rect x="182" y="80" width="36" height="6" rx="3" fill="#99f6e4"/>
+        <path d="M188 86h24v126a12 12 0 0 1-24 0V86z" fill="#f0fdfa" opacity=".9"/>
+        <path d="M190 140h20v72a10 10 0 0 1-20 0v-72z" fill="#2dd4bf"/>
+      </g>
+      <g>
+        <rect x="242" y="110" width="36" height="6" rx="3" fill="#99f6e4"/>
+        <path d="M248 116h24v96a12 12 0 0 1-24 0v-96z" fill="#f0fdfa" opacity=".9"/>
+        <path d="M250 172h20v40a10 10 0 0 1-20 0v-40z" fill="#fbbf24"/>
+      </g>
+      <circle cx="200" cy="56" r="4" fill="#5eead4" opacity=".7"/>
+      <circle cx="214" cy="42" r="2.6" fill="#5eead4" opacity=".5"/>
+    </svg>
+    <h2>جامعه تخصصی آزمایشگاهیان ایران</h2>
+    <p>بیش از ۸٬۵۰۰ متخصص و ۴۶۰ آزمایشگاه در آیولب به هم متصل شده‌اند.</p>
+  </div>
+</div>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+let role = "seeker";
+document.addEventListener("DOMContentLoaded", () => {
+  if (qs("role") === "employer") setRole("employer");
+});
+function setRole(r) {
+  role = r;
+  document.getElementById("rb-seeker").classList.toggle("active", r === "seeker");
+  document.getElementById("rb-employer").classList.toggle("active", r === "employer");
+  document.getElementById("reg-link").href = "register.html" + (r === "employer" ? "?role=employer" : "");
+}
+function doLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById("email").value.trim();
+  const name = role === "employer" ? "آزمایشگاه نور" : (email.split("@")[0] || "کاربر آیولب");
+  Auth.login(role === "employer" ? name : "علی رضایی", role === "employer" ? "employer" : "seeker");
+  location.href = role === "employer" ? "employer.html" : "dashboard.html";
+}
+</script>
+</body>
+</html>

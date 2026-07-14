@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مجله آیولب | در آزمایشگاه چه می‌گذرد؟</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="magazine.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / مجله آیولب</div>
+    <h1>در آزمایشگاه چه می‌گذرد؟ 🔬</h1>
+    <p>مجله تخصصی آیولب — تحلیل بازار کار، علوم آزمایشگاهی، تجهیزات و مسیر شغلی</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:36px">
+  <div class="container">
+    <div class="toolbar" style="display:flex;gap:10px;margin-bottom:26px;flex-wrap:wrap" id="cat-filter"></div>
+    <div class="content-grid" id="articles"></div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="cta-band">
+      <div>
+        <h2>شما هم بنویسید!</h2>
+        <p>تجربه‌های شغلی، نکات فنی و تحلیل‌های خودتان را با جامعه آزمایشگاهی به اشتراک بگذارید و برند شخصی‌تان را بسازید.</p>
+      </div>
+      <a href="community.html" class="btn btn-lg">انتشار مطلب</a>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+let activeCat = "";
+document.addEventListener("DOMContentLoaded", () => {
+  const cats = ["", ...new Set(AIO_ARTICLES.map(a => a.cat))];
+  document.getElementById("cat-filter").innerHTML = cats.map(c =>
+    `<button class="btn btn-sm ${c === activeCat ? "btn-primary" : "btn-ghost"}" style="border:1px solid var(--navy-200)" onclick="setCat('${c}')">${c || "همه مطالب"}</button>`).join("");
+  render();
+});
+function setCat(c) { activeCat = c;
+  document.querySelectorAll("#cat-filter button").forEach(b => {
+    b.className = "btn btn-sm " + ((b.textContent === (c || "همه مطالب")) ? "btn-primary" : "btn-ghost");
+    b.style.border = "1px solid var(--navy-200)";
+  });
+  render();
+}
+function render() {
+  const list = AIO_ARTICLES.filter(a => !activeCat || a.cat === activeCat);
+  document.getElementById("articles").innerHTML = list.map(a => `
+    <a class="content-card" href="#" onclick="toast('صفحه مقاله در نسخه بعدی (دمو)');return false">
+      <div class="thumb" style="background:${a.bg};color:${a.color}">${ICONS[a.icon] || ICONS.doc}</div>
+      <div class="body">
+        <span class="cat">${a.cat}</span>
+        <h3>${a.title}</h3>
+        <div class="meta"><span>مطالعه ${a.time}</span><span>${a.date}</span></div>
+      </div>
+    </a>`).join("");
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>جزئیات فرصت شغلی | آیولب</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="jobs.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / <a href="jobs.html">فرصت‌های شغلی</a> / <span id="bc-title">...</span></div>
+    <h1 id="j-title">...</h1>
+    <p id="j-sub">...</p>
+  </div>
+</div>
+
+<div class="container detail-layout">
+  <main>
+    <div class="panel">
+      <h2>شرح موقعیت شغلی</h2>
+      <p id="j-desc"></p>
+      <h3>شرایط احراز</h3>
+      <ul class="bullets" id="j-reqs"></ul>
+      <h3>مهارت‌های موردنیاز</h3>
+      <div class="job-meta" id="j-skills"></div>
+    </div>
+
+    <div class="panel">
+      <h2>درباره کارفرما</h2>
+      <div style="display:flex;gap:14px;align-items:center;margin-bottom:12px">
+        <div class="job-logo" id="l-logo"></div>
+        <div>
+          <b id="l-name" style="font-size:16px;color:var(--navy-900)"></b>
+          <div id="l-type" style="font-size:13px;color:var(--navy-500)"></div>
+        </div>
+      </div>
+      <p id="l-about"></p>
+      <div class="job-meta" id="l-perks" style="margin-top:14px"></div>
+      <a id="l-link" href="#" class="btn btn-outline btn-sm" style="margin-top:16px">مشاهده پروفایل آزمایشگاه</a>
+    </div>
+
+    <div class="panel">
+      <h2>فرصت‌های مشابه</h2>
+      <div class="job-grid" id="similar" style="grid-template-columns:1fr 1fr"></div>
+    </div>
+  </main>
+
+  <aside>
+    <div class="side-card">
+      <div class="match-ring" id="match-box" style="display:none">
+        <div class="ring" id="match-ring"><i id="match-val"></i></div>
+        <div>
+          <b>میزان تطابق شما با این آگهی</b>
+          <small>بر اساس مهارت‌ها و سوابق پروفایل شما (دمو)</small>
+        </div>
+      </div>
+      <div class="row"><span>نوع همکاری</span><b id="s-type"></b></div>
+      <div class="row"><span>شیفت کاری</span><b id="s-shift"></b></div>
+      <div class="row"><span>شهر</span><b id="s-city"></b></div>
+      <div class="row"><span>حقوق</span><b id="s-salary"></b></div>
+      <div class="row"><span>سابقه کار</span><b id="s-exp"></b></div>
+      <div class="row"><span>مدرک تحصیلی</span><b id="s-degree"></b></div>
+      <div class="row"><span>تاریخ انتشار</span><b id="s-date"></b></div>
+      <button class="btn btn-primary btn-block btn-lg" style="margin-top:18px" onclick="applyJob()">ارسال درخواست همکاری</button>
+      <button class="btn btn-ghost btn-block" style="margin-top:10px" onclick="toast('آگهی در نشان‌شده‌ها ذخیره شد ✓')">🔖 ذخیره آگهی</button>
+    </div>
+  </aside>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+let J;
+document.addEventListener("DOMContentLoaded", () => {
+  const id = parseInt(qs("id")) || 1;
+  J = AIO_JOBS.find(j => j.id === id) || AIO_JOBS[0];
+  const L = lab(J.labId), D = dept(J.dept);
+
+  document.title = J.title + " | آیولب";
+  document.getElementById("bc-title").textContent = J.title;
+  document.getElementById("j-title").textContent = J.title;
+  document.getElementById("j-sub").innerHTML = `${L.name} · ${J.city} · <span class="chip" style="background:${D.bg};color:${D.color}">${D.name}</span>`;
+  document.getElementById("j-desc").textContent = J.desc;
+  document.getElementById("j-reqs").innerHTML = J.requirements.map(r => `<li>${r}</li>`).join("");
+  document.getElementById("j-skills").innerHTML = J.skills.map(s => `<span class="chip teal">${s}</span>`).join("");
+
+  document.getElementById("l-logo").style.background = L.color;
+  document.getElementById("l-logo").textContent = L.name.replace("آزمایشگاه ", "").charAt(0);
+  document.getElementById("l-name").textContent = L.name;
+  document.getElementById("l-type").textContent = L.type + " · " + L.city;
+  document.getElementById("l-about").textContent = L.about;
+  document.getElementById("l-perks").innerHTML = L.perks.map(p => `<span class="chip">${p}</span>`).join("");
+  document.getElementById("l-link").href = "lab.html?id=" + L.id;
+
+  document.getElementById("s-type").textContent = J.type;
+  document.getElementById("s-shift").textContent = J.shift;
+  document.getElementById("s-city").textContent = J.city;
+  document.getElementById("s-salary").textContent = J.salary;
+  document.getElementById("s-exp").textContent = J.experience;
+  document.getElementById("s-degree").textContent = J.degree;
+  document.getElementById("s-date").textContent = timeAgo(J.days);
+
+  // demo match score for logged-in jobseekers
+  if (Auth.user && Auth.user.role !== "employer") {
+    const p = 60 + ((J.id * 7) % 35);
+    const box = document.getElementById("match-box");
+    box.style.display = "flex";
+    document.getElementById("match-ring").style.setProperty("--p", p);
+    document.getElementById("match-val").textContent = p.toLocaleString("fa-IR") + "٪";
+  }
+
+  // similar
+  const sim = AIO_JOBS.filter(x => x.id !== J.id && (x.dept === J.dept || x.city === J.city)).slice(0, 2);
+  document.getElementById("similar").innerHTML = sim.map(jobCardHTML).join("");
+});
+
+function applyJob() {
+  const u = Auth.user;
+  if (!u) { location.href = "login.html"; return; }
+  if (u.role === "employer") { toast("با حساب کارفرما نمی‌توانید درخواست بدهید"); return; }
+  toast("درخواست شما برای «" + J.title + "» ارسال شد ✓");
+}
+</script>
+</body>
+</html>

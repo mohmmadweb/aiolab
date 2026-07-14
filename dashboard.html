@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>داشبورد کارجو | آیولب</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>body{background:var(--navy-50)}</style>
+</head>
+<body data-page="dashboard.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="container dash-layout">
+  <!-- Sidebar -->
+  <aside class="dash-side">
+    <div class="dash-profile">
+      <div class="avatar" id="p-avatar">؟</div>
+      <b id="p-name">...</b>
+      <span>کارشناس هماتولوژی · تهران</span>
+      <div><button class="otw-toggle" id="otw" onclick="toggleOTW()"><span class="dot"></span> آماده به کار</button></div>
+    </div>
+    <nav class="dash-nav" id="dash-nav">
+      <a href="#overview" class="active" data-sec="overview"></a>
+      <a href="#resume" data-sec="resume"></a>
+      <a href="#applications" data-sec="applications"></a>
+      <a href="#saved" data-sec="saved"></a>
+      <a href="#career" data-sec="career"></a>
+      <a href="#notifications" data-sec="notifications"></a>
+      <button class="danger" onclick="Auth.logout()"></button>
+    </nav>
+  </aside>
+
+  <!-- Main -->
+  <main class="dash-main">
+
+    <!-- ===== Overview ===== -->
+    <section id="sec-overview" class="active">
+      <h1 class="dash-title">داشبورد من</h1>
+      <div class="progress-card">
+        <b style="font-size:16px">قدرت پروفایل شما: ۷۵٪</b>
+        <div class="bar"><i style="width:75%"></i></div>
+        <small>با افزودن «گواهی‌های آموزشی» و «تجربه دستگاه‌ها»، پروفایل‌تان را به ۱۰۰٪ برسانید تا در نتایج جستجوی کارفرمایان بالاتر دیده شوید.</small>
+      </div>
+      <div class="dash-cards">
+        <div class="dash-stat"><b>۴</b><span>درخواست ارسال‌شده</span></div>
+        <div class="dash-stat"><b>۱</b><span>دعوت به مصاحبه</span></div>
+        <div class="dash-stat"><b>۲۸</b><span>بازدید پروفایل (۳۰ روز)</span> <span class="trend">▲ ۱۲٪</span></div>
+        <div class="dash-stat"><b>۳</b><span>آگهی ذخیره‌شده</span></div>
+      </div>
+      <h2 style="font-size:17px;margin:8px 0 14px">فرصت‌های پیشنهادی برای شما <span class="chip teal">تطبیق هوشمند</span></h2>
+      <div class="job-grid" id="suggested"></div>
+    </section>
+
+    <!-- ===== Resume ===== -->
+    <section id="sec-resume">
+      <h1 class="dash-title">رزومه حرفه‌ای من</h1>
+      <div class="panel">
+        <h2>اطلاعات پایه</h2>
+        <div class="form-grid">
+          <div class="form-field"><label>نام و نام خانوادگی</label><input type="text" id="r-name" value="علی رضایی"></div>
+          <div class="form-field"><label>عنوان شغلی</label><input type="text" value="کارشناس هماتولوژی"></div>
+          <div class="form-field"><label>شهر</label><select><option>تهران</option><option>مشهد</option><option>اصفهان</option><option>شیراز</option></select></div>
+          <div class="form-field"><label>سابقه کار</label><select><option>۴ سال</option><option>کمتر از ۱ سال</option><option>۱ تا ۳ سال</option><option>بیش از ۵ سال</option></select></div>
+          <div class="form-field"><label>مدرک تحصیلی</label><select><option>کارشناسی علوم آزمایشگاهی</option><option>کاردانی</option><option>کارشناسی ارشد</option><option>دکتری</option></select></div>
+          <div class="form-field"><label>حقوق مورد انتظار</label><input type="text" value="۲۰ تا ۲۵ میلیون تومان"></div>
+          <div class="form-field full"><label>خلاصه حرفه‌ای</label><textarea rows="3">کارشناس هماتولوژی با ۴ سال تجربه کار با سل‌کانترهای Sysmex و تسلط بر کنترل کیفیت داخلی؛ علاقه‌مند به محیط‌های آموزش‌محور.</textarea></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>مهارت‌های تخصصی</h2>
+        <div class="tag-list" id="skills"></div>
+        <div style="display:flex;gap:10px;margin-top:16px">
+          <input type="text" id="new-skill" placeholder="مهارت جدید... (مثلاً: کار با LIS)" style="flex:1;padding:10px 14px;border:1.5px solid var(--navy-200);border-radius:9px;font-size:14px;outline:none">
+          <button class="btn btn-outline" onclick="addSkill()">افزودن</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>تجربه کار با دستگاه‌ها</h2>
+        <div class="tag-list" id="devices"></div>
+      </div>
+      <div class="panel">
+        <h2>رزومه PDF</h2>
+        <p style="margin-bottom:14px">نسخه PDF رزومه‌تان را بارگذاری کنید تا همراه درخواست‌ها ارسال شود.</p>
+        <button class="btn btn-outline" onclick="toast('بارگذاری فایل در نسخه متصل به سرور فعال می‌شود (دمو)')">📎 بارگذاری فایل PDF</button>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:16px">
+        <button class="btn btn-primary btn-lg" onclick="toast('رزومه با موفقیت ذخیره شد ✓')">ذخیره تغییرات</button>
+      </div>
+    </section>
+
+    <!-- ===== Applications ===== -->
+    <section id="sec-applications">
+      <h1 class="dash-title">درخواست‌های من</h1>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>موقعیت شغلی</th><th>کارفرما</th><th>تاریخ ارسال</th><th>وضعیت</th></tr></thead>
+          <tbody id="apps-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== Saved ===== -->
+    <section id="sec-saved">
+      <h1 class="dash-title">آگهی‌های ذخیره‌شده</h1>
+      <div class="job-grid" id="saved-jobs"></div>
+    </section>
+
+    <!-- ===== Career path ===== -->
+    <section id="sec-career">
+      <h1 class="dash-title">مسیر ارتقاء شغلی</h1>
+      <div class="panel">
+        <h2>شغل هدف: سوپروایزر آزمایشگاه 🎯</h2>
+        <p>بر اساس تحلیل پروفایل شما، برای رسیدن به شغل هدف این موارد پیشنهاد می‌شود:</p>
+        <div style="margin-top:18px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;gap:12px;align-items:center;background:var(--teal-50);border-radius:10px;padding:14px 16px">
+            <span style="font-size:20px">✅</span>
+            <div style="flex:1"><b style="font-size:14px">مهارت کنترل کیفیت — دارید</b><div style="font-size:12.5px;color:var(--navy-500)">پوشش کامل با سوابق فعلی</div></div>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;background:var(--amber-100);border-radius:10px;padding:14px 16px">
+            <span style="font-size:20px">📘</span>
+            <div style="flex:1"><b style="font-size:14px">دوره «مدیریت آزمایشگاه» — پیشنهادی</b><div style="font-size:12.5px;color:var(--navy-500)">۱۶ ساعت · دارای گواهی</div></div>
+            <a href="courses.html" class="btn btn-sm btn-outline">مشاهده دوره</a>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;background:var(--sky-100);border-radius:10px;padding:14px 16px">
+            <span style="font-size:20px">🏅</span>
+            <div style="flex:1"><b style="font-size:14px">آزمون مهارت QC — پیشنهادی</b><div style="font-size:12.5px;color:var(--navy-500)">دریافت نشان تخصصی برای پروفایل</div></div>
+            <a href="courses.html" class="btn btn-sm btn-outline">شرکت در آزمون</a>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center;background:var(--violet-100);border-radius:10px;padding:14px 16px">
+            <span style="font-size:20px">⏳</span>
+            <div style="flex:1"><b style="font-size:14px">۱ سال تجربه سرپرستی — در انتظار</b><div style="font-size:12.5px;color:var(--navy-500)">میانگین فاصله شما تا شغل هدف: ~۱۸ ماه</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Notifications ===== -->
+    <section id="sec-notifications">
+      <h1 class="dash-title">اعلان‌ها</h1>
+      <div class="panel" style="padding:10px 0">
+        <div id="notifs"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/data.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const NAV_ITEMS = [
+  ["overview", "پیشخوان", "home"],
+  ["resume", "رزومه حرفه‌ای من", "doc"],
+  ["applications", "درخواست‌های من", "send"],
+  ["saved", "آگهی‌های ذخیره‌شده", "bookmark"],
+  ["career", "مسیر ارتقاء شغلی", "path"],
+  ["notifications", "اعلان‌ها", "bell"]
+];
+let skills = ["کار با سل‌کانتر Sysmex", "لام محیطی", "کنترل کیفیت داخلی", "نمونه‌گیری وریدی", "آشنایی با LIS"];
+const devices = ["Sysmex XN-1000", "Sysmex KX-21", "BT-3000", "Cobas c311"];
+
+document.addEventListener("DOMContentLoaded", () => {
+  const u = requireLogin();
+  if (!u) return;
+  document.getElementById("p-avatar").textContent = u.name.charAt(0);
+  document.getElementById("p-name").textContent = u.name;
+  document.getElementById("r-name").value = u.name;
+
+  // nav
+  const nav = document.getElementById("dash-nav");
+  nav.querySelectorAll("a").forEach((a, i) => {
+    const [sec, label, icon] = NAV_ITEMS[i];
+    a.innerHTML = ICONS[icon] + " " + label;
+    a.onclick = e => { e.preventDefault(); showSec(sec); history.replaceState(null, "", "#" + sec); };
+  });
+  nav.querySelector("button").innerHTML = ICONS.logout + " خروج از حساب";
+
+  if (location.hash) showSec(location.hash.slice(1));
+
+  document.getElementById("suggested").innerHTML = AIO_JOBS.filter(j => j.dept === "hematology" || j.city === "تهران").slice(0, 4).map(jobCardHTML).join("");
+  document.getElementById("apps-body").innerHTML = AIO_MY_APPLICATIONS.map(a => `
+    <tr><td><b>${a.job}</b></td><td>${a.lab}</td><td>${a.date}</td><td><span class="status ${a.status}">${a.statusText}</span></td></tr>`).join("");
+  document.getElementById("saved-jobs").innerHTML = AIO_JOBS.slice(0, 3).map(jobCardHTML).join("");
+  renderSkills();
+  document.getElementById("devices").innerHTML = devices.map(d => `<span class="tag">${d}</span>`).join("");
+
+  document.getElementById("notifs").innerHTML = [
+    ["🎉", "شما به مصاحبه «کارشناس هماتولوژی» در آزمایشگاه نور دعوت شدید.", "۲ ساعت پیش"],
+    ["💼", "۳ آگهی جدید مطابق با پروفایل شما منتشر شد.", "دیروز"],
+    ["👀", "آزمایشگاه دانش مشهد رزومه شما را مشاهده کرد.", "۲ روز پیش"],
+    ["📘", "دوره پیشنهادی: کنترل کیفیت در آزمایشگاه بالینی", "۴ روز پیش"],
+    ["⚙️", "پروفایل خود را کامل کنید تا در جستجوها بالاتر بیایید.", "۱ هفته پیش"]
+  ].map(([ic, txt, t]) => `
+    <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 22px;border-bottom:1px solid var(--navy-100)">
+      <span style="font-size:20px">${ic}</span>
+      <div style="flex:1"><div style="font-size:14px;color:var(--navy-800)">${txt}</div><div style="font-size:12px;color:var(--navy-400);margin-top:3px">${t}</div></div>
+    </div>`).join("");
+});
+
+function showSec(sec) {
+  document.querySelectorAll(".dash-main > section").forEach(s => s.classList.remove("active"));
+  const el = document.getElementById("sec-" + sec);
+  if (el) el.classList.add("active");
+  document.querySelectorAll("#dash-nav a").forEach(a => a.classList.toggle("active", a.dataset.sec === sec));
+  window.scrollTo({ top: 0 });
+}
+
+function renderSkills() {
+  document.getElementById("skills").innerHTML = skills.map((s, i) =>
+    `<span class="tag">${s} <button onclick="skills.splice(${i},1);renderSkills()">×</button></span>`).join("");
+}
+function addSkill() {
+  const inp = document.getElementById("new-skill");
+  if (inp.value.trim()) { skills.push(inp.value.trim()); inp.value = ""; renderSkills(); toast("مهارت اضافه شد ✓"); }
+}
+function toggleOTW() {
+  const b = document.getElementById("otw");
+  const off = b.classList.toggle("off");
+  b.innerHTML = `<span class="dot"></span> ${off ? "غیرفعال" : "آماده به کار"}`;
+  toast(off ? "وضعیت آماده‌به‌کار غیرفعال شد" : "وضعیت آماده‌به‌کار فعال شد ✓ کارفرمایان شما را می‌بینند");
+}
+</script>
+</body>
+</html>
