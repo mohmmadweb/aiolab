@@ -1,56 +1,52 @@
-# راهنمای استقرار آیولب روی aiolab.ir (Cloudflare Pages)
+# راهنمای استقرار آیولب روی aiolab.ir (GitHub Pages + Cloudflare DNS)
 
-مسیر کلی: **گیت‌هاب (mohmmadweb/aiolab) ← GitHub Actions ← Cloudflare Pages ← دامنه aiolab.ir**
+مسیر فعلی: **گیت‌هاب (mohmmadweb/aiolab) ← GitHub Pages ← دامنه aiolab.ir (DNS روی Cloudflare)**
 
-استقرار با workflow موجود در `.github/workflows/main.yml` انجام می‌شود: هر push روی `main`، فایل‌های سایت (HTML + assets، بدون پوشه Docs) را با wrangler روی پروژه Pages به نام `aiolab` دیپلوی می‌کند.
+GitHub Pages از شاخه `main` (پوشه ریشه) سایت را منتشر می‌کند و فایل `CNAME` دامنه سفارشی را مشخص می‌کند. هر push روی `main` خودکار منتشر می‌شود.
 
-## گام ۱ — افزودن دامنه به Cloudflare
+## گام ۱ — رکوردهای DNS در Cloudflare (یک بار)
 
-1. وارد <https://dash.cloudflare.com> شوید.
-2. **Add a domain** (یا Add site) را بزنید و `aiolab.ir` را وارد کنید.
-3. پلن **Free** را انتخاب کنید.
-4. Cloudflare رکوردهای DNS موجود را اسکن می‌کند؛ ادامه دهید.
-5. چون نیم‌سرورها (`arch.ns.cloudflare.com` و `pat.ns.cloudflare.com`) قبلاً روی دامنه تنظیم شده‌اند، بعد از چند دقیقه (تا حداکثر چند ساعت) وضعیت دامنه **Active** می‌شود.
+در داشبورد Cloudflare → دامنه aiolab.ir → **DNS → Records → Add record** این ۵ رکورد را بسازید:
 
-## گام ۲ — ساخت API Token و Secret ها
+| Type | Name | Content | Proxy status |
+|---|---|---|---|
+| A | `@` | `185.199.108.153` | DNS only (ابر خاکستری) |
+| A | `@` | `185.199.109.153` | DNS only |
+| A | `@` | `185.199.110.153` | DNS only |
+| A | `@` | `185.199.111.153` | DNS only |
+| CNAME | `www` | `mohmmadweb.github.io` | DNS only |
 
-1. **Account ID:** در داشبورد Cloudflare → صفحه **Workers & Pages** (یا Overview دامنه) → ستون راست، مقدار **Account ID** را کپی کنید.
-2. **API Token:** آیکن پروفایل (بالا) → **My Profile → API Tokens → Create Token → Create Custom Token**:
-   - Name: `aiolab-pages-deploy`
-   - Permissions: `Account → Cloudflare Pages → Edit`
-   - **Continue to summary → Create Token** و توکن را کپی کنید (فقط یک بار نمایش داده می‌شود).
-3. در گیت‌هاب: ریپوی `aiolab` → **Settings → Secrets and variables → Actions → New repository secret** و دو Secret بسازید:
-   - `CLOUDFLARE_API_TOKEN` = توکن مرحله قبل
-   - `CLOUDFLARE_ACCOUNT_ID` = شناسه حساب
+نکته مهم: Proxy را حتماً **DNS only** (خاکستری) بگذارید تا GitHub بتواند دامنه را تأیید و گواهی HTTPS صادر کند.
 
-## گام ۳ — اجرای اولین Deploy
+## گام ۲ — تأیید دامنه در GitHub Pages
 
-1. در ریپوی گیت‌هاب → تب **Actions** → workflow «Deploy to Cloudflare Pages» → دکمه **Run workflow** (یا آخرین اجرای ناموفق را **Re-run** کنید).
-2. اجرای سبز = پروژه `aiolab` در Cloudflare ساخته و سایت روی `aiolab.pages.dev` منتشر شده است.
+1. ریپو → **Settings → Pages**
+2. در بخش Custom domain دکمه **Check again** را بزنید (اگر لازم شد چند دقیقه صبر کنید — انتشار DNS معمولاً سریع است).
+3. وقتی تیک سبز «DNS check successful» آمد، گزینه **Enforce HTTPS** را فعال کنید (اگر خاکستری بود، چند دقیقه بعد فعال می‌شود؛ صدور گواهی زمان می‌برد).
 
-## گام ۴ — اتصال دامنه aiolab.ir به پروژه Pages
-
-1. داخل پروژه Pages ← تب **Custom domains** ← **Set up a custom domain**
-2. `aiolab.ir` را وارد کنید؛ Cloudflare خودش رکورد CNAME لازم را می‌سازد. تأیید کنید.
-3. دوباره **Set up a custom domain** را بزنید و این بار `www.aiolab.ir` را هم اضافه کنید.
-4. گواهی SSL به‌صورت خودکار صادر می‌شود (چند دقیقه). بعد از آن `https://aiolab.ir` فعال است.
-
-نکته: اگر رکورد A یا CNAME قدیمی برای `@` یا `www` در DNS مانده بود (از هاست قبلی)، در بخش **DNS** حذفش کنید تا با رکورد Pages تداخل نکند.
-
-## گام ۵ — چرخه کار روزانه
+## گام ۳ — چرخه کار روزانه
 
 ```
 ویرایش فایل‌ها  →  git add -A  →  git commit -m "توضیح تغییر"  →  git push
 ```
 
-هر push روی شاخه `main`، به‌صورت خودکار در تب **Actions** گیت‌هاب اجرا و روی aiolab.ir منتشر می‌شود (حدود ۱ دقیقه).
+هر push روی `main`، در تب **Actions** با workflow خودکار «pages build and deployment» منتشر می‌شود (حدود ۱ دقیقه) و روی aiolab.ir دیده می‌شود.
+
+## ⚠️ نکته درباره پوشه Docs
+
+GitHub Pages کل ریپو را منتشر می‌کند؛ یعنی فایل‌های Word و PowerPoint داخل `Docs/` هم به‌صورت عمومی قابل دانلود هستند (مثلاً `aiolab.ir/Docs/...docx`). اگر نمی‌خواهید اسناد طرح عمومی باشند، پوشه Docs را از ریپو خارج کنید (فایل‌های محلی حذف نمی‌شوند):
+
+```
+git rm -r --cached Docs
+echo Docs/ >> .gitignore
+git add .gitignore && git commit -m "remove Docs from public repo" && git push
+```
 
 ## عیب‌یابی سریع
 
 | مشکل | راه‌حل |
 |---|---|
-| دامنه Active نمی‌شود | نیم‌سرورها را در پنل ثبت دامنه (ایرنیک/ریسلر) دوباره چک کنید |
-| اجرای Actions قرمز است | لاگ همان اجرا را باز کنید؛ معمولاً Secret اشتباه یا ساخته‌نشده است |
-| سایت روی pages.dev هست ولی روی aiolab.ir نه | تب Custom domains پروژه Pages را چک کنید؛ رکورد DNS متضاد را حذف کنید |
-| تغییرات دیده نمی‌شود | تب Actions سبز باشد؛ سپس Ctrl+F5 (پاک‌کردن کش مرورگر) |
-| خطای SSL در دقایق اول | طبیعی است؛ صدور گواهی چند دقیقه طول می‌کشد |
+| DNS check unsuccessful | رکوردهای گام ۱ را چک کنید؛ Proxy باید DNS only باشد؛ چند دقیقه صبر و Check again |
+| خطای گواهی/SSL | Enforce HTTPS را بعد از سبزشدن DNS check فعال کنید؛ صدور گواهی تا ۱۵ دقیقه طول می‌کشد |
+| تغییرات دیده نمی‌شود | تب Actions ریپو سبز باشد؛ سپس Ctrl+F5 (پاک‌کردن کش مرورگر) |
+| صفحه ۴۰۴ گیت‌هاب | فایل CNAME باید در ریشه ریپو باشد و Source روی «Deploy from a branch / main / (root)» |
