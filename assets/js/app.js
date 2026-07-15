@@ -58,18 +58,38 @@ function renderHeader(active) {
   const nav = [
     ["index.html", "خانه"],
     ["jobs.html", "فرصت‌های شغلی"],
-    ["labs.html", "آزمایشگاه‌ها"],
-    ["magazine.html", "مجله آیولب"],
-    ["courses.html", "آموزش و رشد"],
+    ["dashboard.html#resume", "رزومه حرفه‌ای من"],
+    ["labs.html", "آزمایشگاه‌های عضو"],
+    ["magazine.html", "در آزمایشگاه چه می‌گذرد؟"],
+    ["courses.html", "آموزش و رشد حرفه‌ای"],
     ["community.html", "جامعه آزمایشگاهی"]
   ];
   const navHTML = nav.map(([href, label]) =>
-    `<a href="${href}" class="${active === href ? "active" : ""}">${label}</a>`).join("");
+    `<a href="${href}" class="${active === href.split("#")[0] ? "active" : ""}">${label}</a>`).join("");
+
+  const unread = (typeof AIO_MESSAGES !== "undefined") ? AIO_MESSAGES.filter(m => m.unread).length : 0;
+  const msgBtn = `
+    <div class="msg-wrap">
+      <button class="icon-btn" title="پیام‌ها" onclick="toggleMsgs(event)">
+        ${ICONS.comment}
+        ${unread ? `<span class="badge-count">${unread.toLocaleString("fa-IR")}</span>` : ""}
+      </button>
+      <div class="msg-menu" id="msg-menu">
+        <div class="msg-head">پیام‌ها <a href="dashboard.html#notifications">مشاهده همه</a></div>
+        ${(typeof AIO_MESSAGES !== "undefined" ? AIO_MESSAGES : []).map(m => `
+          <div class="msg-item ${m.unread ? "unread" : ""}">
+            <b>${m.from}</b>
+            <p>${m.text}</p>
+            <span>${m.time}</span>
+          </div>`).join("")}
+      </div>
+    </div>`;
 
   let actions;
   if (u) {
     const dash = u.role === "employer" ? "employer.html" : "dashboard.html";
     actions = `
+      ${msgBtn}
       <div class="user-chip">
         <button onclick="this.nextElementSibling.classList.toggle('open')">
           <span class="avatar">${u.name.charAt(0)}</span>${u.name}
@@ -82,8 +102,9 @@ function renderHeader(active) {
       </div>`;
   } else {
     actions = `
-      <a href="login.html" class="btn btn-ghost">ورود / ثبت‌نام</a>
-      <a href="login.html?role=employer" class="btn btn-outline">ثبت آگهی استخدام</a>`;
+      <a href="login.html" class="btn btn-ghost">ثبت‌نام / ورود کارجو</a>
+      <a href="login.html?role=employer" class="btn btn-outline">ورود آزمایشگاه | ثبت آگهی</a>
+      ${msgBtn}`;
   }
 
   document.getElementById("site-header").innerHTML = `
@@ -94,6 +115,14 @@ function renderHeader(active) {
         <button class="menu-toggle" onclick="document.getElementById('main-nav').classList.toggle('open')">${ICONS.menu}</button>
       </div>
     </div>`;
+}
+
+function toggleMsgs(e) {
+  e.stopPropagation();
+  const u = Auth.user;
+  const menu = document.getElementById("msg-menu");
+  if (!u) { location.href = "login.html"; return; }
+  menu.classList.toggle("open");
 }
 
 function renderFooter() {
@@ -125,7 +154,7 @@ function renderFooter() {
         <div>
           <h4>آیولب</h4>
           <ul>
-            <li><a href="magazine.html">مجله آیولب</a></li>
+            <li><a href="magazine.html">در آزمایشگاه چه می‌گذرد؟</a></li>
             <li><a href="community.html">جامعه آزمایشگاهی</a></li>
             <li><a href="#">درباره ما</a></li>
             <li><a href="#">تماس با ما</a></li>
@@ -207,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("site-header")) renderHeader(page);
   if (document.getElementById("site-footer")) renderFooter();
   document.addEventListener("click", e => {
-    document.querySelectorAll(".user-menu.open").forEach(m => {
+    document.querySelectorAll(".user-menu.open, .msg-menu.open").forEach(m => {
       if (!m.parentElement.contains(e.target)) m.classList.remove("open");
     });
   });

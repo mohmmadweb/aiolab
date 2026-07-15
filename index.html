@@ -14,39 +14,11 @@
 <header id="site-header" class="site-header"></header>
 
 <!-- ================= HERO ================= -->
-<section class="hero">
-  <div class="container hero-grid">
-    <div>
-      <h1>مسیر شغلی تو در <em>آزمایشگاه</em>،<br>از همین‌جا شروع می‌شود</h1>
-      <p class="sub">آیولب، پلتفرم تخصصی کاریابی پرسنل آزمایشگاه‌های تشخیص طبی و پژوهشی؛ جایی که کارجو و آزمایشگاه هوشمندانه به هم می‌رسند.</p>
+<section class="hero hero-center">
 
-      <form class="search-box" onsubmit="goSearch(event)">
-        <div class="field">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
-          <input id="q" type="text" placeholder="عنوان شغلی، مهارت یا بخش آزمایشگاهی...">
-        </div>
-        <div class="field">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <select id="city">
-            <option value="">همه شهرها</option>
-          </select>
-        </div>
-        <button class="btn btn-primary" type="submit">جستجو</button>
-      </form>
-
-      <div class="hero-tags">
-        <span>جستجوهای پرتکرار:</span>
-        <a href="jobs.html?dept=hematology">هماتولوژی</a>
-        <a href="jobs.html?dept=sampling">نمونه‌گیری</a>
-        <a href="jobs.html?dept=biochemistry">بیوشیمی</a>
-        <a href="jobs.html?shift=شب">شیفت شب</a>
-        <a href="jobs.html?dept=genetics">ژنتیک</a>
-      </div>
-    </div>
-
-    <!-- Test tubes illustration -->
-    <div class="hero-art">
-      <svg viewBox="0 0 420 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- faded lab art (right) -->
+  <div class="hero-bg-art right">
+    <svg viewBox="0 0 420 360" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <!-- background blob -->
         <circle cx="210" cy="180" r="150" fill="#ccfbf1" opacity=".55"/>
         <circle cx="330" cy="80" r="14" fill="#5eead4" opacity=".6"/>
@@ -103,6 +75,75 @@
           <circle cx="98" cy="108" r="6" fill="#0d9488" stroke="none"/>
         </g>
       </svg>
+  </div>
+
+  <!-- faded lab art (left, mirrored) -->
+  <div class="hero-bg-art left">
+    <svg viewBox="0 0 420 360" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <rect x="80" y="252" width="260" height="18" rx="9" fill="#115e59"/>
+      <rect x="92" y="270" width="14" height="46" rx="6" fill="#115e59"/>
+      <rect x="314" y="270" width="14" height="46" rx="6" fill="#115e59"/>
+      <rect x="80" y="196" width="260" height="14" rx="7" fill="#0f766e"/>
+      <g>
+        <rect x="112" y="118" width="40" height="6" rx="3" fill="#94a3b8"/>
+        <path d="M118 124h28v104a14 14 0 0 1-28 0V124z" fill="#fff" stroke="#cbd5e1" stroke-width="2.5"/>
+        <path d="M120 170h24v58a12 12 0 0 1-24 0v-58z" fill="#8b5cf6" opacity=".7"/>
+      </g>
+      <g>
+        <rect x="176" y="86" width="40" height="6" rx="3" fill="#94a3b8"/>
+        <path d="M182 92h28v136a14 14 0 0 1-28 0V92z" fill="#fff" stroke="#cbd5e1" stroke-width="2.5"/>
+        <path d="M184 150h24v78a12 12 0 0 1-24 0v-78z" fill="#14b8a6" opacity=".8"/>
+      </g>
+      <g>
+        <rect x="240" y="118" width="40" height="6" rx="3" fill="#94a3b8"/>
+        <path d="M246 124h28v104a14 14 0 0 1-28 0V124z" fill="#fff" stroke="#cbd5e1" stroke-width="2.5"/>
+        <path d="M248 182h24v46a12 12 0 0 1-24 0v-46z" fill="#0ea5e9" opacity=".7"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="container hero-inner">
+    <h1>مسیر شغلی تو در <em>آزمایشگاه</em>، از همین‌جا شروع می‌شود</h1>
+    <p class="sub">آیولب، پلتفرم تخصصی کاریابی پرسنل آزمایشگاه‌های تشخیص طبی و پژوهشی؛ کارجو رزومه حرفه‌ای می‌سازد، آزمایشگاه نیروی متخصص پیدا می‌کند.</p>
+
+    <form class="search-box" onsubmit="goSearch(event)">
+      <div class="field">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
+        <input id="q" type="text" placeholder="شرح شغل، عنوان یا مهارت... (مثلاً کارشناس هماتولوژی)">
+      </div>
+      <div class="field">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <select id="city" title="شهر">
+          <option value="">همه شهرها</option>
+        </select>
+      </div>
+      <div class="field">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v6L4.5 18a2.5 2.5 0 0 0 2.2 3.7h10.6a2.5 2.5 0 0 0 2.2-3.7L14 8V2"/><path d="M8.5 2h7"/></svg>
+        <select id="dept" title="دسته‌بندی مشاغل">
+          <option value="">دسته‌بندی مشاغل</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" type="submit">جستجو</button>
+    </form>
+
+    <div class="hero-tags">
+      <span>جستجوهای پرتکرار:</span>
+      <a href="jobs.html?dept=hematology">هماتولوژی</a>
+      <a href="jobs.html?dept=sampling">نمونه‌گیری</a>
+      <a href="jobs.html?dept=biochemistry">بیوشیمی</a>
+      <a href="jobs.html?shift=شب">شیفت شب</a>
+      <a href="jobs.html?dept=genetics">ژنتیک</a>
+      <a href="jobs.html?city=دورکار">دورکاری</a>
+    </div>
+
+    <!-- start journey (per sketch: ثبت‌نام ← ایجاد رزومه ← مسیر ارتقاء) -->
+    <div class="journey">
+      <div class="j-step"><span class="j-num">۱</span> ثبت‌نام کارجو</div>
+      <span class="j-arrow">←</span>
+      <div class="j-step"><span class="j-num">۲</span> ساخت رزومه حرفه‌ای</div>
+      <span class="j-arrow">←</span>
+      <div class="j-step"><span class="j-num">۳</span> مسیر ارتقاء و آگهی‌های مرتبط</div>
+      <a href="register.html" class="btn btn-primary">شروع کن</a>
     </div>
   </div>
 </section>
@@ -239,9 +280,14 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("ic-3").innerHTML = ICONS.flask;
   document.getElementById("ic-4").innerHTML = ICONS.shield;
 
-  // cities
+  // cities (+ دورکار per sketch)
   const citySel = document.getElementById("city");
   AIO_CITIES.forEach(c => citySel.insertAdjacentHTML("beforeend", `<option>${c}</option>`));
+  citySel.insertAdjacentHTML("beforeend", `<option>دورکار</option>`);
+
+  // job categories
+  const deptSel = document.getElementById("dept");
+  AIO_DEPARTMENTS.forEach(d => deptSel.insertAdjacentHTML("beforeend", `<option value="${d.id}">${d.name}</option>`));
 
   // categories
   document.getElementById("cat-grid").innerHTML = AIO_DEPARTMENTS.map(d => {
@@ -276,9 +322,12 @@ function goSearch(e) {
   e.preventDefault();
   const q = document.getElementById("q").value.trim();
   const c = document.getElementById("city").value;
+  const d = document.getElementById("dept").value;
   const p = new URLSearchParams();
   if (q) p.set("q", q);
   if (c) p.set("city", c);
+  if (d) p.set("dept", d);
+  // اگر فیلترها خالی باشد، صفحه فرصت‌های شغلی بدون فیلتر نمایش داده می‌شود (مطابق طرح)
   location.href = "jobs.html" + (p.toString() ? "?" + p.toString() : "");
 }
 </script>

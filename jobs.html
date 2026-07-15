@@ -88,6 +88,7 @@ const SHIFTS = ["صبح", "عصر", "شب", "صبح و عصر"];
 document.addEventListener("DOMContentLoaded", () => {
   const citySel = document.getElementById("f-city");
   AIO_CITIES.forEach(c => citySel.insertAdjacentHTML("beforeend", `<option>${c}</option>`));
+  citySel.insertAdjacentHTML("beforeend", `<option>دورکار</option>`);
   const deptSel = document.getElementById("f-dept");
   AIO_DEPARTMENTS.forEach(d => deptSel.insertAdjacentHTML("beforeend", `<option value="${d.id}">${d.name}</option>`));
   document.getElementById("f-types").innerHTML = TYPES.map(t =>
