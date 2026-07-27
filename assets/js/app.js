@@ -52,20 +52,38 @@ const Auth = {
   logout() { localStorage.removeItem("aio_user"); location.href = "index.html"; }
 };
 
+/* ---------- Local store (دمو: جای دیتابیس) ---------- */
+const Store = {
+  get(k, fallback) { try { const v = JSON.parse(localStorage.getItem("aio_" + k)); return v === null ? fallback : v; } catch { return fallback; } },
+  set(k, v) { localStorage.setItem("aio_" + k, JSON.stringify(v)); },
+  push(k, v) { const a = Store.get(k, []); a.push(v); Store.set(k, a); return a; }
+};
+
+/* گواهی‌های کسب‌شده، هشدارهای شغلی، نتیجه MBTI و خودارزیابی */
+const MyCerts   = { all: () => Store.get("certs", []),  add: c => Store.push("certs", c) };
+const MyAlerts  = { all: () => Store.get("alerts", []), add: a => Store.push("alerts", a),
+                    remove(i) { const a = MyAlerts.all(); a.splice(i, 1); Store.set("alerts", a); } };
+const MyMBTI    = { get: () => Store.get("mbti", null),  set: r => Store.set("mbti", r) };
+const MyAssess  = { get: () => Store.get("assess", null), set: r => Store.set("assess", r) };
+const MyLabs    = { all: () => Store.get("mylabs", []),  add: l => Store.push("mylabs", l) };
+
 /* ---------- Header / Footer ---------- */
 function renderHeader(active) {
   const u = Auth.user;
   const nav = [
-    ["index.html", "خانه"],
-    ["jobs.html", "فرصت‌های شغلی"],
-    ["dashboard.html#resume", "رزومه حرفه‌ای من"],
-    ["labs.html", "آزمایشگاه‌های عضو"],
-    ["magazine.html", "در آزمایشگاه چه می‌گذرد؟"],
-    ["courses.html", "آموزش و رشد حرفه‌ای"],
-    ["community.html", "جامعه آزمایشگاهی"]
+    ["index.html", "nav.home", "خانه"],
+    ["jobs.html", "nav.jobs", "فرصت‌های شغلی"],
+    ["labs.html", "nav.labs", "آزمایشگاه‌ها"],
+    ["ranking.html", "nav.ranking", "رتبه‌بندی مراکز"],
+    ["exams.html", "nav.exams", "آزمون و گواهینامه"],
+    ["assessment.html", "nav.assessment", "خودارزیابی"],
+    ["courses.html", "nav.courses", "آموزش"],
+    ["magazine.html", "nav.magazine", "مجله"],
+    ["community.html", "nav.community", "جامعه"],
+    ["faq.html", "nav.faq", "سؤالات پرتکرار"]
   ];
-  const navHTML = nav.map(([href, label]) =>
-    `<a href="${href}" class="${active === href.split("#")[0] ? "active" : ""}">${label}</a>`).join("");
+  const navHTML = nav.map(([href, key, label]) =>
+    `<a href="${href}" data-i18n="${key}" class="${active === href.split("#")[0] ? "active" : ""}">${label}</a>`).join("");
 
   const unread = (typeof AIO_MESSAGES !== "undefined") ? AIO_MESSAGES.filter(m => m.unread).length : 0;
   const msgBtn = `
@@ -85,11 +103,13 @@ function renderHeader(active) {
       </div>
     </div>`;
 
+  const langBtn = (typeof I18N !== "undefined") ? I18N.switcherHTML() : "";
+
   let actions;
   if (u) {
     const dash = u.role === "employer" ? "employer.html" : "dashboard.html";
     actions = `
-      ${msgBtn}
+      ${langBtn}${msgBtn}
       <div class="user-chip">
         <button onclick="this.nextElementSibling.classList.toggle('open')">
           <span class="avatar">${u.name.charAt(0)}</span>${u.name}
@@ -102,12 +122,27 @@ function renderHeader(active) {
       </div>`;
   } else {
     actions = `
-      <a href="login.html" class="btn btn-ghost">ثبت‌نام / ورود کارجو</a>
-      <a href="login.html?role=employer" class="btn btn-outline">ورود آزمایشگاه | ثبت آگهی</a>
-      ${msgBtn}`;
+      <a href="login.html" class="btn btn-ghost" data-i18n="act.login">ثبت‌نام / ورود کارجو</a>
+      <a href="login.html?role=employer" class="btn btn-outline" data-i18n="act.employer">ورود آزمایشگاه | ثبت آگهی</a>
+      ${langBtn}${msgBtn}`;
   }
 
+  /* نوار عمودی‌های برند aio */
+  const verticals = (typeof AIO_VERTICALS !== "undefined") ? `
+    <div class="vertical-bar">
+      <div class="container">
+        <span class="vb-label">خانواده آیو:</span>
+        ${AIO_VERTICALS.map(v => `
+          <a class="vb-item ${v.active ? "active" : "soon"}" href="${v.active ? "index.html" : "#"}"
+             ${v.active ? "" : 'onclick="toast(\'به‌زودی راه‌اندازی می‌شود\');return false"'}
+             style="--vc:${v.color};--vbg:${v.bg}">
+            ${v.name}${v.active ? "" : '<i class="soon-tag">به‌زودی</i>'}
+          </a>`).join("")}
+      </div>
+    </div>` : "";
+
   document.getElementById("site-header").innerHTML = `
+    ${verticals}
     <div class="container header-inner">
       <a href="index.html" class="logo">${LOGO_SVG}<span>آیو<b>لب</b></span></a>
       <nav class="main-nav" id="main-nav">${navHTML}</nav>
@@ -154,11 +189,32 @@ function renderFooter() {
         <div>
           <h4>آیولب</h4>
           <ul>
+            <li><a href="faq.html">سؤالات پرتکرار</a></li>
+            <li><a href="ranking.html">رتبه‌بندی مراکز</a></li>
             <li><a href="magazine.html">در آزمایشگاه چه می‌گذرد؟</a></li>
             <li><a href="community.html">جامعه آزمایشگاهی</a></li>
             <li><a href="#">درباره ما</a></li>
             <li><a href="#">تماس با ما</a></li>
           </ul>
+        </div>
+        <div class="footer-trust">
+          <h4>اپلیکیشن و نمادها</h4>
+          <div class="app-badges">
+            <a href="#" onclick="toast('لینک دانلود در نسخه نهایی فعال می‌شود');return false" class="app-badge">
+              <span>📱</span><div><b>اپلیکیشن اندروید</b><small>دریافت از کافه‌بازار</small></div></a>
+            <a href="#" onclick="toast('لینک دانلود در نسخه نهایی فعال می‌شود');return false" class="app-badge">
+              <span>🍏</span><div><b>نسخه iOS</b><small>نصب مستقیم (PWA)</small></div></a>
+          </div>
+          <div class="trust-badges">
+            <a href="#" class="enamad" onclick="toast('نماد اعتماد پس از تکمیل فرآیند ثبت، اینجا فعال می‌شود');return false" title="نماد اعتماد الکترونیکی">
+              <span class="en-mark">e</span>
+              <div><b>نماد اعتماد الکترونیکی</b><small>e-namad · در حال دریافت</small></div>
+            </a>
+            <a href="#" class="enamad samandehi" onclick="toast('مجوز ساماندهی در حال دریافت است');return false" title="ساماندهی">
+              <span class="en-mark">✓</span>
+              <div><b>ساماندهی رسانه‌های دیجیتال</b><small>در حال دریافت</small></div>
+            </a>
+          </div>
         </div>
       </div>
       <div class="footer-bottom">
@@ -188,6 +244,28 @@ function timeAgo(days) {
   return `${days.toLocaleString("fa-IR")} روز پیش`;
 }
 
+const fa = n => Number(n).toLocaleString("fa-IR");
+
+/* ستاره‌های امتیاز */
+function starsHTML(rating, size) {
+  const full = Math.floor(rating), half = rating - full >= 0.5;
+  let s = "";
+  for (let i = 1; i <= 5; i++) s += `<span class="st ${i <= full ? "on" : (i === full + 1 && half ? "half" : "")}">★</span>`;
+  return `<span class="stars ${size || ""}">${s}</span>`;
+}
+
+/* امتیاز کل مرکز = میانگین وزنی شاخص‌ها + وزن تعداد نظر */
+function labScore(l) {
+  const b = l.ratingBreakdown;
+  const avg = (b.salary + b.environment + b.learning + b.management + b.worklife) / 5;
+  const confidence = Math.min(1, l.ratingCount / 100);      // اعتبار آماری
+  const completeness = (l.verified ? .05 : 0) + (l.avgSalary ? .03 : 0);
+  return +(avg * (0.85 + 0.15 * confidence) + completeness * 5).toFixed(2);
+}
+
+function sectorName(id) { const s = AIO_SECTORS.find(x => x.id === id); return s ? s.name : "—"; }
+function orgKindName(id) { const s = AIO_ORG_KINDS.find(x => x.id === id); return s ? s.name : "—"; }
+
 function jobCardHTML(j) {
   const l = lab(j.labId), d = dept(j.dept);
   const badge = j.urgent ? '<span class="badge-urgent">فوری</span>' : (j.featured ? '<span class="badge-featured">ویژه</span>' : "");
@@ -205,6 +283,7 @@ function jobCardHTML(j) {
         <span class="chip" style="background:${d.bg};color:${d.color}">${d.name}</span>
         <span class="chip">${j.type}</span>
         <span class="chip">شیفت ${j.shift}</span>
+        ${j.remote ? '<span class="chip remote">دورکاری</span>' : ""}
       </div>
       <div class="foot">
         <span class="salary">${j.salary}</span>
@@ -217,11 +296,82 @@ function labCardHTML(l) {
   const count = AIO_JOBS.filter(j => j.labId === l.id).length;
   return `
     <a class="lab-card" href="lab.html?id=${l.id}">
-      <div class="job-logo" style="background:${l.color}">${l.name.replace("آزمایشگاه ", "").charAt(0)}</div>
+      <div class="job-logo" style="background:${l.color}">${l.name.replace("آزمایشگاه ", "").replace("شرکت ", "").charAt(0)}</div>
       <h3>${l.name} ${l.verified ? "✔️" : ""}</h3>
       <p>${l.type} · ${l.city}</p>
-      <span class="open-jobs">${count.toLocaleString("fa-IR")} فرصت شغلی فعال</span>
+      <div class="lc-rate">${starsHTML(l.rating)}<b>${fa(l.rating)}</b><span>(${fa(l.ratingCount)} نظر)</span></div>
+      <div class="lc-salary">میانگین حقوق: <b>${fa(l.avgSalary)}</b> میلیون تومان</div>
+      <span class="open-jobs">${fa(count)} فرصت شغلی فعال</span>
     </a>`;
+}
+
+/* ---------- جستجو/فیلتر مشترک ---------- */
+/* f = {q, provinceId, city, dept, types[], shifts[], degrees[], genders[], experiences[],
+        benefits[], salaryBands[], sectors[], orgKinds[], remote, urgent, featured, postAge, hasExam} */
+function filterJobs(f) {
+  return AIO_JOBS.filter(j => {
+    const l = lab(j.labId);
+    if (f.q) {
+      const hay = (j.title + " " + l.name + " " + j.skills.join(" ") + " " + j.desc + " " + j.fieldOfStudy);
+      if (!hay.includes(f.q)) return false;
+    }
+    if (f.provinceId && j.provinceId !== f.provinceId) return false;
+    if (f.city && j.city !== f.city) return false;
+    if (f.dept && j.dept !== f.dept) return false;
+    if (f.types && f.types.length && !f.types.includes(j.type)) return false;
+    if (f.shifts && f.shifts.length && !f.shifts.includes(j.shift)) return false;
+    if (f.degrees && f.degrees.length && !f.degrees.includes(j.degree)) return false;
+    if (f.fields && f.fields.length && !f.fields.includes(j.fieldOfStudy)) return false;
+    if (f.genders && f.genders.length && !f.genders.includes(j.gender) && j.gender !== "فرقی نمی‌کند") return false;
+    if (f.experiences && f.experiences.length && !f.experiences.includes(j.experience)) return false;
+    if (f.militaries && f.militaries.length && !f.militaries.includes(j.military) && j.military !== "مهم نیست") return false;
+    if (f.benefits && f.benefits.length && !f.benefits.every(b => j.benefits.includes(b))) return false;
+    if (f.sectors && f.sectors.length && !f.sectors.includes(l.sector)) return false;
+    if (f.orgKinds && f.orgKinds.length && !f.orgKinds.includes(l.orgKind)) return false;
+    if (f.sizes && f.sizes.length && !f.sizes.includes(l.size)) return false;
+    if (f.salaryBands && f.salaryBands.length) {
+      const ok = f.salaryBands.some(id => {
+        const b = AIO_SALARY_BANDS.find(x => x.id === id);
+        return b && j.salaryMax >= b.min && j.salaryMin <= b.max;
+      });
+      if (!ok) return false;
+    }
+    if (f.remote && !j.remote) return false;
+    if (f.urgent && !j.urgent) return false;
+    if (f.featured && !j.featured) return false;
+    if (f.verifiedOnly && !l.verified) return false;
+    if (f.postAge) { const d = AIO_POST_AGES.find(x => x.id === f.postAge); if (d && j.days > d.days) return false; }
+    return true;
+  });
+}
+
+function sortJobs(list, sort) {
+  const a = [...list];
+  if (sort === "new")      a.sort((x, y) => x.days - y.days);
+  if (sort === "urgent")   a.sort((x, y) => y.urgent - x.urgent || x.days - y.days);
+  if (sort === "featured") a.sort((x, y) => y.featured - x.featured || x.days - y.days);
+  if (sort === "salary")   a.sort((x, y) => y.salaryMax - x.salaryMax);
+  if (sort === "rating")   a.sort((x, y) => lab(y.labId).rating - lab(x.labId).rating);
+  return a;
+}
+
+/* پر کردن انتخابگر استان/شهر به‌صورت وابسته */
+function bindProvinceCity(provSelId, citySelId, onChange) {
+  const ps = document.getElementById(provSelId), cs = document.getElementById(citySelId);
+  if (!ps || !cs) return;
+  ps.innerHTML = `<option value="">همه استان‌ها</option>` +
+    AIO_PROVINCES.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
+  function fillCities() {
+    const p = provinceById(ps.value);
+    const cities = p ? p.cities : AIO_ALL_CITIES;
+    cs.innerHTML = `<option value="">همه شهرها</option>` +
+      cities.map(c => `<option value="${c}">${c}</option>`).join("") +
+      `<option value="${AIO_REMOTE}">${AIO_REMOTE}</option>`;
+  }
+  fillCities();
+  // onchange (نه addEventListener) تا فراخوانی دوباره‌ی این تابع شنونده تکراری نسازد
+  ps.onchange = () => { fillCities(); onChange && onChange(); };
+  return { fillCities };
 }
 
 function requireLogin(role) {
@@ -235,8 +385,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const page = document.body.dataset.page || "";
   if (document.getElementById("site-header")) renderHeader(page);
   if (document.getElementById("site-footer")) renderFooter();
+  if (typeof I18N !== "undefined") I18N.apply();
   document.addEventListener("click", e => {
-    document.querySelectorAll(".user-menu.open, .msg-menu.open").forEach(m => {
+    document.querySelectorAll(".user-menu.open, .msg-menu.open, .lang-menu.open").forEach(m => {
       if (!m.parentElement.contains(e.target)) m.classList.remove("open");
     });
   });

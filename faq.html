@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سؤالات پرتکرار | آیولب</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="faq.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / سؤالات پرتکرار</div>
+    <h1 data-i18n="faq.title">سؤالات پرتکرار</h1>
+    <p>پاسخ کوتاه و شفاف به چیزهایی که بیشتر از همه پرسیده می‌شود</p>
+  </div>
+</div>
+
+<div class="container faq-layout">
+
+  <aside class="faq-side">
+    <input type="text" id="faq-q" placeholder="جستجو در سؤالات…">
+    <nav id="faq-nav"></nav>
+    <div class="faq-help">
+      <b>پاسخ‌تان را پیدا نکردید؟</b>
+      <p>سؤال‌تان را در جامعه آزمایشگاهی بپرسید یا با پشتیبانی تماس بگیرید.</p>
+      <a class="btn btn-outline btn-block" href="community.html">پرسش در جامعه</a>
+    </div>
+  </aside>
+
+  <main class="faq-main" id="faq-main"></main>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  renderFaq("");
+  document.getElementById("faq-q").addEventListener("input", e => renderFaq(e.target.value.trim()));
+});
+
+function renderFaq(q) {
+  const data = AIO_FAQ.map(c => ({
+    cat: c.cat,
+    items: c.items.filter(it => !q || it.q.includes(q) || it.a.includes(q))
+  })).filter(c => c.items.length);
+
+  document.getElementById("faq-nav").innerHTML = data.map((c, i) =>
+    `<a href="#cat-${i}">${c.cat} <span>${fa(c.items.length)}</span></a>`).join("");
+
+  document.getElementById("faq-main").innerHTML = data.length ? data.map((c, i) => `
+    <section class="faq-block" id="cat-${i}">
+      <h2>${c.cat}</h2>
+      ${c.items.map((it, k) => `
+        <details class="faq-item" ${q ? "open" : (i === 0 && k === 0 ? "open" : "")}>
+          <summary>${it.q}</summary>
+          <div class="fa-body">${it.a}</div>
+        </details>`).join("")}
+    </section>`).join("")
+    : `<div class="empty-state"><b>نتیجه‌ای یافت نشد</b>عبارت دیگری را جستجو کنید.</div>`;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سیستم خودارزیابی مهارت | آیولب</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>body{background:var(--navy-50)}</style>
+</head>
+<body data-page="assessment.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / خودارزیابی</div>
+    <h1>سیستم خودارزیابی مهارت</h1>
+    <p>۶ حوزه · ۲۴ شاخص · نتیجه شما به نمودار مهارت، شکاف تا شغل هدف و پیشنهاد آموزشی تبدیل می‌شود</p>
+  </div>
+</div>
+
+<div class="container assess-wrap">
+
+  <!-- other tests -->
+  <div class="assess-tests">
+    <a class="at-card" href="mbti.html">
+      <span class="at-ic">🧭</span>
+      <div><b>تست شخصیت‌شناسی MBTI</b><small>۲۴ سؤال · تیپ شخصیتی و مشاغل متناسب</small></div>
+      <span class="at-go">شروع ←</span>
+    </a>
+    <a class="at-card" href="exams.html">
+      <span class="at-ic">🎖️</span>
+      <div><b>آزمون‌های مهارتی با گواهی</b><small>طراحی‌شده توسط کارفرمایان · گواهی روی رزومه</small></div>
+      <span class="at-go">مشاهده ←</span>
+    </a>
+    <a class="at-card soon" href="#" onclick="toast('به‌زودی');return false">
+      <span class="at-ic">🧩</span>
+      <div><b>هالند، NEO، EQ و IQ</b><small>رغبت‌سنج شغلی و آزمون‌های تکمیلی</small></div>
+      <span class="at-go">به‌زودی</span>
+    </a>
+  </div>
+
+  <!-- form -->
+  <div id="a-form">
+    <div class="assess-intro exam-panel">
+      <h2>خودارزیابی مهارت آزمایشگاهی</h2>
+      <p>برای هر شاخص، سطح فعلی خودتان را صادقانه انتخاب کنید. صداقت اینجا مستقیماً به کیفیت پیشنهادهای شغلی و آموزشی شما برمی‌گردد.</p>
+      <div class="level-legend"></div>
+      <div class="form-field" style="max-width:340px">
+        <label>شغل هدف شما (برای تحلیل شکاف)</label>
+        <select id="target-role">
+          <option>سوپروایزر آزمایشگاه</option>
+          <option>مسئول فنی</option>
+          <option>کارشناس ارشد هماتولوژی</option>
+          <option>کارشناس کنترل کیفیت</option>
+          <option>کارشناس ژنتیک مولکولی</option>
+          <option>کارشناس پشتیبانی فنی تجهیزات</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="groups"></div>
+
+    <div class="assess-submit">
+      <button class="btn btn-primary btn-lg" onclick="calc()">محاسبه نتیجه خودارزیابی</button>
+      <span id="progress-note"></span>
+    </div>
+  </div>
+
+  <!-- result -->
+  <div id="a-res" style="display:none"></div>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+let vals = {};
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelector(".level-legend").innerHTML = AIO_ASSESS_LEVELS.map(l =>
+    `<span class="ll"><b>${fa(l.v)}</b> ${l.label}</span>`).join("");
+
+  const prev = MyAssess.get();
+  if (prev) vals = prev.vals;
+
+  document.getElementById("groups").innerHTML = AIO_SELF_ASSESS.map(g => `
+    <div class="assess-group panel" style="--gc:${g.color}">
+      <h2><span class="ag-ic" style="background:${g.color}22;color:${g.color}">${ICONS[g.icon] || ICONS.flask}</span>${g.name}</h2>
+      ${g.items.map((item, k) => {
+        const key = g.id + ":" + k, cur = vals[key] || 0;
+        return `<div class="assess-row">
+          <div class="ar-label">${item}</div>
+          <div class="ar-scale">
+            ${AIO_ASSESS_LEVELS.map(l => `
+              <button class="ar-dot ${cur === l.v ? "on" : ""}" title="${l.label}"
+                onclick="setVal('${key}',${l.v},this)">${fa(l.v)}</button>`).join("")}
+          </div>
+        </div>`;
+      }).join("")}
+    </div>`).join("");
+
+  updateProgress();
+});
+
+function setVal(key, v, el) {
+  vals[key] = v;
+  [...el.parentElement.children].forEach(c => c.classList.remove("on"));
+  el.classList.add("on");
+  updateProgress();
+}
+
+function totalItems() { return AIO_SELF_ASSESS.reduce((s, g) => s + g.items.length, 0); }
+
+function updateProgress() {
+  const done = Object.keys(vals).length, all = totalItems();
+  document.getElementById("progress-note").textContent = `${fa(done)} از ${fa(all)} شاخص تکمیل شده`;
+}
+
+function calc() {
+  const all = totalItems();
+  if (Object.keys(vals).length < all) {
+    if (!confirm(`${fa(all - Object.keys(vals).length)} شاخص بی‌پاسخ است و بدون امتیاز حساب می‌شود. ادامه می‌دهید؟`)) return;
+  }
+
+  const groups = AIO_SELF_ASSESS.map(g => {
+    const scores = g.items.map((_, k) => vals[g.id + ":" + k] || 0);
+    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+    return { id: g.id, name: g.name, color: g.color, avg: +avg.toFixed(2), pct: Math.round(avg / 5 * 100), scores };
+  });
+  const overall = Math.round(groups.reduce((s, g) => s + g.pct, 0) / groups.length);
+  const target = document.getElementById("target-role").value;
+  const res = { vals, groups, overall, target, date: "۱۴۰۵/۰۴/۰۵" };
+  MyAssess.set(res);
+  showResult(res);
+}
+
+function showResult(res) {
+  document.getElementById("a-form").style.display = "none";
+  const box = document.getElementById("a-res");
+  box.style.display = "";
+
+  const strong = [...res.groups].sort((a, b) => b.pct - a.pct).slice(0, 2);
+  const weak = [...res.groups].sort((a, b) => a.pct - b.pct).slice(0, 2);
+  const level = res.overall >= 80 ? "حرفه‌ای" : res.overall >= 60 ? "مستقل" : res.overall >= 40 ? "در حال رشد" : "تازه‌کار";
+
+  box.innerHTML = `
+    <div class="assess-hero panel">
+      <div class="ah-score">
+        <svg viewBox="0 0 120 120" class="ring">
+          <circle cx="60" cy="60" r="52" class="ring-bg"/>
+          <circle cx="60" cy="60" r="52" class="ring-fg" style="stroke-dasharray:${res.overall * 3.27} 327"/>
+        </svg>
+        <div class="ah-num"><b>${fa(res.overall)}٪</b><span>سطح: ${level}</span></div>
+      </div>
+      <div class="ah-body">
+        <h1>نتیجه خودارزیابی شما</h1>
+        <p>شغل هدف: <b>${res.target}</b></p>
+        <div class="ah-tags">
+          <div><b>نقاط قوت:</b> ${strong.map(g => g.name).join("، ")}</div>
+          <div><b>نیازمند تقویت:</b> ${weak.map(g => g.name).join("، ")}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>نمودار مهارت شما</h2>
+      <div class="skill-bars">
+        ${res.groups.map(g => `
+          <div class="sb-row">
+            <span class="sb-name">${g.name}</span>
+            <div class="sb-track"><i style="width:${g.pct}%;background:${g.color}"></i></div>
+            <b class="sb-val">${fa(g.pct)}٪</b>
+          </div>`).join("")}
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>شکاف تا شغل هدف «${res.target}»</h2>
+      <div class="gap-list">
+        ${weak.map(g => `
+          <div class="gap-item">
+            <span class="gap-ic" style="background:${g.color}22;color:${g.color}">!</span>
+            <div>
+              <b>${g.name} — ${fa(g.pct)}٪</b>
+              <p>برای رسیدن به سطح مورد انتظار این شغل، این حوزه باید حداقل به ۸۰٪ برسد.</p>
+            </div>
+          </div>`).join("")}
+        ${strong.map(g => `
+          <div class="gap-item ok">
+            <span class="gap-ic" style="background:#d1fae5;color:#059669">✓</span>
+            <div><b>${g.name} — ${fa(g.pct)}٪</b><p>این حوزه در سطح مناسبی است؛ آن را در رزومه برجسته کنید.</p></div>
+          </div>`).join("")}
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>قدم‌های پیشنهادی</h2>
+      <div class="next-steps">
+        <a class="ns" href="courses.html"><b>۱. دوره آموزشی مرتبط</b><span>دوره‌های حوزه «${weak[0].name}» را ببینید</span></a>
+        <a class="ns" href="exams.html"><b>۲. آزمون مهارتی بدهید</b><span>گواهی تأییدشده روی رزومه، شانس دعوت به مصاحبه را بالا می‌برد</span></a>
+        <a class="ns" href="jobs.html"><b>۳. آگهی‌های متناسب سطح فعلی</b><span>فرصت‌هایی که همین حالا برای شما مناسب‌اند</span></a>
+        <a class="ns" href="dashboard.html#career"><b>۴. مسیر ارتقاء شغلی</b><span>نقشه راه شما تا «${res.target}»</span></a>
+      </div>
+    </div>
+
+    <div class="res-actions">
+      <button class="btn btn-outline" onclick="location.reload()">ارزیابی مجدد</button>
+      <a class="btn btn-primary" href="dashboard.html">ذخیره در داشبورد و بازگشت</a>
+    </div>`;
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+</script>
+</body>
+</html>

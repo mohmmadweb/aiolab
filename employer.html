@@ -23,10 +23,12 @@
     </div>
     <nav class="dash-nav" id="dash-nav">
       <a href="#overview" class="active" data-sec="overview"></a>
+      <a href="#addlab" data-sec="addlab"></a>
       <a href="#post" data-sec="post"></a>
       <a href="#jobs" data-sec="jobs"></a>
       <a href="#applicants" data-sec="applicants"></a>
       <a href="#resumes" data-sec="resumes"></a>
+      <a href="#exambuilder" data-sec="exambuilder"></a>
       <a href="#pricing" data-sec="pricing"></a>
       <button class="danger" onclick="Auth.logout()"></button>
     </nav>
@@ -55,6 +57,81 @@
           <thead><tr><th>متقاضی</th><th>شهر</th><th>تطابق</th><th>وضعیت</th><th></th></tr></thead>
           <tbody id="applicants-mini"></tbody>
         </table>
+      </div>
+    </section>
+
+    <!-- ===== Register lab (map) ===== -->
+    <section id="sec-addlab">
+      <h1 class="dash-title">ثبت آزمایشگاه / مرکز</h1>
+      <p class="dash-sub">اطلاعات مرکز را وارد کنید و موقعیت دقیق آن را روی نقشه پین کنید. پس از تأیید، مرکز شما در صفحه «آزمایشگاه‌ها» روی نقشه سراسری نمایش داده می‌شود.</p>
+
+      <div class="panel">
+        <h2>اطلاعات مرکز</h2>
+        <div class="form-grid">
+          <div class="form-field full"><label>نام مرکز *</label><input type="text" id="lb-name" placeholder="مثلاً: آزمایشگاه پاتوبیولوژی نور"></div>
+          <div class="form-field"><label>عمودی (حوزه فعالیت)</label><select id="lb-vertical"></select></div>
+          <div class="form-field"><label>نوع مرکز *</label>
+            <select id="lb-type">
+              <option>آزمایشگاه تشخیص طبی</option><option>آزمایشگاه بیمارستانی</option>
+              <option>آزمایشگاه ژنتیک</option><option>آزمایشگاه دولتی / مرجع</option>
+              <option>مرکز پژوهشی</option><option>شرکت تجهیزات</option>
+            </select></div>
+          <div class="form-field"><label>بخش مالکیت *</label><select id="lb-sector"></select></div>
+          <div class="form-field"><label>دسته سازمان *</label><select id="lb-kind"></select></div>
+          <div class="form-field"><label>اندازه سازمان</label><select id="lb-size"></select></div>
+          <div class="form-field"><label>سال تأسیس</label><input type="number" id="lb-founded" placeholder="۱۳۸۵"></div>
+          <div class="form-field"><label>استان *</label><select id="lb-prov"></select></div>
+          <div class="form-field"><label>شهر *</label><select id="lb-city"></select></div>
+          <div class="form-field full"><label>آدرس دقیق</label><input type="text" id="lb-address" placeholder="خیابان، کوچه، پلاک"></div>
+          <div class="form-field full"><label>درباره مرکز</label><textarea id="lb-about" rows="3" placeholder="معرفی کوتاه مرکز، تخصص‌ها و تجهیزات شاخص"></textarea></div>
+        </div>
+      </div>
+
+      <!-- میانگین حقوق -->
+      <div class="panel salary-panel">
+        <h2>میانگین حقوق پرداختی مرکز</h2>
+        <p>این عدد به‌صورت شفاف در پروفایل عمومی مرکز شما و در رتبه‌بندی نمایش داده می‌شود. شفافیت حقوق، تعداد درخواست‌های باکیفیت را بالا می‌برد.</p>
+        <div class="form-grid" style="grid-template-columns:1fr 1fr">
+          <div class="form-field">
+            <label>میانگین حقوق ماهانه پرسنل (میلیون تومان) *</label>
+            <input type="number" id="lb-salary" step="0.5" placeholder="مثلاً: ۲۱٫۵" oninput="previewSalary()">
+          </div>
+          <div class="form-field">
+            <label>تاریخ به‌روزرسانی</label>
+            <input type="text" id="lb-salary-date" value="۱۴۰۵/۰۴/۰۵" readonly>
+          </div>
+        </div>
+        <div class="salary-preview" id="salary-preview">
+          <b>پیش‌نمایش:</b> میانگین حقوق این مرکز <b id="sp-val">—</b> میلیون تومان
+          <span id="sp-cmp"></span>
+        </div>
+        <div class="salary-note">
+          ℹ️ در نسخه‌های بعدی این عدد به‌صورت خودکار از ترکیب آگهی‌های ثبت‌شده، حقوق توافق‌شده استخدام‌های موفق و
+          گزارش‌های ناشناس پرسنل محاسبه می‌شود و مقدار دستی فقط به‌عنوان مقدار اولیه استفاده خواهد شد.
+        </div>
+      </div>
+
+      <!-- نقشه -->
+      <div class="panel">
+        <h2>موقعیت روی نقشه *</h2>
+        <p>روی نقشه کلیک کنید تا پین قرار بگیرد؛ می‌توانید پین را بکشید و جابه‌جا کنید.</p>
+        <div class="map-tools">
+          <button class="btn btn-outline btn-sm" onclick="locateMe()">📍 موقعیت فعلی من</button>
+          <button class="btn btn-outline btn-sm" onclick="goToCity()">🏙️ رفتن به شهر انتخاب‌شده</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearPin()">حذف پین</button>
+          <span class="coord" id="coord">مختصات: هنوز انتخاب نشده</span>
+        </div>
+        <div id="pick-map" class="map-box picker"></div>
+      </div>
+
+      <div class="panel">
+        <h2>مزایا و تسهیلات</h2>
+        <div class="chips-pick" id="lb-perks"></div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+        <button class="btn btn-outline" onclick="toast('پیش‌نویس ذخیره شد (دمو)')">ذخیره پیش‌نویس</button>
+        <button class="btn btn-primary btn-lg" onclick="submitLab()">ثبت مرکز و ارسال برای تأیید</button>
       </div>
     </section>
 
@@ -110,20 +187,87 @@
 
     <!-- ===== Resume bank ===== -->
     <section id="sec-resumes">
-      <h1 class="dash-title">بانک رزومه</h1>
+      <h1 class="dash-title">بانک رزومه — جستجوی پیشرفته نفرات</h1>
       <div class="panel" style="margin-bottom:16px">
-        <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr">
-          <div class="form-field"><label>مهارت / عنوان</label><input type="text" placeholder="مثلاً: هماتولوژی"></div>
+        <div class="form-grid" style="grid-template-columns:repeat(4,1fr)">
+          <div class="form-field"><label>مهارت / عنوان شغلی</label><input type="text" id="rb-q" placeholder="مثلاً: هماتولوژی"></div>
+          <div class="form-field"><label>استان (محدوده جغرافیایی)</label><select id="rb-prov"></select></div>
           <div class="form-field"><label>شهر</label><select id="rb-city"></select></div>
-          <div class="form-field"><label>وضعیت</label><select><option>همه</option><option>فقط آماده به کار</option><option>دارای نشان مهارت</option></select></div>
+          <div class="form-field"><label>شعاع جغرافیایی</label>
+            <select id="rb-radius"><option>محدودیت ندارد</option><option>تا ۱۰ کیلومتر</option><option>تا ۲۵ کیلومتر</option><option>تا ۵۰ کیلومتر</option><option>هم‌استان</option></select></div>
+          <div class="form-field"><label>رشته تحصیلی</label><select id="rb-field"><option value="">همه</option></select></div>
+          <div class="form-field"><label>مدرک تحصیلی</label><select id="rb-degree"><option value="">همه</option></select></div>
+          <div class="form-field"><label>سابقه کار</label><select id="rb-exp"><option value="">همه</option></select></div>
+          <div class="form-field"><label>جنسیت</label><select id="rb-gender"><option value="">فرقی نمی‌کند</option></select></div>
+          <div class="form-field"><label>نوع همکاری موردنظر</label><select id="rb-type"><option value="">همه</option></select></div>
+          <div class="form-field"><label>وضعیت سربازی</label><select id="rb-military"><option value="">مهم نیست</option></select></div>
+          <div class="form-field"><label>سقف حقوق درخواستی</label><select id="rb-salary"><option value="">همه</option></select></div>
+          <div class="form-field"><label>مزایای موردانتظار</label><select id="rb-benefit"><option value="">همه</option></select></div>
+          <div class="form-field"><label>وضعیت</label><select id="rb-status"><option>همه</option><option>فقط آماده به کار</option><option>دارای نشان مهارت</option><option>دارای نتیجه MBTI</option></select></div>
+          <div class="form-field"><label>تیپ شخصیتی (MBTI)</label><select id="rb-mbti"><option value="">همه</option></select></div>
         </div>
-        <button class="btn btn-primary" onclick="toast('جستجو انجام شد (دمو)')">جستجوی رزومه</button>
+        <button class="btn btn-primary" onclick="toast('جستجو انجام شد — ۵ رزومه مطابق فیلترها (دمو)')">جستجوی رزومه</button>
+        <button class="btn btn-outline" onclick="toast('این جستجو ذخیره شد؛ رزومه‌های جدید مطابق آن به شما اطلاع داده می‌شود ✓')">🔔 ذخیره جستجو + هشدار رزومه</button>
       </div>
       <div class="table-wrap">
         <table class="data">
           <thead><tr><th>کارجو</th><th>عنوان</th><th>شهر</th><th>وضعیت</th><th></th></tr></thead>
           <tbody id="resumes-body"></tbody>
         </table>
+      </div>
+    </section>
+
+    <!-- ===== Exam builder ===== -->
+    <section id="sec-exambuilder">
+      <h1 class="dash-title">طراحی آزمون و صدور گواهینامه</h1>
+      <p class="dash-sub">آزمون خود را طراحی کنید؛ پس از بازبینی علمی آیولب منتشر می‌شود. کارجویانی که حد نصاب را بگیرند، گواهی شما را روی رزومه‌شان دریافت می‌کنند.</p>
+
+      <div class="panel">
+        <h2>مشخصات آزمون</h2>
+        <div class="form-grid">
+          <div class="form-field full"><label>عنوان آزمون *</label><input type="text" id="eb-title" placeholder="مثلاً: آزمون تخصصی هماتولوژی — سطح پیشرفته"></div>
+          <div class="form-field"><label>بخش تخصصی</label><select id="eb-dept"></select></div>
+          <div class="form-field"><label>سطح آزمون</label><select id="eb-level"></select></div>
+          <div class="form-field"><label>مدت آزمون (دقیقه)</label><input type="number" id="eb-duration" value="20"></div>
+          <div class="form-field"><label>حد نصاب قبولی (٪)</label><input type="number" id="eb-pass" value="70"></div>
+          <div class="form-field full"><label>توضیح آزمون</label><textarea id="eb-desc" rows="2" placeholder="این آزمون چه چیزی را می‌سنجد؟"></textarea></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>سؤالات <span class="q-count" id="eb-count">۰ سؤال</span></h2>
+        <div id="eb-questions"></div>
+        <button class="btn btn-outline" onclick="addQuestion()">+ افزودن سؤال چندگزینه‌ای</button>
+      </div>
+
+      <div class="panel">
+        <h2>تنظیمات گواهی</h2>
+        <div class="form-grid">
+          <div class="form-field"><label>نشان گواهی</label>
+            <select id="eb-badge"><option>🩸</option><option>🛡️</option><option>🧤</option><option>🧬</option><option>🔬</option><option>🎖️</option></select></div>
+          <div class="form-field"><label>اعتبار گواهی</label>
+            <select><option>۱ سال</option><option>۲ سال</option><option>بدون انقضا</option></select></div>
+          <div class="form-field full">
+            <label class="check-item"><input type="checkbox" checked> صدور خودکار گواهی و افزودن به رزومه در صورت قبولی</label>
+            <label class="check-item"><input type="checkbox" checked> نمایش دارندگان گواهی در بالای نتایج بانک رزومه من</label>
+            <label class="check-item"><input type="checkbox"> ارسال خودکار دعوت‌نامه مصاحبه به قبول‌شدگان با نمره بالای ۹۰٪</label>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:16px">
+        <button class="btn btn-outline" onclick="previewExam()">پیش‌نمایش آزمون</button>
+        <button class="btn btn-primary btn-lg" onclick="submitExam()">ارسال برای بازبینی و انتشار</button>
+      </div>
+
+      <div class="panel" style="margin-top:20px">
+        <h2>آزمون‌های منتشرشده من</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>عنوان</th><th>سطح</th><th>سؤال</th><th>شرکت‌کننده</th><th>گواهی صادرشده</th><th>وضعیت</th></tr></thead>
+            <tbody id="eb-mine"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -176,15 +320,21 @@
 
 <footer id="site-footer" class="site-footer"></footer>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="assets/js/geo.js"></script>
 <script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/map.js"></script>
 <script>
 const NAV_ITEMS = [
   ["overview", "پیشخوان", "home"],
+  ["addlab", "ثبت آزمایشگاه روی نقشه", "pin"],
   ["post", "ثبت آگهی جدید", "plus"],
   ["jobs", "آگهی‌های من", "briefcase"],
   ["applicants", "متقاضیان", "users"],
   ["resumes", "بانک رزومه", "search"],
+  ["exambuilder", "طراحی آزمون و گواهی", "grad"],
   ["pricing", "تعرفه و اشتراک", "chart"]
 ];
 
@@ -207,9 +357,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const deptSel = document.getElementById("pj-dept");
   AIO_DEPARTMENTS.forEach(d => deptSel.insertAdjacentHTML("beforeend", `<option>${d.name}</option>`));
   const citySel = document.getElementById("pj-city");
-  const rbCity = document.getElementById("rb-city");
-  rbCity.insertAdjacentHTML("beforeend", "<option>همه شهرها</option>");
-  AIO_CITIES.forEach(c => { citySel.insertAdjacentHTML("beforeend", `<option>${c}</option>`); rbCity.insertAdjacentHTML("beforeend", `<option>${c}</option>`); });
+  AIO_ALL_CITIES.forEach(c => citySel.insertAdjacentHTML("beforeend", `<option>${c}</option>`));
+
+  initAddLab();
+  initResumeBank();
+  initExamBuilder();
 
   // my jobs
   document.getElementById("jobs-body").innerHTML = AIO_EMPLOYER_JOBS.map(j => `
@@ -266,6 +418,153 @@ function showSec(sec) {
   if (el) el.classList.add("active");
   document.querySelectorAll("#dash-nav a").forEach(a => a.classList.toggle("active", a.dataset.sec === sec));
   window.scrollTo({ top: 0 });
+  if (sec === "addlab" && picker && picker.map) setTimeout(() => picker.map.invalidateSize(), 80);
+}
+
+/* ================== ثبت آزمایشگاه + نقشه ================== */
+let picker = null, pinned = null;
+
+function initAddLab() {
+  const opt = (id, arr, val, label) => document.getElementById(id).innerHTML =
+    arr.map(x => `<option value="${val ? x[val] : x}">${label ? x[label] : x}</option>`).join("");
+
+  opt("lb-vertical", AIO_VERTICALS, "id", "name");
+  opt("lb-sector", AIO_SECTORS, "id", "name");
+  opt("lb-kind", AIO_ORG_KINDS, "id", "name");
+  opt("lb-size", AIO_ORG_SIZES);
+  bindProvinceCity("lb-prov", "lb-city", () => goToCity());
+
+  document.getElementById("lb-perks").innerHTML = AIO_BENEFITS.map(b =>
+    `<button type="button" class="cp" onclick="this.classList.toggle('on')">${b}</button>`).join("");
+
+  picker = renderPickerMap("pick-map", {
+    onPick(latlng) {
+      pinned = latlng;
+      document.getElementById("coord").innerHTML =
+        `مختصات: <b>${latlng.lat.toFixed(5)}</b> , <b>${latlng.lng.toFixed(5)}</b> ✓`;
+    }
+  });
+}
+
+function goToCity() {
+  const p = provinceById(document.getElementById("lb-prov").value);
+  if (!p) { toast("ابتدا استان را انتخاب کنید"); return; }
+  if (picker) picker.goTo(p.lat, p.lng, 11);
+}
+
+function locateMe() {
+  if (!navigator.geolocation) { toast("مرورگر شما موقعیت‌یابی را پشتیبانی نمی‌کند"); return; }
+  navigator.geolocation.getCurrentPosition(
+    pos => { picker.setPin(pos.coords.latitude, pos.coords.longitude); toast("موقعیت فعلی شما روی نقشه پین شد"); },
+    () => toast("دسترسی به موقعیت داده نشد")
+  );
+}
+
+function clearPin() { if (picker) picker.clear(); pinned = null; document.getElementById("coord").textContent = "مختصات: هنوز انتخاب نشده"; }
+
+function previewSalary() {
+  const v = parseFloat(document.getElementById("lb-salary").value);
+  const box = document.getElementById("salary-preview");
+  if (!v) { document.getElementById("sp-val").textContent = "—"; document.getElementById("sp-cmp").textContent = ""; box.classList.remove("on"); return; }
+  box.classList.add("on");
+  document.getElementById("sp-val").textContent = fa(v);
+  const market = AIO_LABS.reduce((s, l) => s + l.avgSalary, 0) / AIO_LABS.length;
+  const diff = Math.round((v - market) / market * 100);
+  document.getElementById("sp-cmp").innerHTML = diff >= 0
+    ? `<i class="up">▲ ${fa(Math.abs(diff))}٪ بالاتر از میانگین بازار (${fa(market.toFixed(1))} م.ت)</i>`
+    : `<i class="down">▼ ${fa(Math.abs(diff))}٪ پایین‌تر از میانگین بازار (${fa(market.toFixed(1))} م.ت)</i>`;
+}
+
+function submitLab() {
+  const name = document.getElementById("lb-name").value.trim();
+  if (!name) { toast("نام مرکز را وارد کنید"); return; }
+  if (!pinned) { toast("لطفاً موقعیت مرکز را روی نقشه پین کنید"); return; }
+  const salary = parseFloat(document.getElementById("lb-salary").value) || 0;
+  MyLabs.add({
+    name, lat: pinned.lat, lng: pinned.lng,
+    provinceId: document.getElementById("lb-prov").value,
+    city: document.getElementById("lb-city").value,
+    sector: document.getElementById("lb-sector").value,
+    orgKind: document.getElementById("lb-kind").value,
+    avgSalary: salary, address: document.getElementById("lb-address").value,
+    perks: [...document.querySelectorAll("#lb-perks .cp.on")].map(b => b.textContent)
+  });
+  toast("مرکز ثبت شد ✓ پس از تأیید کارشناسان، روی نقشه سراسری نمایش داده می‌شود");
+}
+
+/* ================== بانک رزومه پیشرفته ================== */
+function initResumeBank() {
+  const fill = (id, arr) => document.getElementById(id).insertAdjacentHTML("beforeend",
+    arr.map(v => `<option value="${v}">${v}</option>`).join(""));
+  bindProvinceCity("rb-prov", "rb-city");
+  fill("rb-field", AIO_FIELDS_STUDY);
+  fill("rb-degree", AIO_DEGREES);
+  fill("rb-exp", AIO_EXPERIENCES);
+  fill("rb-gender", AIO_GENDERS);
+  fill("rb-type", AIO_JOB_TYPES);
+  fill("rb-military", AIO_MILITARY);
+  fill("rb-benefit", AIO_BENEFITS);
+  document.getElementById("rb-salary").insertAdjacentHTML("beforeend",
+    AIO_SALARY_BANDS.map(b => `<option value="${b.id}">${b.name}</option>`).join(""));
+  document.getElementById("rb-mbti").insertAdjacentHTML("beforeend",
+    Object.keys(AIO_MBTI_TYPES).map(t => `<option value="${t}">${t} — ${AIO_MBTI_TYPES[t].name}</option>`).join(""));
+}
+
+/* ================== طراحی آزمون ================== */
+let ebQs = [];
+
+function initExamBuilder() {
+  document.getElementById("eb-dept").innerHTML = AIO_DEPARTMENTS.map(d => `<option value="${d.id}">${d.name}</option>`).join("");
+  document.getElementById("eb-level").innerHTML = AIO_EXAM_LEVELS.map(l => `<option>${l}</option>`).join("");
+  document.getElementById("eb-mine").innerHTML = AIO_EXAMS.map(e => `
+    <tr>
+      <td><b>${e.badge} ${e.title}</b></td><td>${e.level}</td>
+      <td>${fa(e.questions.length)}</td><td>${fa(e.takers)}</td><td>${fa(e.certIssued)}</td>
+      <td><span class="status active">منتشرشده</span></td>
+    </tr>`).join("");
+  addQuestion();
+}
+
+function addQuestion() {
+  ebQs.push({ q: "", options: ["", "", "", ""], answer: 0 });
+  renderQuestions();
+}
+
+function removeQuestion(i) { ebQs.splice(i, 1); renderQuestions(); }
+
+function renderQuestions() {
+  document.getElementById("eb-count").textContent = fa(ebQs.length) + " سؤال";
+  document.getElementById("eb-questions").innerHTML = ebQs.map((q, i) => `
+    <div class="eb-q">
+      <div class="ebq-head">
+        <b>سؤال ${fa(i + 1)}</b>
+        <button class="btn btn-sm btn-ghost danger" onclick="removeQuestion(${i})">حذف</button>
+      </div>
+      <input type="text" class="ebq-text" placeholder="متن سؤال…" value="${q.q}"
+             oninput="ebQs[${i}].q=this.value">
+      <div class="ebq-opts">
+        ${q.options.map((o, k) => `
+          <label class="ebq-opt">
+            <input type="radio" name="ans-${i}" ${q.answer === k ? "checked" : ""} onchange="ebQs[${i}].answer=${k}">
+            <input type="text" placeholder="گزینه ${fa(k + 1)}" value="${o}" oninput="ebQs[${i}].options[${k}]=this.value">
+          </label>`).join("")}
+      </div>
+      <small class="ebq-hint">گزینه‌ای که رادیوی آن انتخاب شده، پاسخ صحیح است.</small>
+    </div>`).join("");
+}
+
+function previewExam() {
+  const filled = ebQs.filter(q => q.q.trim());
+  if (!filled.length) { toast("حداقل یک سؤال بنویسید"); return; }
+  toast(`پیش‌نمایش: ${fa(filled.length)} سؤال، ${document.getElementById("eb-duration").value} دقیقه، حد نصاب ${document.getElementById("eb-pass").value}٪`);
+}
+
+function submitExam() {
+  const title = document.getElementById("eb-title").value.trim();
+  const filled = ebQs.filter(q => q.q.trim() && q.options.filter(o => o.trim()).length >= 2);
+  if (!title) { toast("عنوان آزمون را وارد کنید"); return; }
+  if (filled.length < 3) { toast("حداقل ۳ سؤال کامل لازم است (متن سؤال + حداقل ۲ گزینه)"); return; }
+  toast(`آزمون «${title}» با ${fa(filled.length)} سؤال برای بازبینی ارسال شد ✓`);
 }
 </script>
 </body>

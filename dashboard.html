@@ -26,6 +26,8 @@
       <a href="#overview" class="active" data-sec="overview"></a>
       <a href="#resume" data-sec="resume"></a>
       <a href="#applications" data-sec="applications"></a>
+      <a href="#alerts" data-sec="alerts"></a>
+      <a href="#certs" data-sec="certs"></a>
       <a href="#saved" data-sec="saved"></a>
       <a href="#career" data-sec="career"></a>
       <a href="#notifications" data-sec="notifications"></a>
@@ -39,6 +41,19 @@
     <!-- ===== Overview ===== -->
     <section id="sec-overview" class="active">
       <h1 class="dash-title">داشبورد من</h1>
+
+      <!-- چک‌لیست «بعد از ثبت‌نام چه کار کنم؟» -->
+      <div class="onboard-card" id="onboard">
+        <div class="ob-head">
+          <div>
+            <b>مسیر شما تا اولین مصاحبه</b>
+            <span id="ob-progress">۰ از ۴ قدم انجام شده</span>
+          </div>
+          <div class="ob-ring"><b id="ob-pct">۰٪</b></div>
+        </div>
+        <div class="ob-steps" id="ob-steps"></div>
+      </div>
+
       <div class="progress-card">
         <b style="font-size:16px">قدرت پروفایل شما: ۷۵٪</b>
         <div class="bar"><i style="width:75%"></i></div>
@@ -102,6 +117,64 @@
       </div>
     </section>
 
+    <!-- ===== Job alerts ===== -->
+    <section id="sec-alerts">
+      <h1 class="dash-title">هشدارهای شغلی من</h1>
+      <p class="dash-sub">معیارهایت را یک‌بار تعریف کن؛ هر آگهی جدیدی که با آن بخواند، از طریق کانال‌های انتخابی به تو خبر داده می‌شود. لازم نیست هر روز سایت را چک کنی.</p>
+
+      <div class="panel">
+        <h2>ساخت هشدار جدید</h2>
+        <div class="form-grid" style="grid-template-columns:repeat(4,1fr)">
+          <div class="form-field"><label>عنوان یا مهارت</label><input type="text" id="na-q" placeholder="مثلاً: هماتولوژی"></div>
+          <div class="form-field"><label>بخش</label><select id="na-dept"><option value="">همه بخش‌ها</option></select></div>
+          <div class="form-field"><label>استان</label><select id="na-prov"></select></div>
+          <div class="form-field"><label>شهر</label><select id="na-city"></select></div>
+          <div class="form-field"><label>نوع همکاری</label><select id="na-type"><option value="">همه</option></select></div>
+          <div class="form-field"><label>حداقل حقوق</label><select id="na-band"><option value="">مهم نیست</option></select></div>
+          <div class="form-field full">
+            <label>کانال اطلاع‌رسانی</label>
+            <div class="channels">
+              <label class="check-item"><input type="checkbox" value="پیامک" checked> پیامک</label>
+              <label class="check-item"><input type="checkbox" value="ایمیل" checked> ایمیل</label>
+              <label class="check-item"><input type="checkbox" value="اعلان سایت" checked> اعلان داخل سایت</label>
+              <label class="check-item"><input type="checkbox" value="تلگرام"> ربات تلگرام</label>
+            </div>
+          </div>
+          <div class="form-field full">
+            <label>تناوب اطلاع‌رسانی</label>
+            <select id="na-freq"><option>آنی (به‌محض انتشار)</option><option>خلاصه روزانه</option><option>خلاصه هفتگی</option></select>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="createAlert()">🔔 ساخت هشدار شغلی</button>
+      </div>
+
+      <div class="panel">
+        <h2>هشدارهای فعال</h2>
+        <div id="alerts-list"></div>
+      </div>
+    </section>
+
+    <!-- ===== Certificates & tests ===== -->
+    <section id="sec-certs">
+      <h1 class="dash-title">آزمون‌ها، گواهی‌ها و خودارزیابی</h1>
+
+      <div class="panel">
+        <h2>گواهی‌های مهارتی من</h2>
+        <div id="my-certs-dash"></div>
+        <a class="btn btn-outline" href="exams.html" style="margin-top:12px">شرکت در آزمون جدید</a>
+      </div>
+
+      <div class="panel">
+        <h2>تیپ شخصیتی (MBTI)</h2>
+        <div id="mbti-dash"></div>
+      </div>
+
+      <div class="panel">
+        <h2>خودارزیابی مهارت</h2>
+        <div id="assess-dash"></div>
+      </div>
+    </section>
+
     <!-- ===== Saved ===== -->
     <section id="sec-saved">
       <h1 class="dash-title">آگهی‌های ذخیره‌شده</h1>
@@ -150,13 +223,17 @@
 
 <footer id="site-footer" class="site-footer"></footer>
 
+<script src="assets/js/geo.js"></script>
 <script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
 <script>
 const NAV_ITEMS = [
   ["overview", "پیشخوان", "home"],
   ["resume", "رزومه حرفه‌ای من", "doc"],
   ["applications", "درخواست‌های من", "send"],
+  ["alerts", "هشدارهای شغلی", "bell"],
+  ["certs", "گواهی و خودارزیابی", "grad"],
   ["saved", "آگهی‌های ذخیره‌شده", "bookmark"],
   ["career", "مسیر ارتقاء شغلی", "path"],
   ["notifications", "اعلان‌ها", "bell"]
@@ -188,6 +265,10 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("saved-jobs").innerHTML = AIO_JOBS.slice(0, 3).map(jobCardHTML).join("");
   renderSkills();
   document.getElementById("devices").innerHTML = devices.map(d => `<span class="tag">${d}</span>`).join("");
+
+  initOnboard();
+  initAlerts();
+  initCerts();
 
   document.getElementById("notifs").innerHTML = [
     ["🎉", "شما به مصاحبه «کارشناس هماتولوژی» در آزمایشگاه نور دعوت شدید.", "۲ ساعت پیش"],
@@ -222,7 +303,121 @@ function toggleOTW() {
   const b = document.getElementById("otw");
   const off = b.classList.toggle("off");
   b.innerHTML = `<span class="dot"></span> ${off ? "غیرفعال" : "آماده به کار"}`;
+  Store.set("otw", !off);
   toast(off ? "وضعیت آماده‌به‌کار غیرفعال شد" : "وضعیت آماده‌به‌کار فعال شد ✓ کارفرمایان شما را می‌بینند");
+  initOnboard();
+}
+
+/* ============ چک‌لیست بعد از ثبت‌نام ============ */
+function initOnboard() {
+  const steps = [
+    { t: "رزومه‌ات را کامل کن", d: "مهارت‌ها، دستگاه‌ها و سوابق کاری — پروفایل بالای ۷۰٪ در جستجوی کارفرما بالاتر دیده می‌شود.",
+      done: true, act: "رفتن به رزومه", go: "showSec('resume')" },
+    { t: "«آماده به کار» را روشن کن", d: "تا در بانک رزومه کارفرمایان دیده شوی و در آگهی‌های فوری اولویت بگیری.",
+      done: Store.get("otw", false), act: "فعال کردن", go: "toggleOTW()" },
+    { t: "هشدار شغلی بساز", d: "تا آگهی‌های جدید مطابق معیارت خودکار به تو خبر داده شود.",
+      done: MyAlerts.all().length > 0, act: "ساخت هشدار", go: "showSec('alerts')" },
+    { t: "آزمون مهارت بده", d: "نشان تأییدشده روی رزومه، شانس دعوت به مصاحبه را چند برابر می‌کند.",
+      done: MyCerts.all().length > 0, act: "مشاهده آزمون‌ها", go: "location.href='exams.html'" }
+  ];
+  const done = steps.filter(s => s.done).length;
+  const pct = Math.round(done / steps.length * 100);
+  document.getElementById("ob-progress").textContent = `${fa(done)} از ${fa(steps.length)} قدم انجام شده`;
+  document.getElementById("ob-pct").textContent = fa(pct) + "٪";
+  document.getElementById("ob-steps").innerHTML = steps.map((s, i) => `
+    <div class="ob-step ${s.done ? "done" : ""}">
+      <span class="ob-num">${s.done ? "✓" : fa(i + 1)}</span>
+      <div class="ob-body"><b>${s.t}</b><p>${s.d}</p></div>
+      ${s.done ? '<span class="ob-tag">انجام شد</span>' : `<button class="btn btn-sm btn-primary" onclick="${s.go}">${s.act}</button>`}
+    </div>`).join("");
+  document.getElementById("onboard").classList.toggle("all-done", done === steps.length);
+}
+
+/* ============ هشدارهای شغلی ============ */
+function initAlerts() {
+  document.getElementById("na-dept").insertAdjacentHTML("beforeend",
+    AIO_DEPARTMENTS.map(d => `<option value="${d.id}">${d.name}</option>`).join(""));
+  document.getElementById("na-type").insertAdjacentHTML("beforeend",
+    AIO_JOB_TYPES.map(t => `<option>${t}</option>`).join(""));
+  document.getElementById("na-band").insertAdjacentHTML("beforeend",
+    AIO_SALARY_BANDS.map(b => `<option value="${b.id}">${b.name}</option>`).join(""));
+  bindProvinceCity("na-prov", "na-city");
+  renderAlerts();
+}
+
+function createAlert() {
+  const d = document.getElementById("na-dept").value;
+  const pr = document.getElementById("na-prov").value;
+  const city = document.getElementById("na-city").value;
+  const q = document.getElementById("na-q").value.trim();
+  const type = document.getElementById("na-type").value;
+  const channels = [...document.querySelectorAll(".channels input:checked")].map(c => c.value);
+  if (!channels.length) { toast("حداقل یک کانال اطلاع‌رسانی انتخاب کنید"); return; }
+  const title = [q, d ? dept(d).name : "", city || (pr ? provinceById(pr).name : "سراسر کشور"), type]
+    .filter(Boolean).join(" · ");
+  const f = { q, dept: d, provinceId: pr, city, types: type ? [type] : [],
+              salaryBands: document.getElementById("na-band").value ? [document.getElementById("na-band").value] : [] };
+  MyAlerts.add({ title, filters: f, channels, freq: document.getElementById("na-freq").value, created: "امروز" });
+  document.getElementById("na-q").value = "";
+  renderAlerts(); initOnboard();
+  toast("هشدار شغلی ساخته شد ✓");
+}
+
+function renderAlerts() {
+  const list = MyAlerts.all();
+  document.getElementById("alerts-list").innerHTML = list.length ? list.map((a, i) => {
+    const matches = filterJobs(a.filters || {}).length;
+    return `<div class="alert-item">
+      <span class="ai-ic">🔔</span>
+      <div class="ai-body">
+        <b>${a.title}</b>
+        <div class="ai-meta">
+          <span>کانال: ${(a.channels || []).join("، ")}</span>
+          <span>${a.freq || "آنی"}</span>
+          <span class="ai-match">${fa(matches)} آگهی فعال مطابق</span>
+        </div>
+      </div>
+      <a class="btn btn-sm btn-outline" href="jobs.html">مشاهده نتایج</a>
+      <button class="btn btn-sm btn-ghost danger" onclick="MyAlerts.remove(${i});renderAlerts();initOnboard()">حذف</button>
+    </div>`;
+  }).join("") : `<div class="empty-inline">هنوز هشداری نساخته‌اید. با ساخت هشدار، دیگر لازم نیست هر روز سایت را چک کنید.</div>`;
+}
+
+/* ============ گواهی، MBTI، خودارزیابی ============ */
+function initCerts() {
+  const certs = MyCerts.all();
+  document.getElementById("my-certs-dash").innerHTML = certs.length
+    ? `<div class="cert-grid">${certs.map(c => `
+        <div class="cert-card">
+          <div class="cc-badge">${c.badge || "🎖️"}</div>
+          <b>${c.title}</b>
+          <span class="cc-score">نمره: ${fa(c.score)}٪</span>
+          <span class="cc-code">کد: ${c.code}</span>
+          <span class="cc-date">صادرکننده: ${c.issuer}</span>
+        </div>`).join("")}</div>`
+    : `<div class="empty-inline">هنوز گواهی مهارتی ندارید. آزمون‌های آیولب توسط کارفرمایان طراحی می‌شوند و گواهی آن‌ها مستقیم روی رزومه شما می‌نشیند.</div>`;
+
+  const m = MyMBTI.get();
+  document.getElementById("mbti-dash").innerHTML = m
+    ? `<div class="mbti-mini">
+         <div class="mm-type">${m.type}</div>
+         <div><b>${AIO_MBTI_TYPES[m.type].name}</b><p>${AIO_MBTI_TYPES[m.type].short}</p>
+         <div class="fit-chips">${AIO_MBTI_TYPES[m.type].fit.map(f => `<span>${f}</span>`).join("")}</div></div>
+         <a class="btn btn-sm btn-outline" href="mbti.html">آزمون مجدد</a>
+       </div>`
+    : `<div class="empty-inline">تست MBTI را نداده‌اید. <a href="mbti.html">همین حالا شرکت کنید</a> — ۵ دقیقه.</div>`;
+
+  const a = MyAssess.get();
+  document.getElementById("assess-dash").innerHTML = a
+    ? `<div class="assess-mini">
+         <div class="am-score"><b>${fa(a.overall)}٪</b><span>امتیاز کلی</span></div>
+         <div class="skill-bars">${a.groups.map(g => `
+           <div class="sb-row"><span class="sb-name">${g.name}</span>
+             <div class="sb-track"><i style="width:${g.pct}%;background:${g.color}"></i></div>
+             <b class="sb-val">${fa(g.pct)}٪</b></div>`).join("")}</div>
+         <a class="btn btn-sm btn-outline" href="assessment.html">ارزیابی مجدد</a>
+       </div>`
+    : `<div class="empty-inline">هنوز خودارزیابی نکرده‌اید. <a href="assessment.html">شروع خودارزیابی</a> — نتیجه به نقشه مهارت و شکاف تا شغل هدف تبدیل می‌شود.</div>`;
 }
 </script>
 </body>

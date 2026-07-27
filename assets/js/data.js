@@ -4,121 +4,581 @@
 
 const AIO_COLORS = ["#0d9488", "#0ea5e9", "#8b5cf6", "#f59e0b", "#f43f5e", "#115e59", "#6366f1", "#059669"];
 
-const AIO_DEPARTMENTS = [
-  { id: "hematology",   name: "هماتولوژی",        icon: "drop",    color: "#f43f5e", bg: "#ffe4e6" },
-  { id: "biochemistry", name: "بیوشیمی",           icon: "flask",   color: "#0d9488", bg: "#ccfbf1" },
-  { id: "microbiology", name: "میکروب‌شناسی",      icon: "microbe", color: "#8b5cf6", bg: "#ede9fe" },
-  { id: "pathology",    name: "پاتولوژی",          icon: "scope",   color: "#0ea5e9", bg: "#e0f2fe" },
-  { id: "sampling",     name: "نمونه‌گیری",        icon: "syringe", color: "#f59e0b", bg: "#fef3c7" },
-  { id: "qc",           name: "کنترل کیفیت",       icon: "shield",  color: "#059669", bg: "#d1fae5" },
-  { id: "genetics",     name: "ژنتیک و مولکولی",   icon: "dna",     color: "#6366f1", bg: "#e0e7ff" },
-  { id: "management",   name: "مسئول فنی و مدیریت", icon: "briefcase", color: "#115e59", bg: "#ccfbf1" }
+/* ---------- عمودی‌های پلتفرم (برند چتر aio) ---------- */
+const AIO_VERTICALS = [
+  { id: "lab",      slug: "aiolab",    name: "آزمایشگاه",    en: "Laboratory",     icon: "flask",   color: "#0d9488", bg: "#ccfbf1", active: true },
+  { id: "imaging",  slug: "aioimage",  name: "تصویربرداری",  en: "Imaging",        icon: "scope",   color: "#0ea5e9", bg: "#e0f2fe", active: false },
+  { id: "physio",   slug: "aiophysio", name: "فیزیوتراپی",   en: "Physiotherapy",  icon: "path",    color: "#8b5cf6", bg: "#ede9fe", active: false },
+  { id: "nursing",  slug: "aionurse",  name: "پرستاری",      en: "Nursing",        icon: "heart",   color: "#f43f5e", bg: "#ffe4e6", active: false },
+  { id: "pharmacy", slug: "aiodrug",   name: "داروخانه",     en: "Pharmacy",       icon: "drop",    color: "#f59e0b", bg: "#fef3c7", active: false },
+  { id: "vet",      slug: "aiovet",    name: "دامپزشکی",     en: "Veterinary",     icon: "microbe", color: "#059669", bg: "#d1fae5", active: false }
 ];
 
+const AIO_DEPARTMENTS = [
+  { id: "hematology",   name: "هماتولوژی",         en: "Hematology",     icon: "drop",      color: "#f43f5e", bg: "#ffe4e6" },
+  { id: "biochemistry", name: "بیوشیمی",           en: "Biochemistry",   icon: "flask",     color: "#0d9488", bg: "#ccfbf1" },
+  { id: "microbiology", name: "میکروب‌شناسی",      en: "Microbiology",   icon: "microbe",   color: "#8b5cf6", bg: "#ede9fe" },
+  { id: "pathology",    name: "پاتولوژی",          en: "Pathology",      icon: "scope",     color: "#0ea5e9", bg: "#e0f2fe" },
+  { id: "sampling",     name: "نمونه‌گیری",        en: "Sampling",       icon: "syringe",   color: "#f59e0b", bg: "#fef3c7" },
+  { id: "qc",           name: "کنترل کیفیت",       en: "Quality Control",icon: "shield",    color: "#059669", bg: "#d1fae5" },
+  { id: "genetics",     name: "ژنتیک و مولکولی",   en: "Genetics",       icon: "dna",       color: "#6366f1", bg: "#e0e7ff" },
+  { id: "management",   name: "مسئول فنی و مدیریت",en: "Management",     icon: "briefcase", color: "#115e59", bg: "#ccfbf1" }
+];
+
+/* ---------- طبقه‌بندی سازمان‌ها ---------- */
+const AIO_SECTORS = [
+  { id: "private",    name: "خصوصی" },
+  { id: "government", name: "دولتی" },
+  { id: "corporate",  name: "شرکتی / هلدینگ" },
+  { id: "university", name: "دانشگاهی و آموزشی" },
+  { id: "foreign",    name: "خارجی / بین‌المللی" },
+  { id: "charity",    name: "خیریه و عام‌المنفعه" }
+];
+
+const AIO_ORG_KINDS = [
+  { id: "clinical",    name: "مرکز تشخیصی / درمانی" },
+  { id: "research",    name: "مرکز پژوهشی" },
+  { id: "manufacturer",name: "تولیدکننده تجهیزات" },
+  { id: "distributor", name: "توزیع‌کننده" },
+  { id: "importer",    name: "واردکننده" }
+];
+
+const AIO_ORG_SIZES = ["کمتر از ۱۰ نفر", "۱۰ تا ۵۰ نفر", "۵۰ تا ۲۰۰ نفر", "بیش از ۲۰۰ نفر"];
+
+/* ---------- فیلدهای پیشرفته آگهی ---------- */
+const AIO_JOB_TYPES     = ["تمام‌وقت", "پاره‌وقت", "شیفتی", "موقت", "قراردادی", "کارآموزی", "پروژه‌ای", "دورکاری"];
+const AIO_SHIFTS        = ["صبح", "عصر", "شب", "صبح و عصر", "چرخشی"];
+const AIO_DEGREES       = ["دیپلم", "کاردانی", "کارشناسی", "کارشناسی ارشد", "دکتری", "مهم نیست"];
+const AIO_FIELDS_STUDY  = ["علوم آزمایشگاهی", "میکروب‌شناسی", "بیوشیمی", "ژنتیک", "بیوتکنولوژی", "ایمونولوژی", "هماتولوژی", "مهندسی پزشکی", "پرستاری", "سایر"];
+const AIO_GENDERS       = ["فرقی نمی‌کند", "آقا", "خانم"];
+const AIO_MILITARY      = ["مهم نیست", "پایان خدمت", "معافیت دائم", "معافیت تحصیلی"];
+const AIO_EXPERIENCES   = ["بدون نیاز به سابقه", "کمتر از ۱ سال", "۱ تا ۳ سال", "۳ تا ۵ سال", "بیش از ۵ سال"];
+const AIO_BENEFITS      = ["بیمه تکمیلی", "بیمه از روز اول", "پاداش عملکرد", "سرویس رفت‌وآمد", "ناهار / غذای پرسنلی",
+                           "وام و مساعده", "حق شیفت شب", "آموزش رایگان", "امکان ارتقاء شغلی", "ساعت کاری منعطف",
+                           "ساعت کاری منظم", "امنیت شغلی", "محیط پژوهشی", "امکان مقاله مشترک", "پورسانت",
+                           "ماشین شرکتی", "مرخصی تشویقی", "بن خرید"];
+const AIO_SALARY_BANDS  = [
+  { id: "b1", name: "تا ۱۰ میلیون تومان", min: 0,  max: 10 },
+  { id: "b2", name: "۱۰ تا ۱۵ میلیون",     min: 10, max: 15 },
+  { id: "b3", name: "۱۵ تا ۲۰ میلیون",     min: 15, max: 20 },
+  { id: "b4", name: "۲۰ تا ۳۰ میلیون",     min: 20, max: 30 },
+  { id: "b5", name: "بیش از ۳۰ میلیون",    min: 30, max: 999 }
+];
+const AIO_POST_AGES = [
+  { id: "1",  name: "۲۴ ساعت گذشته", days: 1 },
+  { id: "3",  name: "۳ روز گذشته",   days: 3 },
+  { id: "7",  name: "یک هفته گذشته", days: 7 },
+  { id: "30", name: "یک ماه گذشته",  days: 30 }
+];
+
+/* برای سازگاری با نسخه قبلی */
 const AIO_CITIES = ["تهران", "مشهد", "اصفهان", "شیراز", "تبریز", "کرج", "اهواز", "قم", "رشت", "کرمان"];
 
+/* ==========================================
+   آزمایشگاه‌ها / مراکز — با لوکیشن، امتیاز و میانگین حقوق
+   ========================================== */
 const AIO_LABS = [
-  { id: 1, name: "آزمایشگاه پاتوبیولوژی نور", city: "تهران", type: "آزمایشگاه تشخیص طبی", color: "#0d9488",
+  { id: 1, name: "آزمایشگاه پاتوبیولوژی نور", vertical: "lab", city: "تهران", provinceId: "tehran",
+    type: "آزمایشگاه تشخیص طبی", sector: "private", orgKind: "clinical", size: "۵۰ تا ۲۰۰ نفر",
+    color: "#0d9488", lat: 35.7219, lng: 51.4089, address: "تهران، خیابان شریعتی، بالاتر از میرداماد، پلاک ۱۲۴۰",
     about: "آزمایشگاه پاتوبیولوژی نور با بیش از ۲۵ سال سابقه، یکی از مراکز پیشرو در ارائه خدمات تشخیص طبی و پاتولوژی در تهران است. این مجموعه با بهره‌گیری از تجهیزات پیشرفته و کادر مجرب، طیف کاملی از آزمایش‌های تخصصی را ارائه می‌دهد.",
-    perks: ["بیمه تکمیلی", "پاداش عملکرد", "محیط آموزش‌محور", "سرویس رفت‌وآمد"], staff: 85, founded: 1378, verified: true },
-  { id: 2, name: "مرکز ژنتیک پزشکی ژن‌آزما", city: "تهران", type: "آزمایشگاه ژنتیک", color: "#6366f1",
+    perks: ["بیمه تکمیلی", "پاداش عملکرد", "آموزش رایگان", "سرویس رفت‌وآمد"], staff: 85, founded: 1378, verified: true,
+    avgSalary: 21.5, avgSalaryUpdated: "۱۴۰۵/۰۳/۱۲",
+    rating: 4.4, ratingCount: 128,
+    ratingBreakdown: { salary: 4.1, environment: 4.6, learning: 4.7, management: 4.2, worklife: 4.0 } },
+
+  { id: 2, name: "مرکز ژنتیک پزشکی ژن‌آزما", vertical: "lab", city: "تهران", provinceId: "tehran",
+    type: "آزمایشگاه ژنتیک", sector: "private", orgKind: "clinical", size: "۱۰ تا ۵۰ نفر",
+    color: "#6366f1", lat: 35.7580, lng: 51.4100, address: "تهران، بلوار میرداماد، برج آرین، طبقه ۶",
     about: "ژن‌آزما مرکز تخصصی تشخیص‌های مولکولی و ژنتیک پزشکی با تمرکز بر NGS، کاریوتایپ و غربالگری‌های پیش از تولد است.",
-    perks: ["حقوق رقابتی", "دوره‌های آموزشی رایگان", "بیمه تکمیلی"], staff: 40, founded: 1392, verified: true },
-  { id: 3, name: "آزمایشگاه بیمارستان پارس", city: "شیراز", type: "آزمایشگاه بیمارستانی", color: "#0ea5e9",
+    perks: ["بیمه تکمیلی", "آموزش رایگان", "ساعت کاری منعطف"], staff: 40, founded: 1392, verified: true,
+    avgSalary: 27.0, avgSalaryUpdated: "۱۴۰۵/۰۳/۰۵",
+    rating: 4.6, ratingCount: 74,
+    ratingBreakdown: { salary: 4.6, environment: 4.5, learning: 4.9, management: 4.4, worklife: 4.2 } },
+
+  { id: 3, name: "آزمایشگاه بیمارستان پارس", vertical: "lab", city: "شیراز", provinceId: "fars",
+    type: "آزمایشگاه بیمارستانی", sector: "private", orgKind: "clinical", size: "۵۰ تا ۲۰۰ نفر",
+    color: "#0ea5e9", lat: 29.6280, lng: 52.5310, address: "شیراز، بلوار زند، جنب بیمارستان پارس",
     about: "آزمایشگاه بیمارستان پارس شیراز به‌صورت شبانه‌روزی خدمات آزمایشگاهی اورژانس و روتین بیمارستانی ارائه می‌دهد.",
-    perks: ["شیفت منعطف", "حق شیفت شب", "غذای پرسنلی"], staff: 60, founded: 1385, verified: true },
-  { id: 4, name: "آزمایشگاه دانش مشهد", city: "مشهد", type: "آزمایشگاه تشخیص طبی", color: "#f59e0b",
+    perks: ["ساعت کاری منعطف", "حق شیفت شب", "ناهار / غذای پرسنلی"], staff: 60, founded: 1385, verified: true,
+    avgSalary: 19.0, avgSalaryUpdated: "۱۴۰۵/۰۲/۲۰",
+    rating: 3.9, ratingCount: 96,
+    ratingBreakdown: { salary: 3.8, environment: 3.9, learning: 4.0, management: 3.6, worklife: 3.2 } },
+
+  { id: 4, name: "آزمایشگاه دانش مشهد", vertical: "lab", city: "مشهد", provinceId: "khorasan-razavi",
+    type: "آزمایشگاه تشخیص طبی", sector: "private", orgKind: "clinical", size: "۵۰ تا ۲۰۰ نفر",
+    color: "#f59e0b", lat: 36.3070, lng: 59.5680, address: "مشهد، بلوار وکیل‌آباد، نبش وکیل‌آباد ۱۴",
     about: "مجموعه دانش با سه شعبه فعال در مشهد، خدمات جامع آزمایشگاهی با تمرکز بر کیفیت و پاسخ‌دهی سریع ارائه می‌کند.",
-    perks: ["پاداش فصلی", "محیط صمیمی", "امکان ارتقاء شغلی"], staff: 55, founded: 1388, verified: true },
-  { id: 5, name: "شرکت تجهیزات آزمایشگاهی زیست‌تجهیز", city: "تهران", type: "شرکت تجهیزات", color: "#8b5cf6",
+    perks: ["پاداش عملکرد", "امکان ارتقاء شغلی", "بیمه تکمیلی"], staff: 55, founded: 1388, verified: true,
+    avgSalary: 15.5, avgSalaryUpdated: "۱۴۰۵/۰۳/۰۱",
+    rating: 4.1, ratingCount: 63,
+    ratingBreakdown: { salary: 3.7, environment: 4.4, learning: 4.2, management: 4.0, worklife: 4.1 } },
+
+  { id: 5, name: "شرکت تجهیزات آزمایشگاهی زیست‌تجهیز", vertical: "lab", city: "تهران", provinceId: "tehran",
+    type: "شرکت تجهیزات", sector: "corporate", orgKind: "importer", size: "۵۰ تا ۲۰۰ نفر",
+    color: "#8b5cf6", lat: 35.7000, lng: 51.3500, address: "تهران، خیابان کارگر شمالی، پلاک ۸۸۲",
     about: "زیست‌تجهیز واردکننده و پشتیبان دستگاه‌های هماتولوژی و بیوشیمی است و برای تیم پشتیبانی فنی خود نیرو جذب می‌کند.",
-    perks: ["ماشین شرکتی", "پورسانت", "آموزش خارج از کشور"], staff: 120, founded: 1380, verified: true },
-  { id: 6, name: "آزمایشگاه رازی اصفهان", city: "اصفهان", type: "آزمایشگاه تشخیص طبی", color: "#f43f5e",
+    perks: ["ماشین شرکتی", "پورسانت", "آموزش رایگان", "بیمه تکمیلی"], staff: 120, founded: 1380, verified: true,
+    avgSalary: 26.0, avgSalaryUpdated: "۱۴۰۵/۰۳/۱۸",
+    rating: 4.0, ratingCount: 51,
+    ratingBreakdown: { salary: 4.5, environment: 3.9, learning: 4.1, management: 3.7, worklife: 3.6 } },
+
+  { id: 6, name: "آزمایشگاه رازی اصفهان", vertical: "lab", city: "اصفهان", provinceId: "isfahan",
+    type: "آزمایشگاه تشخیص طبی", sector: "private", orgKind: "clinical", size: "۱۰ تا ۵۰ نفر",
+    color: "#f43f5e", lat: 32.6580, lng: 51.6650, address: "اصفهان، خیابان چهارباغ بالا، ساختمان پزشکان رازی",
     about: "آزمایشگاه رازی اصفهان با کادر متخصص و تجهیزات به‌روز، خدمات تشخیص طبی و تخصصی هورمون‌شناسی ارائه می‌دهد.",
-    perks: ["بیمه از روز اول", "ساعت کاری منظم"], staff: 35, founded: 1390, verified: false },
-  { id: 7, name: "مرکز تحقیقات سلولی رویان‌مهر", city: "تهران", type: "مرکز پژوهشی", color: "#059669",
+    perks: ["بیمه از روز اول", "ساعت کاری منعطف"], staff: 35, founded: 1390, verified: false,
+    avgSalary: 16.0, avgSalaryUpdated: "۱۴۰۵/۰۱/۲۵",
+    rating: 3.6, ratingCount: 28,
+    ratingBreakdown: { salary: 3.3, environment: 3.8, learning: 3.5, management: 3.4, worklife: 3.9 } },
+
+  { id: 7, name: "مرکز تحقیقات سلولی رویان‌مهر", vertical: "lab", city: "تهران", provinceId: "tehran",
+    type: "مرکز پژوهشی", sector: "university", orgKind: "research", size: "۱۰ تا ۵۰ نفر",
+    color: "#059669", lat: 35.7480, lng: 51.3760, address: "تهران، بزرگراه رسالت، مرکز تحقیقات رویان‌مهر",
     about: "مرکز پژوهشی رویان‌مهر در حوزه کشت سلول، فلوسایتومتری و پروژه‌های تحقیقاتی سلولی-مولکولی فعالیت می‌کند.",
-    perks: ["محیط پژوهشی", "امکان مقاله مشترک", "ساعت منعطف"], staff: 28, founded: 1395, verified: true },
-  { id: 8, name: "آزمایشگاه مهر تبریز", city: "تبریز", type: "آزمایشگاه تشخیص طبی", color: "#115e59",
+    perks: ["محیط پژوهشی", "آموزش رایگان", "ساعت کاری منعطف"], staff: 28, founded: 1395, verified: true,
+    avgSalary: 22.0, avgSalaryUpdated: "۱۴۰۵/۰۲/۱۰",
+    rating: 4.5, ratingCount: 39,
+    ratingBreakdown: { salary: 4.0, environment: 4.7, learning: 4.9, management: 4.3, worklife: 4.6 } },
+
+  { id: 8, name: "آزمایشگاه مهر تبریز", vertical: "lab", city: "تبریز", provinceId: "east-azerbaijan",
+    type: "آزمایشگاه تشخیص طبی", sector: "private", orgKind: "clinical", size: "۱۰ تا ۵۰ نفر",
+    color: "#115e59", lat: 38.0730, lng: 46.2960, address: "تبریز، خیابان آزادی، نرسیده به میدان دانشگاه",
     about: "آزمایشگاه مهر تبریز ارائه‌دهنده خدمات کامل آزمایشگاهی در شمال‌غرب کشور با سابقه‌ای درخشان در کنترل کیفیت.",
-    perks: ["حقوق منظم", "بیمه تکمیلی"], staff: 30, founded: 1386, verified: true }
+    perks: ["بیمه تکمیلی", "پاداش عملکرد"], staff: 30, founded: 1386, verified: true,
+    avgSalary: 14.5, avgSalaryUpdated: "۱۴۰۵/۰۲/۲۸",
+    rating: 3.8, ratingCount: 34,
+    ratingBreakdown: { salary: 3.4, environment: 4.0, learning: 3.7, management: 3.9, worklife: 4.0 } },
+
+  { id: 9, name: "آزمایشگاه مرجع سلامت استان البرز", vertical: "lab", city: "کرج", provinceId: "alborz",
+    type: "آزمایشگاه دولتی", sector: "government", orgKind: "clinical", size: "۵۰ تا ۲۰۰ نفر",
+    color: "#0369a1", lat: 35.8320, lng: 50.9860, address: "کرج، بلوار طالقانی، مرکز بهداشت استان",
+    about: "آزمایشگاه مرجع استان البرز، مسئول کنترل کیفیت خارجی و پایش آزمایشگاه‌های تحت پوشش استان است.",
+    perks: ["بیمه از روز اول", "امنیت شغلی", "ساعت کاری منظم"], staff: 70, founded: 1372, verified: true,
+    avgSalary: 17.0, avgSalaryUpdated: "۱۴۰۵/۰۳/۰۸",
+    rating: 3.7, ratingCount: 45,
+    ratingBreakdown: { salary: 3.2, environment: 3.8, learning: 3.9, management: 3.5, worklife: 4.3 } },
+
+  { id: 10, name: "شرکت تولیدی کیت‌های تشخیصی پارس‌بیوتک", vertical: "lab", city: "اصفهان", provinceId: "isfahan",
+    type: "تولیدکننده کیت تشخیصی", sector: "corporate", orgKind: "manufacturer", size: "۵۰ تا ۲۰۰ نفر",
+    color: "#7c3aed", lat: 32.6100, lng: 51.5900, address: "اصفهان، شهرک علمی و تحقیقاتی، خیابان نوآوری",
+    about: "پارس‌بیوتک تولیدکننده کیت‌های الایزا و مولکولی با مجوز اداره کل تجهیزات پزشکی است و واحد R&D فعال دارد.",
+    perks: ["محیط پژوهشی", "پاداش عملکرد", "بیمه تکمیلی", "وام و مساعده"], staff: 95, founded: 1394, verified: true,
+    avgSalary: 24.0, avgSalaryUpdated: "۱۴۰۵/۰۳/۱۵",
+    rating: 4.2, ratingCount: 41,
+    ratingBreakdown: { salary: 4.3, environment: 4.2, learning: 4.5, management: 3.9, worklife: 4.0 } },
+
+  { id: 11, name: "پخش سراسری تجهیزات آریا‌مد", vertical: "lab", city: "مشهد", provinceId: "khorasan-razavi",
+    type: "توزیع‌کننده تجهیزات", sector: "corporate", orgKind: "distributor", size: "۱۰ تا ۵۰ نفر",
+    color: "#ea580c", lat: 36.2960, lng: 59.6060, address: "مشهد، بلوار سجاد، ساختمان آریا",
+    about: "آریامد شبکه توزیع تجهیزات و مواد مصرفی آزمایشگاهی در شرق کشور را مدیریت می‌کند.",
+    perks: ["پورسانت", "ماشین شرکتی", "بیمه تکمیلی"], staff: 32, founded: 1391, verified: false,
+    avgSalary: 20.0, avgSalaryUpdated: "۱۴۰۵/۰۲/۱۵",
+    rating: 3.5, ratingCount: 19,
+    ratingBreakdown: { salary: 4.0, environment: 3.4, learning: 3.1, management: 3.3, worklife: 3.5 } },
+
+  { id: 12, name: "آزمایشگاه دانشگاه علوم پزشکی شیراز", vertical: "lab", city: "شیراز", provinceId: "fars",
+    type: "آزمایشگاه دانشگاهی", sector: "university", orgKind: "research", size: "بیش از ۲۰۰ نفر",
+    color: "#0f766e", lat: 29.6400, lng: 52.5250, address: "شیراز، میدان نمازی، دانشکده پیراپزشکی",
+    about: "آزمایشگاه آموزشی-پژوهشی دانشگاه علوم پزشکی شیراز، محل کارآموزی دانشجویان و اجرای طرح‌های تحقیقاتی است.",
+    perks: ["محیط پژوهشی", "آموزش رایگان", "امکان مقاله مشترک"], staff: 210, founded: 1360, verified: true,
+    avgSalary: 18.0, avgSalaryUpdated: "۱۴۰۵/۰۳/۲۰",
+    rating: 4.3, ratingCount: 87,
+    ratingBreakdown: { salary: 3.6, environment: 4.4, learning: 4.9, management: 4.0, worklife: 4.4 } }
 ];
 
+/* ---------- نظرات ثبت‌شده کاربران روی مراکز ---------- */
+const AIO_REVIEWS = [
+  { labId: 1, author: "کارشناس هماتولوژی (سابق)", role: "پرسنل پیشین", date: "۱۴۰۵/۰۳/۱۰", stars: 5,
+    text: "محیط آموزش‌محور واقعی؛ سرپرست بخش وقت می‌گذاشت و کیس‌های سخت را با هم مرور می‌کردیم. حقوق نسبت به بازار متوسط بود ولی یادگیری‌اش را جای دیگر پیدا نمی‌کنید.",
+    pros: "آموزش، تجهیزات به‌روز", cons: "شلوغی صبح‌ها" },
+  { labId: 1, author: "تکنسین نمونه‌گیری", role: "پرسنل فعلی", date: "۱۴۰۵/۰۲/۲۲", stars: 4,
+    text: "پرداختی سر وقت است و بیمه تکمیلی خوبی دارد. حجم کاری شیفت صبح بالاست.",
+    pros: "پرداخت منظم", cons: "حجم کاری" },
+  { labId: 3, author: "کارشناس بیوشیمی", role: "پرسنل فعلی", date: "۱۴۰۵/۰۳/۰۲", stars: 3,
+    text: "شیفت شب سنگین است اما حق شیفت خوبی می‌دهند. مدیریت میانی می‌تواند بهتر باشد.",
+    pros: "حق شیفت", cons: "تعادل کار و زندگی" },
+  { labId: 2, author: "کارشناس ژنتیک", role: "پرسنل فعلی", date: "۱۴۰۵/۰۳/۱۹", stars: 5,
+    text: "بهترین جایی که می‌شود NGS یاد گرفت. تیم جوان و کاربلد.",
+    pros: "یادگیری، حقوق", cons: "فشار ددلاین پروژه‌ها" },
+  { labId: 7, author: "کارشناس فلوسایتومتری", role: "پرسنل فعلی", date: "۱۴۰۵/۰۱/۳۰", stars: 5,
+    text: "اگر دنبال مسیر پژوهشی و مقاله هستید، اینجا دقیقاً همان جاست.",
+    pros: "محیط پژوهشی", cons: "حقوق پایین‌تر از بخش خصوصی" }
+];
+
+/* ==========================================
+   آگهی‌های شغلی — با فیلدهای پیشرفته
+   ========================================== */
 const AIO_JOBS = [
-  { id: 1, title: "کارشناس هماتولوژی", labId: 1, city: "تهران", dept: "hematology",
-    type: "تمام‌وقت", shift: "صبح", salary: "۱۸ تا ۲۴ میلیون تومان", experience: "حداقل ۲ سال",
-    degree: "کارشناسی علوم آزمایشگاهی", urgent: false, featured: true, days: 2,
+  { id: 1, title: "کارشناس هماتولوژی", labId: 1, vertical: "lab", city: "تهران", provinceId: "tehran", dept: "hematology",
+    type: "تمام‌وقت", shift: "صبح", salary: "۱۸ تا ۲۴ میلیون تومان", salaryMin: 18, salaryMax: 24,
+    experience: "۱ تا ۳ سال", degree: "کارشناسی", fieldOfStudy: "علوم آزمایشگاهی",
+    gender: "فرقی نمی‌کند", military: "مهم نیست", remote: false, urgent: false, featured: true, days: 2,
+    benefits: ["بیمه تکمیلی", "پاداش عملکرد", "آموزش رایگان", "سرویس رفت‌وآمد"],
     skills: ["کار با سل‌کانتر Sysmex", "لام محیطی", "کنترل کیفیت داخلی", "آشنایی با LIS"],
     desc: "به یک کارشناس هماتولوژی مسلط به کار با دستگاه‌های سل‌کانتر و بررسی لام محیطی برای شیفت صبح نیازمندیم. محیط کاری آموزش‌محور با امکان ارتقاء به سرپرستی بخش.",
     requirements: ["مدرک کارشناسی یا بالاتر در علوم آزمایشگاهی", "حداقل ۲ سال سابقه کار در بخش هماتولوژی", "تسلط بر دستگاه Sysmex XN-1000", "آشنایی با اصول کنترل کیفیت", "روحیه کار تیمی و دقت بالا"] },
-  { id: 2, title: "تکنسین نمونه‌گیری (خون‌گیری)", labId: 4, city: "مشهد", dept: "sampling",
-    type: "تمام‌وقت", shift: "صبح و عصر", salary: "۱۲ تا ۱۶ میلیون تومان", experience: "حداقل ۱ سال",
-    degree: "کاردانی یا کارشناسی", urgent: true, featured: false, days: 1,
+
+  { id: 2, title: "تکنسین نمونه‌گیری (خون‌گیری)", labId: 4, vertical: "lab", city: "مشهد", provinceId: "khorasan-razavi", dept: "sampling",
+    type: "تمام‌وقت", shift: "صبح و عصر", salary: "۱۲ تا ۱۶ میلیون تومان", salaryMin: 12, salaryMax: 16,
+    experience: "کمتر از ۱ سال", degree: "کاردانی", fieldOfStudy: "علوم آزمایشگاهی",
+    gender: "فرقی نمی‌کند", military: "پایان خدمت", remote: false, urgent: true, featured: false, days: 1,
+    benefits: ["بیمه تکمیلی", "امکان ارتقاء شغلی"],
     skills: ["نمونه‌گیری وریدی", "نمونه‌گیری اطفال", "پذیرش و جوابدهی", "ارتباط با مراجعین"],
     desc: "آزمایشگاه دانش برای تکمیل کادر پذیرش و نمونه‌گیری شعبه مرکزی خود، به تکنسین نمونه‌گیری با روابط عمومی بالا نیازمند است. اولویت با افراد مسلط به نمونه‌گیری اطفال.",
     requirements: ["مدرک کاردانی یا کارشناسی علوم آزمایشگاهی", "تجربه نمونه‌گیری وریدی و مویرگی", "روابط عمومی قوی", "امکان کار در دو شیفت"] },
-  { id: 3, title: "کارشناس بیوشیمی", labId: 3, city: "شیراز", dept: "biochemistry",
-    type: "شیفتی", shift: "شب", salary: "۲۰ تا ۲۶ میلیون تومان", experience: "حداقل ۳ سال",
-    degree: "کارشناسی علوم آزمایشگاهی", urgent: true, featured: true, days: 3,
+
+  { id: 3, title: "کارشناس بیوشیمی", labId: 3, vertical: "lab", city: "شیراز", provinceId: "fars", dept: "biochemistry",
+    type: "شیفتی", shift: "شب", salary: "۲۰ تا ۲۶ میلیون تومان", salaryMin: 20, salaryMax: 26,
+    experience: "۳ تا ۵ سال", degree: "کارشناسی", fieldOfStudy: "بیوشیمی",
+    gender: "آقا", military: "پایان خدمت", remote: false, urgent: true, featured: true, days: 3,
+    benefits: ["حق شیفت شب", "ناهار / غذای پرسنلی", "بیمه تکمیلی"],
     skills: ["اتوآنالایزر BT-3000", "الکترولیت آنالایزر", "کالیبراسیون", "کنترل کیفیت"],
     desc: "آزمایشگاه بیمارستان پارس برای شیفت شب بخش بیوشیمی خود کارشناس با تجربه جذب می‌کند. حق شیفت شب و مزایای بیمارستانی کامل پرداخت می‌شود.",
     requirements: ["حداقل ۳ سال سابقه بخش بیوشیمی", "تسلط کامل بر اتوآنالایزرها", "توانایی کار در شیفت شب", "آشنایی با آزمایش‌های اورژانسی"] },
-  { id: 4, title: "کارشناس میکروب‌شناسی", labId: 1, city: "تهران", dept: "microbiology",
-    type: "تمام‌وقت", shift: "صبح", salary: "۱۷ تا ۲۲ میلیون تومان", experience: "حداقل ۲ سال",
-    degree: "کارشناسی ارشد میکروب‌شناسی", urgent: false, featured: false, days: 4,
+
+  { id: 4, title: "کارشناس میکروب‌شناسی", labId: 1, vertical: "lab", city: "تهران", provinceId: "tehran", dept: "microbiology",
+    type: "تمام‌وقت", shift: "صبح", salary: "۱۷ تا ۲۲ میلیون تومان", salaryMin: 17, salaryMax: 22,
+    experience: "۱ تا ۳ سال", degree: "کارشناسی ارشد", fieldOfStudy: "میکروب‌شناسی",
+    gender: "فرقی نمی‌کند", military: "مهم نیست", remote: false, urgent: false, featured: false, days: 4,
+    benefits: ["بیمه تکمیلی", "آموزش رایگان"],
     skills: ["کشت و آنتی‌بیوگرام", "رنگ‌آمیزی گرم", "محیط‌سازی", "شناسایی باکتری"],
     desc: "بخش میکروب‌شناسی آزمایشگاه نور به دنبال کارشناس مسلط به کشت، آنتی‌بیوگرام و شناسایی سویه‌های باکتریایی است.",
     requirements: ["کارشناسی ارشد میکروب‌شناسی یا علوم آزمایشگاهی", "تجربه عملی کشت و آنتی‌بیوگرام", "آشنایی با استانداردهای CLSI"] },
-  { id: 5, title: "کارشناس ژنتیک مولکولی (NGS)", labId: 2, city: "تهران", dept: "genetics",
-    type: "تمام‌وقت", shift: "صبح", salary: "۲۵ تا ۳۵ میلیون تومان", experience: "حداقل ۲ سال",
-    degree: "کارشناسی ارشد ژنتیک", urgent: false, featured: true, days: 5,
+
+  { id: 5, title: "کارشناس ژنتیک مولکولی (NGS)", labId: 2, vertical: "lab", city: "تهران", provinceId: "tehran", dept: "genetics",
+    type: "تمام‌وقت", shift: "صبح", salary: "۲۵ تا ۳۵ میلیون تومان", salaryMin: 25, salaryMax: 35,
+    experience: "۱ تا ۳ سال", degree: "کارشناسی ارشد", fieldOfStudy: "ژنتیک",
+    gender: "فرقی نمی‌کند", military: "مهم نیست", remote: false, urgent: false, featured: true, days: 5,
+    benefits: ["بیمه تکمیلی", "آموزش رایگان", "ساعت کاری منعطف"],
     skills: ["NGS", "Real-Time PCR", "استخراج DNA/RNA", "آنالیز بیوانفورماتیک"],
     desc: "مرکز ژن‌آزما برای توسعه بخش NGS خود کارشناس ژنتیک مولکولی با تجربه کار عملی با پلتفرم Illumina جذب می‌کند.",
     requirements: ["ارشد یا دکتری ژنتیک/بیوتکنولوژی", "تجربه عملی NGS و آماده‌سازی کتابخانه", "آشنایی با آنالیز داده و پایپ‌لاین‌های بیوانفورماتیک", "مقاله یا سابقه پژوهشی مزیت است"] },
-  { id: 6, title: "مسئول فنی آزمایشگاه", labId: 6, city: "اصفهان", dept: "management",
-    type: "تمام‌وقت", shift: "صبح", salary: "توافقی", experience: "حداقل ۵ سال",
-    degree: "دکتری علوم آزمایشگاهی", urgent: false, featured: false, days: 6,
+
+  { id: 6, title: "مسئول فنی آزمایشگاه", labId: 6, vertical: "lab", city: "اصفهان", provinceId: "isfahan", dept: "management",
+    type: "تمام‌وقت", shift: "صبح", salary: "توافقی", salaryMin: 30, salaryMax: 45,
+    experience: "بیش از ۵ سال", degree: "دکتری", fieldOfStudy: "علوم آزمایشگاهی",
+    gender: "فرقی نمی‌کند", military: "مهم نیست", remote: false, urgent: false, featured: false, days: 6,
+    benefits: ["بیمه از روز اول", "ساعت کاری منعطف"],
     skills: ["مدیریت کیفیت", "استانداردهای آزمایشگاه مرجع سلامت", "سوپروایزری", "ISO 15189"],
     desc: "آزمایشگاه رازی اصفهان جهت تصدی سمت مسئول فنی، از دکترای علوم آزمایشگاهی یا پاتولوژیست واجد شرایط دعوت به همکاری می‌کند.",
     requirements: ["دکترای تخصصی علوم آزمایشگاهی یا پاتولوژی", "پروانه مسئول فنی معتبر", "سابقه مدیریتی", "تسلط بر الزامات آزمایشگاه مرجع سلامت"] },
-  { id: 7, title: "کارشناس پشتیبانی فنی دستگاه‌های هماتولوژی", labId: 5, city: "تهران", dept: "hematology",
-    type: "تمام‌وقت", shift: "صبح", salary: "۲۲ تا ۳۰ میلیون تومان + پورسانت", experience: "حداقل ۲ سال",
-    degree: "کارشناسی مهندسی پزشکی یا علوم آزمایشگاهی", urgent: false, featured: false, days: 7,
+
+  { id: 7, title: "کارشناس پشتیبانی فنی دستگاه‌های هماتولوژی", labId: 5, vertical: "lab", city: "تهران", provinceId: "tehran", dept: "hematology",
+    type: "تمام‌وقت", shift: "صبح", salary: "۲۲ تا ۳۰ میلیون تومان + پورسانت", salaryMin: 22, salaryMax: 30,
+    experience: "۱ تا ۳ سال", degree: "کارشناسی", fieldOfStudy: "مهندسی پزشکی",
+    gender: "آقا", military: "پایان خدمت", remote: false, urgent: false, featured: false, days: 7,
+    benefits: ["ماشین شرکتی", "پورسانت", "آموزش رایگان", "بیمه تکمیلی"],
     skills: ["نصب و راه‌اندازی", "عیب‌یابی سل‌کانتر", "آموزش کاربر", "سفر کاری"],
     desc: "شرکت زیست‌تجهیز برای تیم پشتیبانی فنی دستگاه‌های هماتولوژی خود در سراسر کشور، کارشناس فنی با روحیه سفر کاری استخدام می‌کند.",
     requirements: ["مهندسی پزشکی یا علوم آزمایشگاهی", "آشنایی با سخت‌افزار دستگاه‌های سل‌کانتر", "امکان مأموریت به شهرستان", "گواهینامه رانندگی"] },
-  { id: 8, title: "کارشناس کنترل کیفیت", labId: 8, city: "تبریز", dept: "qc",
-    type: "پاره‌وقت", shift: "صبح", salary: "۱۰ تا ۱۴ میلیون تومان", experience: "حداقل ۳ سال",
-    degree: "کارشناسی علوم آزمایشگاهی", urgent: false, featured: false, days: 8,
+
+  { id: 8, title: "کارشناس کنترل کیفیت", labId: 8, vertical: "lab", city: "تبریز", provinceId: "east-azerbaijan", dept: "qc",
+    type: "پاره‌وقت", shift: "صبح", salary: "۱۰ تا ۱۴ میلیون تومان", salaryMin: 10, salaryMax: 14,
+    experience: "۳ تا ۵ سال", degree: "کارشناسی", fieldOfStudy: "علوم آزمایشگاهی",
+    gender: "فرقی نمی‌کند", military: "مهم نیست", remote: false, urgent: false, featured: false, days: 8,
+    benefits: ["ساعت کاری منعطف", "بیمه تکمیلی"],
     skills: ["QC داخلی و خارجی", "نمودار لوی-جنینگز", "قوانین وستگارد", "مستندسازی"],
     desc: "آزمایشگاه مهر تبریز برای مدیریت برنامه کنترل کیفیت داخلی و خارجی خود، کارشناس QC به‌صورت پاره‌وقت جذب می‌کند.",
     requirements: ["تسلط بر مفاهیم QC و قوانین وستگارد", "تجربه مستندسازی و ممیزی", "آشنایی با نرم‌افزارهای QC"] },
-  { id: 9, title: "تکنسین آزمایشگاه (شیفت شب) — فوری", labId: 3, city: "شیراز", dept: "biochemistry",
-    type: "موقت", shift: "شب", salary: "شیفتی ۱/۵ میلیون تومان", experience: "حداقل ۱ سال",
-    degree: "کاردانی به بالا", urgent: true, featured: false, days: 0,
+
+  { id: 9, title: "تکنسین آزمایشگاه (شیفت شب) — فوری", labId: 3, vertical: "lab", city: "شیراز", provinceId: "fars", dept: "biochemistry",
+    type: "موقت", shift: "شب", salary: "شیفتی ۱/۵ میلیون تومان", salaryMin: 12, salaryMax: 18,
+    experience: "کمتر از ۱ سال", degree: "کاردانی", fieldOfStudy: "علوم آزمایشگاهی",
+    gender: "آقا", military: "پایان خدمت", remote: false, urgent: true, featured: false, days: 0,
+    benefits: ["حق شیفت شب"],
     skills: ["آزمایش‌های اورژانسی", "گازهای خونی", "انعقادی"],
     desc: "نیاز فوری به تکنسین جهت پوشش شیفت شب به مدت دو هفته (جایگزین نیروی مرخصی). تسویه هفتگی.",
     requirements: ["امکان شروع فوری", "تجربه کار اورژانسی", "سکونت در شیراز"] },
-  { id: 10, title: "کارشناس فلوسایتومتری", labId: 7, city: "تهران", dept: "genetics",
-    type: "قراردادی", shift: "صبح", salary: "۲۰ تا ۲۸ میلیون تومان", experience: "حداقل ۱ سال",
-    degree: "کارشناسی ارشد", urgent: false, featured: false, days: 9,
+
+  { id: 10, title: "کارشناس فلوسایتومتری", labId: 7, vertical: "lab", city: "تهران", provinceId: "tehran", dept: "genetics",
+    type: "قراردادی", shift: "صبح", salary: "۲۰ تا ۲۸ میلیون تومان", salaryMin: 20, salaryMax: 28,
+    experience: "کمتر از ۱ سال", degree: "کارشناسی ارشد", fieldOfStudy: "ایمونولوژی",
+    gender: "فرقی نمی‌کند", military: "مهم نیست", remote: false, urgent: false, featured: false, days: 9,
+    benefits: ["محیط پژوهشی", "ساعت کاری منعطف", "آموزش رایگان"],
     skills: ["فلوسایتومتری", "کشت سلول", "ایمونوفنوتایپینگ"],
     desc: "مرکز رویان‌مهر برای پروژه‌های تحقیقاتی خود کارشناس فلوسایتومتری به‌صورت قرارداد یک‌ساله (قابل تمدید) جذب می‌کند.",
     requirements: ["ارشد ایمونولوژی/هماتولوژی/بیوتکنولوژی", "تجربه کار با BD FACSCalibur یا مشابه", "علاقه به کار پژوهشی"] },
-  { id: 11, title: "کارشناس پذیرش و جوابدهی", labId: 4, city: "مشهد", dept: "sampling",
-    type: "تمام‌وقت", shift: "عصر", salary: "۱۰ تا ۱۳ میلیون تومان", experience: "بدون نیاز به سابقه",
-    degree: "کاردانی به بالا", urgent: false, featured: false, days: 10,
+
+  { id: 11, title: "کارشناس پذیرش و جوابدهی", labId: 4, vertical: "lab", city: "مشهد", provinceId: "khorasan-razavi", dept: "sampling",
+    type: "تمام‌وقت", shift: "عصر", salary: "۱۰ تا ۱۳ میلیون تومان", salaryMin: 10, salaryMax: 13,
+    experience: "بدون نیاز به سابقه", degree: "کاردانی", fieldOfStudy: "سایر",
+    gender: "خانم", military: "مهم نیست", remote: false, urgent: false, featured: false, days: 10,
+    benefits: ["آموزش رایگان", "بیمه تکمیلی"],
     skills: ["نرم‌افزار LIS", "پاسخگویی تلفنی", "صندوق و بیمه"],
     desc: "شعبه دوم آزمایشگاه دانش برای بخش پذیرش شیفت عصر خود نیرو جذب می‌کند. آموزش کامل نرم‌افزار در بدو ورود انجام می‌شود.",
     requirements: ["روابط عمومی عالی", "آشنایی با کامپیوتر", "دقت در ثبت اطلاعات"] },
-  { id: 12, title: "کارشناس پاتولوژی (تکنسین بافت)", labId: 1, city: "تهران", dept: "pathology",
-    type: "تمام‌وقت", shift: "صبح", salary: "۱۸ تا ۲۳ میلیون تومان", experience: "حداقل ۲ سال",
-    degree: "کارشناسی علوم آزمایشگاهی", urgent: false, featured: false, days: 12,
+
+  { id: 12, title: "کارشناس پاتولوژی (تکنسین بافت)", labId: 1, vertical: "lab", city: "تهران", provinceId: "tehran", dept: "pathology",
+    type: "تمام‌وقت", shift: "صبح", salary: "۱۸ تا ۲۳ میلیون تومان", salaryMin: 18, salaryMax: 23,
+    experience: "۱ تا ۳ سال", degree: "کارشناسی", fieldOfStudy: "علوم آزمایشگاهی",
+    gender: "فرقی نمی‌کند", military: "مهم نیست", remote: false, urgent: false, featured: false, days: 12,
+    benefits: ["بیمه تکمیلی", "پاداش عملکرد"],
     skills: ["پاساژ بافت", "برش با میکروتوم", "رنگ‌آمیزی H&E", "IHC"],
     desc: "بخش پاتولوژی آزمایشگاه نور به تکنسین بافت مسلط به پاساژ، برش و رنگ‌آمیزی نیازمند است. آشنایی با IHC مزیت محسوب می‌شود.",
-    requirements: ["سابقه کار در بخش پاتولوژی", "تسلط بر میکروتوم و رنگ‌آمیزی روتین", "دقت و حوصله بالا"] }
+    requirements: ["سابقه کار در بخش پاتولوژی", "تسلط بر میکروتوم و رنگ‌آمیزی روتین", "دقت و حوصله بالا"] },
+
+  { id: 13, title: "کارشناس R&D کیت‌های تشخیصی", labId: 10, vertical: "lab", city: "اصفهان", provinceId: "isfahan", dept: "biochemistry",
+    type: "تمام‌وقت", shift: "صبح", salary: "۲۴ تا ۳۲ میلیون تومان", salaryMin: 24, salaryMax: 32,
+    experience: "۳ تا ۵ سال", degree: "کارشناسی ارشد", fieldOfStudy: "بیوتکنولوژی",
+    gender: "فرقی نمی‌کند", military: "پایان خدمت", remote: false, urgent: false, featured: true, days: 3,
+    benefits: ["محیط پژوهشی", "پاداش عملکرد", "بیمه تکمیلی", "وام و مساعده"],
+    skills: ["طراحی الایزا", "اعتبارسنجی روش", "مستندسازی IVD", "کنترل کیفیت مواد اولیه"],
+    desc: "پارس‌بیوتک برای واحد تحقیق و توسعه خود کارشناس مسلط به طراحی و اعتبارسنجی کیت‌های الایزا جذب می‌کند.",
+    requirements: ["ارشد بیوتکنولوژی/بیوشیمی", "تجربه اعتبارسنجی روش‌های IVD", "آشنایی با الزامات اداره کل تجهیزات پزشکی"] },
+
+  { id: 14, title: "کارشناس فروش تجهیزات آزمایشگاهی", labId: 11, vertical: "lab", city: "مشهد", provinceId: "khorasan-razavi", dept: "management",
+    type: "تمام‌وقت", shift: "صبح", salary: "۱۵ تا ۲۵ میلیون + پورسانت", salaryMin: 15, salaryMax: 25,
+    experience: "۱ تا ۳ سال", degree: "کارشناسی", fieldOfStudy: "علوم آزمایشگاهی",
+    gender: "فرقی نمی‌کند", military: "پایان خدمت", remote: false, urgent: false, featured: false, days: 5,
+    benefits: ["پورسانت", "ماشین شرکتی", "بیمه تکمیلی"],
+    skills: ["فروش B2B", "شناخت تجهیزات آزمایشگاهی", "مذاکره", "CRM"],
+    desc: "آریامد برای توسعه شبکه فروش خود در شرق کشور کارشناس فروش با آشنایی فنی جذب می‌کند.",
+    requirements: ["آشنایی با تجهیزات و مواد مصرفی آزمایشگاه", "روابط عمومی و فن مذاکره", "امکان سفر استانی"] },
+
+  { id: 15, title: "کارآموز علوم آزمایشگاهی (دوره تابستانی)", labId: 12, vertical: "lab", city: "شیراز", provinceId: "fars", dept: "sampling",
+    type: "کارآموزی", shift: "صبح", salary: "کارآموزی با کمک‌هزینه", salaryMin: 0, salaryMax: 6,
+    experience: "بدون نیاز به سابقه", degree: "کارشناسی", fieldOfStudy: "علوم آزمایشگاهی",
+    gender: "فرقی نمی‌کند", military: "معافیت تحصیلی", remote: false, urgent: false, featured: false, days: 2,
+    benefits: ["آموزش رایگان", "محیط پژوهشی", "امکان ارتقاء شغلی"],
+    skills: ["اصول ایمنی آزمایشگاه", "کار با میکروسکوپ", "ثبت داده"],
+    desc: "دوره کارآموزی سه‌ماهه ویژه دانشجویان سال آخر و داوطلبان ورود به بازار کار آزمایشگاه؛ با گواهی پایان دوره و امکان جذب.",
+    requirements: ["دانشجوی سال آخر یا فارغ‌التحصیل", "تعهد حضور سه‌ماهه", "علاقه به یادگیری"] },
+
+  { id: 16, title: "کارشناس مستندسازی و کنترل کیفیت (دورکاری)", labId: 9, vertical: "lab", city: "دورکاری (سراسر کشور)", provinceId: "alborz", dept: "qc",
+    type: "دورکاری", shift: "صبح", salary: "۱۴ تا ۱۸ میلیون تومان", salaryMin: 14, salaryMax: 18,
+    experience: "۱ تا ۳ سال", degree: "کارشناسی", fieldOfStudy: "علوم آزمایشگاهی",
+    gender: "فرقی نمی‌کند", military: "مهم نیست", remote: true, urgent: false, featured: true, days: 1,
+    benefits: ["ساعت کاری منعطف", "بیمه تکمیلی", "آموزش رایگان"],
+    skills: ["مستندسازی ISO 15189", "تدوین SOP", "ممیزی داخلی", "Excel پیشرفته"],
+    desc: "آزمایشگاه مرجع استان البرز برای تدوین و بازبینی مستندات کیفیت، همکار دورکار جذب می‌کند (حضور یک روز در هفته).",
+    requirements: ["تسلط بر ISO 15189", "تجربه تدوین SOP", "امکان حضور هفتگی در کرج"] }
 ];
 
+/* ==========================================
+   آزمون‌ها و گواهینامه‌های مهارتی (طراحی توسط کارفرما)
+   ========================================== */
+const AIO_EXAM_LEVELS = ["مقدماتی", "متوسط", "پیشرفته"];
+
+const AIO_EXAMS = [
+  { id: 1, title: "آزمون تخصصی هماتولوژی — سطح پیشرفته", vertical: "lab", dept: "hematology",
+    authorLabId: 1, level: "پیشرفته", duration: 20, passScore: 70, badge: "🩸",
+    color: "#f43f5e", bg: "#ffe4e6", takers: 412, certIssued: 187,
+    desc: "آزمون استاندارد آیولب برای سنجش دانش عملی هماتولوژی: تفسیر CBC، فلگ‌های دستگاه، مورفولوژی و کنترل کیفیت. نمره قبولی ۷۰٪ و گواهی صادرشده به‌صورت خودکار به رزومه شما اضافه می‌شود.",
+    questions: [
+      { q: "در گزارش CBC، افزایش RDW همراه با کاهش MCV بیشتر مطرح‌کننده کدام حالت است؟",
+        options: ["کم‌خونی فقر آهن", "تالاسمی مینور", "کم‌خونی مگالوبلاستیک", "آنمی آپلاستیک"], answer: 0 },
+      { q: "فلگ «Blast?» روی سل‌کانتر در وهله اول مستلزم چه اقدامی است؟",
+        options: ["گزارش مستقیم نتیجه", "تهیه و بررسی لام محیطی", "تکرار نمونه بعد از ۲۴ ساعت", "رقیق‌سازی نمونه"], answer: 1 },
+      { q: "لخته شدن نسبی نمونه در لوله CBC بیشتر روی کدام پارامتر اثر کاذب می‌گذارد؟",
+        options: ["WBC", "پلاکت", "MCV", "هموگلوبین"], answer: 1 },
+      { q: "در قانون وستگارد، نقض 1-3s به تنهایی معمولاً چه معنایی دارد؟",
+        options: ["خطای سیستماتیک قطعی", "هشدار؛ نیاز به بررسی بیشتر", "رد کامل ران", "خطای تصادفی بزرگ و رد ران"], answer: 1 },
+      { q: "کدام ضدانعقاد برای شمارش سلولی CBC استاندارد است؟",
+        options: ["هپارین", "سیترات سدیم", "EDTA", "اگزالات"], answer: 2 },
+      { q: "رولکس (Rouleaux) در لام محیطی بیشتر با کدام مورد مرتبط است؟",
+        options: ["افزایش پروتئین‌های پلاسما", "کمبود آهن", "مسمومیت با سرب", "کمبود G6PD"], answer: 0 },
+      { q: "پلاکت‌های ساتلیت (Platelet satellitism) باعث چه خطایی می‌شود؟",
+        options: ["پلاکت کاذب بالا", "پلاکت کاذب پایین", "WBC کاذب پایین", "Hb کاذب بالا"], answer: 1 },
+      { q: "برای کالیبراسیون سل‌کانتر، از چه ماده‌ای استفاده می‌شود؟",
+        options: ["کنترل تجاری", "کالیبراتور با مقدار مرجع", "نمونه بیمار نرمال", "آب مقطر"], answer: 1 },
+      { q: "شیفت (Shift) در نمودار لوی-جنینگز به چه معناست؟",
+        options: ["۶ نقطه متوالی یک طرف میانگین", "افزایش تدریجی نتایج", "یک نقطه خارج از 3SD", "پراکندگی تصادفی"], answer: 0 },
+      { q: "در ESR به روش وسترگرن، ضدانعقاد استاندارد کدام است؟",
+        options: ["EDTA", "سیترات سدیم ۳/۸٪", "هپارین", "بدون ضدانعقاد"], answer: 1 }
+    ] },
+
+  { id: 2, title: "آزمون کنترل کیفیت آزمایشگاه بالینی", vertical: "lab", dept: "qc",
+    authorLabId: 9, level: "متوسط", duration: 15, passScore: 60, badge: "🛡️",
+    color: "#059669", bg: "#d1fae5", takers: 268, certIssued: 141,
+    desc: "سنجش تسلط بر کنترل کیفیت داخلی و خارجی، قوانین وستگارد، عدم قطعیت اندازه‌گیری و مستندسازی مطابق ISO 15189.",
+    questions: [
+      { q: "هدف اصلی کنترل کیفیت خارجی (EQA) چیست؟",
+        options: ["کاهش هزینه", "مقایسه عملکرد با سایر آزمایشگاه‌ها", "افزایش سرعت جوابدهی", "کالیبراسیون دستگاه"], answer: 1 },
+      { q: "قانون 2-2s نشان‌دهنده کدام نوع خطاست؟",
+        options: ["تصادفی", "سیستماتیک", "پیش‌تحلیلی", "انسانی"], answer: 1 },
+      { q: "CV در کنترل کیفیت مخفف چیست؟",
+        options: ["Control Value", "Coefficient of Variation", "Calibration Verification", "Critical Value"], answer: 1 },
+      { q: "مقدار بحرانی (Critical Value) باید چگونه گزارش شود؟",
+        options: ["در گزارش کتبی روزانه", "بلافاصله و تلفنی با ثبت مستند", "در جلسه هفتگی", "فقط به بیمار"], answer: 1 },
+      { q: "خطاهای پیش‌تحلیلی چند درصد کل خطاهای آزمایشگاه را تشکیل می‌دهند؟",
+        options: ["حدود ۱۰٪", "حدود ۳۰٪", "حدود ۷۰٪", "کمتر از ۵٪"], answer: 2 },
+      { q: "SOP در سیستم کیفیت به چه معناست؟",
+        options: ["روش اجرایی استاندارد", "برنامه ایمنی", "سند خرید", "صورت‌جلسه"], answer: 0 },
+      { q: "کدام مورد جزو الزامات ISO 15189 نیست؟",
+        options: ["صلاحیت پرسنل", "قابلیت ردیابی کالیبراسیون", "حداقل تعداد بیمار روزانه", "مدیریت عدم انطباق"], answer: 2 },
+      { q: "در نمودار لوی-جنینگز، ترند (Trend) یعنی:",
+        options: ["نوسان تصادفی", "تغییر تدریجی و جهت‌دار در ۶ نقطه", "یک نقطه پرت", "قطع شدن ران"], answer: 1 }
+    ] },
+
+  { id: 3, title: "آزمون ایمنی و بیوسیفتی آزمایشگاه", vertical: "lab", dept: "management",
+    authorLabId: 12, level: "مقدماتی", duration: 12, passScore: 60, badge: "🧤",
+    color: "#0ea5e9", bg: "#e0f2fe", takers: 530, certIssued: 402,
+    desc: "آزمون پایه ایمنی زیستی، سطوح BSL، مدیریت پسماند و مواجهه شغلی — پیش‌نیاز بسیاری از آگهی‌های استخدامی.",
+    questions: [
+      { q: "کار با مایکوباکتریوم توبرکلوزیس در چه سطح ایمنی زیستی انجام می‌شود؟",
+        options: ["BSL-1", "BSL-2", "BSL-3", "BSL-4"], answer: 2 },
+      { q: "پسماند نوک سرسمپلر و سرسوزن در کدام ظرف دفع می‌شود؟",
+        options: ["کیسه زرد", "Safety Box", "کیسه مشکی", "سطل معمولی"], answer: 1 },
+      { q: "پس از فرورفتن سوزن آلوده، اولین اقدام چیست؟",
+        options: ["فشردن و خون‌گیری از محل", "شستشو با آب و صابون و گزارش فوری", "استفاده از الکل خالص", "بی‌توجهی در صورت نبود علامت"], answer: 1 },
+      { q: "هود بیولوژیک کلاس II از چه چیزی محافظت می‌کند؟",
+        options: ["فقط نمونه", "فقط کاربر", "کاربر، نمونه و محیط", "فقط محیط"], answer: 2 },
+      { q: "رنگ کیسه پسماند عفونی در ایران کدام است؟",
+        options: ["مشکی", "زرد", "آبی", "سبز"], answer: 1 },
+      { q: "MSDS چیست؟",
+        options: ["برگه اطلاعات ایمنی مواد", "دستورالعمل کالیبراسیون", "فرم درخواست خرید", "گزارش عدم انطباق"], answer: 0 }
+    ] }
+];
+
+/* ==========================================
+   آزمون شخصیت‌شناسی MBTI (نسخه کوتاه ۲۴ سؤالی)
+   ========================================== */
+const AIO_MBTI_QUESTIONS = [
+  { d: "EI", q: "بعد از یک شیفت شلوغ، برای بازیابی انرژی ترجیح می‌دهم…", a: "با همکاران وقت بگذرانم و حرف بزنم", b: "تنها باشم و در سکوت استراحت کنم" },
+  { d: "EI", q: "در جلسه معرفی روش جدید در بخش…", a: "سریع نظرم را بلند می‌گویم", b: "اول گوش می‌دهم و بعد نظرم را می‌نویسم" },
+  { d: "EI", q: "در محیط کاری جدید…", a: "خیلی زود با همه آشنا می‌شوم", b: "با تعداد کمی عمیق ارتباط می‌گیرم" },
+  { d: "EI", q: "ترجیح می‌دهم کار روزانه‌ام…", a: "پر از تعامل با مراجع و همکار باشد", b: "بیشتر تمرکزی و پشت میز/دستگاه باشد" },
+  { d: "EI", q: "وقتی مشکلی پیش می‌آید…", a: "بلافاصله با کسی درباره‌اش حرف می‌زنم", b: "اول خودم در ذهنم تحلیلش می‌کنم" },
+  { d: "EI", q: "در کارگاه آموزشی…", a: "دوست دارم سؤال بپرسم و مشارکت کنم", b: "ترجیح می‌دهم یادداشت‌بردار ساکت باشم" },
+
+  { d: "SN", q: "در یادگیری یک روش آزمایشگاهی جدید…", a: "روی جزئیات و مراحل دقیق تمرکز می‌کنم", b: "اول می‌خواهم منطق کلی و «چرا»یش را بفهمم" },
+  { d: "SN", q: "به داده‌ها بیشتر…", a: "همان‌طور که هستند نگاه می‌کنم", b: "دنبال الگو و معنای پشتشان می‌گردم" },
+  { d: "SN", q: "در حل یک مشکل فنی…", a: "به تجربه‌های قبلی و کارهای جواب‌داده تکیه می‌کنم", b: "راه‌های تازه و امتحان‌نشده را می‌سنجم" },
+  { d: "SN", q: "توصیف من توسط همکاران…", a: "واقع‌بین و عملیاتی", b: "ایده‌پرداز و آینده‌نگر" },
+  { d: "SN", q: "دستورالعمل کاری را ترجیح می‌دهم…", a: "گام‌به‌گام و دقیق باشد", b: "چارچوب کلی بدهد و دستم باز باشد" },
+  { d: "SN", q: "بیشتر به کدام علاقه دارم؟", a: "بهبود روش‌های موجود بخش", b: "طراحی یک روش کاملاً جدید" },
+
+  { d: "TF", q: "وقتی همکاری خطا می‌کند…", a: "روی تحلیل ریشه خطا تمرکز می‌کنم", b: "اول حال و شرایط او را در نظر می‌گیرم" },
+  { d: "TF", q: "در تصمیم‌های کاری…", a: "منطق و داده حرف آخر را می‌زند", b: "اثر تصمیم بر آدم‌ها هم به همان اندازه مهم است" },
+  { d: "TF", q: "بازخورد را ترجیح می‌دهم…", a: "مستقیم و بی‌تعارف باشد", b: "با ملاحظه و محترمانه بیان شود" },
+  { d: "TF", q: "در تیم، نقش طبیعی من…", a: "منتقد دقیق کیفیت کار است", b: "حفظ‌کننده روحیه و انسجام تیم است" },
+  { d: "TF", q: "عدالت در محیط کار یعنی…", a: "قاعده یکسان برای همه", b: "در نظر گرفتن شرایط خاص هر نفر" },
+  { d: "TF", q: "وقتی با تصمیم مدیر مخالفم…", a: "استدلال فنی‌ام را شفاف مطرح می‌کنم", b: "طوری می‌گویم که رابطه آسیب نبیند" },
+
+  { d: "JP", q: "برنامه شیفت و کارهایم را…", a: "از قبل دقیق می‌چینم", b: "منعطف نگه می‌دارم و در لحظه تنظیم می‌کنم" },
+  { d: "JP", q: "کارهای عقب‌افتاده را…", a: "زودتر از موعد تمام می‌کنم", b: "معمولاً نزدیک ددلاین جمع می‌کنم" },
+  { d: "JP", q: "میز کار و فضای کاری من…", a: "مرتب و طبقه‌بندی‌شده است", b: "کارکردی است، نه لزوماً مرتب" },
+  { d: "JP", q: "تغییر ناگهانی برنامه بخش…", a: "آزارم می‌دهد", b: "برایم عادی و حتی جذاب است" },
+  { d: "JP", q: "پروژه‌ها را ترجیح می‌دهم…", a: "با نقشه راه مشخص شروع کنم", b: "در حین کار مسیرش را کشف کنم" },
+  { d: "JP", q: "چک‌لیست برای من…", a: "ابزار روزمره و ضروری است", b: "گاهی مفید ولی محدودکننده است" }
+];
+
+const AIO_MBTI_TYPES = {
+  ISTJ: { name: "بازرس", short: "دقیق، مسئولیت‌پذیر، پایبند به روال", fit: ["کنترل کیفیت", "مستندسازی و ممیزی", "بیوشیمی روتین"] },
+  ISFJ: { name: "مدافع", short: "خدمت‌گزار، صبور، جزئی‌نگر", fit: ["نمونه‌گیری", "پذیرش و جوابدهی", "پرستاری آزمایشگاه"] },
+  INFJ: { name: "مشاور", short: "بصیر، هدف‌محور، عمیق", fit: ["آموزش و توسعه پرسنل", "مشاوره ژنتیک"] },
+  INTJ: { name: "معمار", short: "راهبردی، مستقل، سیستم‌ساز", fit: ["ژنتیک و مولکولی", "R&D", "بیوانفورماتیک"] },
+  ISTP: { name: "صنعتگر", short: "عملگرا، عیب‌یاب، آرام", fit: ["پشتیبانی فنی دستگاه", "مهندسی پزشکی"] },
+  ISFP: { name: "هنرمند", short: "ملایم، دقیق در لحظه، حساس", fit: ["پاتولوژی و کار با میکروتوم", "نمونه‌گیری اطفال"] },
+  INFP: { name: "آرمان‌گرا", short: "ارزش‌محور، خلاق، همدل", fit: ["پژوهش", "آموزش", "مجله و محتوای علمی"] },
+  INTP: { name: "متفکر", short: "تحلیلگر، کنجکاو، مسئله‌محور", fit: ["بیوانفورماتیک", "توسعه روش", "میکروب‌شناسی تحقیقاتی"] },
+  ESTP: { name: "کارآفرین", short: "سریع، اهل عمل، ریسک‌پذیر", fit: ["فروش تجهیزات", "پشتیبانی میدانی"] },
+  ESFP: { name: "سرگرم‌کننده", short: "اجتماعی، پرانرژی، حاضرجواب", fit: ["پذیرش", "روابط عمومی آزمایشگاه"] },
+  ENFP: { name: "قهرمان", short: "الهام‌بخش، ایده‌پرداز، ارتباط‌گیر", fit: ["توسعه کسب‌وکار", "آموزش", "بازاریابی علمی"] },
+  ENTP: { name: "مبتکر", short: "چالش‌گر، خلاق، سریع‌الانتقال", fit: ["توسعه محصول IVD", "استارتاپ سلامت"] },
+  ESTJ: { name: "مدیر", short: "سازمان‌دهنده، قاطع، اجرایی", fit: ["مسئول فنی", "سوپروایزر بخش", "مدیریت آزمایشگاه"] },
+  ESFJ: { name: "تأمین‌کننده", short: "همکار، منظم، مردم‌دار", fit: ["سرپرست پذیرش", "هماهنگی بخش‌ها"] },
+  ENFJ: { name: "معلم", short: "رهبر مردمی، توسعه‌دهنده افراد", fit: ["مدیر آموزش", "منابع انسانی سلامت"] },
+  ENTJ: { name: "فرمانده", short: "راهبر، هدف‌گرا، تصمیم‌گیر", fit: ["مدیرعامل مرکز", "مدیر تجاری تجهیزات"] }
+};
+
+/* ==========================================
+   سیستم خودارزیابی مهارت
+   ========================================== */
+const AIO_SELF_ASSESS = [
+  { id: "tech", name: "مهارت فنی تخصصی", icon: "flask", color: "#0d9488",
+    items: [
+      "کار مستقل با دستگاه‌های اصلی بخش",
+      "عیب‌یابی اولیه خطاهای دستگاه",
+      "تفسیر نتایج و تشخیص نتایج غیرمنتظره",
+      "اجرای روش‌های تخصصی بدون نظارت"
+    ] },
+  { id: "qc", name: "کنترل کیفیت و استانداردها", icon: "shield", color: "#059669",
+    items: [
+      "اجرای QC داخلی روزانه و تفسیر نمودار",
+      "تسلط بر قوانین وستگارد",
+      "مشارکت در برنامه EQA",
+      "آشنایی با الزامات ISO 15189 / آزمایشگاه مرجع سلامت"
+    ] },
+  { id: "safety", name: "ایمنی و بیوسیفتی", icon: "shield", color: "#0ea5e9",
+    items: [
+      "رعایت کامل PPE و اصول ایمنی",
+      "مدیریت صحیح پسماند",
+      "برخورد با مواجهه شغلی و ثبت حادثه",
+      "آشنایی با سطوح BSL"
+    ] },
+  { id: "soft", name: "مهارت‌های ارتباطی و نرم", icon: "users", color: "#8b5cf6",
+    items: [
+      "ارتباط مؤثر با مراجع و همراهان",
+      "کار تیمی در شیفت شلوغ",
+      "انتقال شفاف اطلاعات در تحویل شیفت",
+      "مدیریت استرس و تعارض"
+    ] },
+  { id: "digital", name: "مهارت دیجیتال و LIS", icon: "machine", color: "#f59e0b",
+    items: [
+      "کار روان با نرم‌افزار LIS",
+      "Excel و گزارش‌گیری داده",
+      "جستجوی منابع علمی به‌روز",
+      "آشنایی با ابزارهای تحلیل داده"
+    ] },
+  { id: "growth", name: "توسعه فردی و مسیر شغلی", icon: "path", color: "#f43f5e",
+    items: [
+      "شرکت منظم در دوره‌های آموزشی",
+      "داشتن هدف شغلی مشخص ۲ ساله",
+      "به‌روز نگه‌داشتن رزومه و مدارک",
+      "شبکه‌سازی حرفه‌ای"
+    ] }
+];
+
+const AIO_ASSESS_LEVELS = [
+  { v: 1, label: "ندارم / آشنایی ندارم" },
+  { v: 2, label: "آشنایی مقدماتی دارم" },
+  { v: 3, label: "با نظارت انجام می‌دهم" },
+  { v: 4, label: "مستقل انجام می‌دهم" },
+  { v: 5, label: "به دیگران آموزش می‌دهم" }
+];
+
+/* ==========================================
+   سؤالات پرتکرار (FAQ)
+   ========================================== */
+const AIO_FAQ = [
+  { cat: "شروع کار", items: [
+    { q: "بعد از ثبت‌نام دقیقاً باید چه کار کنم؟",
+      a: "یک مسیر چهار قدمی برای شما تعریف شده است: ۱) رزومه تخصصی‌تان را کامل کنید (حداقل ۷۰٪ تکمیل)، ۲) وضعیت «آماده به کار» را روشن کنید تا کارفرمایان شما را در بانک رزومه ببینند، ۳) «هشدار شغلی» بسازید تا آگهی‌های مطابق معیارتان خودکار به شما اطلاع داده شود، ۴) در یک آزمون مهارتی شرکت کنید تا نشان تأییدشده بگیرید. این مسیر در داشبورد شما به‌صورت چک‌لیست نمایش داده می‌شود." },
+    { q: "چطور از آگهی‌های استخدام جدید باخبر شوم؟",
+      a: "سه راه دارید: (۱) «هشدار شغلی» بسازید — جستجوی خود را با فیلترهای دلخواه ذخیره کنید و آیولب هر آگهی جدید مطابق آن را از طریق پیامک، ایمیل یا اعلان داخل سایت به شما خبر می‌دهد. (۲) کلید «آماده به کار» را روشن کنید تا در آگهی‌های فوری اولویت اطلاع‌رسانی داشته باشید. (۳) آزمایشگاه‌های موردعلاقه‌تان را دنبال کنید تا آگهی‌های آن‌ها را زودتر ببینید." },
+    { q: "ثبت‌نام و استفاده از سایت برای کارجو هزینه دارد؟",
+      a: "خیر. ساخت پروفایل، جستجو، ارسال درخواست و هشدار شغلی برای کارجویان کاملاً رایگان است. آزمون‌های مهارتی پایه هم رایگان هستند؛ فقط برخی آزمون‌های تخصصی با گواهی رسمی هزینه دارند." } ] },
+
+  { cat: "رزومه و درخواست", items: [
+    { q: "چرا رزومه‌ام باید در سایت ساخته شود و PDF کافی نیست؟",
+      a: "رزومه ساخته‌شده در آیولب ساختاریافته است؛ یعنی مهارت‌ها، دستگاه‌ها، بخش و سابقه شما قابل جستجو و تطبیق خودکار با آگهی‌هاست. کارفرما وقتی در بانک رزومه دنبال «کارشناس مسلط به Sysmex در تهران» می‌گردد، فقط پروفایل‌های ساختاریافته پیدا می‌شوند. PDF را هم می‌توانید پیوست کنید." },
+    { q: "بعد از ارسال درخواست چه اتفاقی می‌افتد؟",
+      a: "وضعیت درخواست شما در بخش «درخواست‌های من» به‌صورت زنده به‌روز می‌شود: ارسال‌شده ← دیده‌شده ← در حال بررسی ← دعوت به مصاحبه یا رد. برای هر تغییر وضعیت اعلان می‌گیرید." },
+    { q: "کارفرما چه چیزی از پروفایل من می‌بیند؟",
+      a: "عنوان شغلی، شهر، سابقه، مهارت‌ها، نشان‌های مهارتی تأییدشده و درصد تطبیق. شماره تماس شما تنها پس از آن‌که خودتان برای آگهی درخواست بدهید یا اجازه تماس بدهید نمایش داده می‌شود." } ] },
+
+  { cat: "آزمون و گواهینامه", items: [
+    { q: "آزمون‌های مهارتی آیولب چطور کار می‌کنند؟",
+      a: "کارفرمایان و مراکز معتبر آزمون‌ها را طراحی می‌کنند و آیولب آن‌ها را بازبینی و منتشر می‌کند. شما آزمون را آنلاین و زمان‌دار می‌دهید؛ در صورت کسب حد نصاب نمره، گواهی مهارت به‌صورت خودکار و با کد رهگیری به رزومه شما اضافه می‌شود." },
+    { q: "گواهی مهارت چه فایده‌ای دارد؟",
+      a: "پروفایل‌های دارای نشان مهارت تأییدشده در نتایج جستجوی کارفرمایان بالاتر نمایش داده می‌شوند و در فیلتر «دارای نشان مهارت» بانک رزومه دیده می‌شوند. طبق داده‌های پلتفرم، این پروفایل‌ها حدود ۳ برابر بیشتر دعوت به مصاحبه می‌شوند." },
+    { q: "اگر در آزمون قبول نشوم چه می‌شود؟",
+      a: "نمره مردودی در پروفایل عمومی شما نمایش داده نمی‌شود. می‌توانید پس از ۷ روز دوباره در آزمون شرکت کنید و در این فاصله دوره آموزشی مرتبط به شما پیشنهاد می‌شود." } ] },
+
+  { cat: "کارفرمایان", items: [
+    { q: "چطور آزمایشگاهم را ثبت کنم و روی نقشه بیاید؟",
+      a: "در پنل کارفرما بخش «ثبت آزمایشگاه» را باز کنید، اطلاعات مرکز را وارد کنید و روی نقشه، محل دقیق مرکز را با کلیک پین کنید. پس از تأیید کارشناسان آیولب، مرکز شما در صفحه «آزمایشگاه‌ها» روی نقشه سراسری نمایش داده می‌شود." },
+    { q: "میانگین حقوق مرکز من از کجا می‌آید؟",
+      a: "در حال حاضر مدیر مرکز این عدد را در پنل خود ثبت می‌کند و به‌صورت شفاف در صفحه مرکز نمایش داده می‌شود. در نسخه‌های بعدی این عدد به‌صورت خودکار از ترکیب آگهی‌های ثبت‌شده، حقوق توافق‌شده استخدام‌های موفق و گزارش‌های ناشناس پرسنل محاسبه خواهد شد." },
+    { q: "رتبه‌بندی مراکز بر چه اساسی است؟",
+      a: "رتبه هر مرکز میانگین وزنی امتیاز کاربران در پنج شاخص (حقوق و مزایا، محیط کاری، یادگیری، مدیریت، تعادل کار و زندگی) است که با تعداد نظرات، سرعت پاسخ‌گویی به متقاضیان و کامل بودن پروفایل مرکز ترکیب می‌شود." } ] }
+];
+
+/* ==========================================
+   محتوا و داده‌های نمایشی
+   ========================================== */
 const AIO_COURSES = [
   { id: 1, title: "دوره جامع نمونه‌گیری خون و فلبوتومی", cat: "نمونه‌گیری", price: "۱٬۲۰۰٬۰۰۰ تومان", students: 340, hours: 12, cert: true, color: "#f59e0b", bg: "#fef3c7" },
   { id: 2, title: "کنترل کیفیت در آزمایشگاه بالینی + قوانین وستگارد", cat: "کنترل کیفیت", price: "۱٬۸۰۰٬۰۰۰ تومان", students: 215, hours: 16, cert: true, color: "#059669", bg: "#d1fae5" },
@@ -144,13 +604,13 @@ const AIO_POSTS = [
     text: "امروز اولین روز کاری‌ام در آزمایشگاه جدید بود که از طریق همین پلتفرم پیدا کردم! ممنون از آیولب 🙏 برای دوستانی که دنبال کار هستند: پروفایل‌تان را کامل کنید، واقعاً فرق می‌کند." },
   { id: 3, author: "آزمایشگاه پاتوبیولوژی نور", role: "کارفرمای تأییدشده", color: "#0ea5e9", time: "دیروز", likes: 22, comments: 4,
     text: "کارگاه رایگان «آشنایی با فلگ‌های سل‌کانتر» پنجشنبه این هفته در محل آزمایشگاه برگزار می‌شود. ظرفیت محدود — از طریق پیام به ما اعلام حضور کنید." },
-  { id: 4, author: "مریم کریمی", role: "دانشجوی علوم آزمایشگاهی", color: "#f43f5e", time: "دیروز", likes: 56, comments: 19,
+  { id: 4, author: "مریم کریمی", role: "داوطلب ورود به بازار کار", color: "#f43f5e", time: "دیروز", likes: 56, comments: 19,
     text: "سؤال از باتجربه‌ها: برای شروع کار، بخش نمونه‌گیری بهتر است یا مستقیم رفتن سراغ بخش فنی؟ ترم آخرم و می‌خواهم زودتر وارد بازار کار شوم." }
 ];
 
 const AIO_MESSAGES = [
-  { from: "پشتیبانی آیولب", text: "به آیولب خوش آمدید! پروفایل‌تان را کامل کنید تا در جستجوی کارفرمایان بالاتر دیده شوید.", time: "امروز", unread: true },
-  { from: "ادمین پلتفرم", text: "مدارک شما بررسی و تأیید شد ✓ اکنون می‌توانید برای آگهی‌های ویژه درخواست بدهید.", time: "دیروز", unread: true },
+  { from: "پشتیبانی آیولب", text: "به آیولب خوش آمدید! مسیر «بعد از ثبت‌نام» را در داشبورد دنبال کنید تا پروفایل‌تان دیده شود.", time: "امروز", unread: true },
+  { from: "هشدار شغلی من", text: "۳ آگهی جدید مطابق هشدار «هماتولوژی — تهران» منتشر شد.", time: "امروز", unread: true },
   { from: "آزمایشگاه پاتوبیولوژی نور", text: "رزومه شما بررسی شد؛ لطفاً جهت هماهنگی زمان مصاحبه پاسخ دهید.", time: "۲ روز پیش", unread: false }
 ];
 
@@ -169,8 +629,8 @@ const AIO_EMPLOYER_JOBS = [
 ];
 
 const AIO_APPLICANTS = [
-  { name: "علی رضایی", title: "کارشناس هماتولوژی — ۴ سال سابقه", city: "تهران", match: 92, status: "interview", statusText: "مصاحبه", color: "#0d9488" },
-  { name: "نگار احمدی", title: "کارشناس علوم آزمایشگاهی — ۳ سال سابقه", city: "تهران", match: 87, status: "review", statusText: "بررسی", color: "#8b5cf6" },
-  { name: "حسین موسوی", title: "تکنسین آزمایشگاه — ۶ سال سابقه", city: "کرج", match: 74, status: "review", statusText: "بررسی", color: "#0ea5e9" },
-  { name: "فاطمه نوری", title: "کارشناس ارشد هماتولوژی — ۲ سال سابقه", city: "تهران", match: 81, status: "rejected", statusText: "رد شده", color: "#f59e0b" }
+  { name: "علی رضایی", title: "کارشناس هماتولوژی — ۴ سال سابقه", city: "تهران", match: 92, status: "interview", statusText: "مصاحبه", color: "#0d9488", certs: ["هماتولوژی پیشرفته", "ایمنی"], mbti: "ISTJ" },
+  { name: "نگار احمدی", title: "کارشناس علوم آزمایشگاهی — ۳ سال سابقه", city: "تهران", match: 87, status: "review", statusText: "بررسی", color: "#8b5cf6", certs: ["کنترل کیفیت"], mbti: "ESFJ" },
+  { name: "حسین موسوی", title: "تکنسین آزمایشگاه — ۶ سال سابقه", city: "کرج", match: 74, status: "review", statusText: "بررسی", color: "#0ea5e9", certs: [], mbti: "ISTP" },
+  { name: "فاطمه نوری", title: "کارشناس ارشد هماتولوژی — ۲ سال سابقه", city: "تهران", match: 81, status: "rejected", statusText: "رد شده", color: "#f59e0b", certs: ["ایمنی"], mbti: "INTJ" }
 ];

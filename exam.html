@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آزمون | آیولب</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>body{background:var(--navy-50)}</style>
+</head>
+<body data-page="exams.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="container exam-wrap">
+
+  <!-- ===== Intro ===== -->
+  <div id="intro" class="exam-panel">
+    <div class="ep-head">
+      <div class="ex-badge big" id="i-badge">🎖️</div>
+      <div>
+        <h1 id="i-title">…</h1>
+        <div class="ex-by" id="i-by"></div>
+      </div>
+    </div>
+    <p id="i-desc" class="ep-desc"></p>
+    <div class="ep-grid" id="i-meta"></div>
+    <div class="ep-rules">
+      <b>قوانین آزمون</b>
+      <ul>
+        <li>آزمون زمان‌دار است؛ با پایان زمان، پاسخ‌ها به‌صورت خودکار ثبت می‌شود.</li>
+        <li>در هر لحظه می‌توانید بین سؤالات جابه‌جا شوید و پاسخ‌ها را تغییر دهید.</li>
+        <li>در صورت کسب حد نصاب نمره، گواهی با کد رهگیری به رزومه شما اضافه می‌شود.</li>
+        <li>نمره مردودی در پروفایل عمومی شما نمایش داده نمی‌شود؛ امکان شرکت مجدد پس از ۷ روز.</li>
+      </ul>
+    </div>
+    <button class="btn btn-primary btn-lg btn-block" onclick="startExam()">شروع آزمون</button>
+  </div>
+
+  <!-- ===== Runner ===== -->
+  <div id="runner" class="exam-panel" style="display:none">
+    <div class="exam-bar">
+      <div class="eb-left">
+        <span class="eb-q">سؤال <b id="q-now">۱</b> از <b id="q-total">۱۰</b></span>
+        <div class="eb-progress"><i id="eb-fill"></i></div>
+      </div>
+      <div class="eb-timer" id="timer">۰۰:۰۰</div>
+    </div>
+
+    <div class="q-nav" id="q-nav"></div>
+
+    <div class="q-box">
+      <h2 id="q-text">…</h2>
+      <div id="q-options" class="q-options"></div>
+    </div>
+
+    <div class="q-actions">
+      <button class="btn btn-outline" onclick="move(-1)">سؤال قبلی</button>
+      <button class="btn btn-outline" onclick="move(1)">سؤال بعدی</button>
+      <button class="btn btn-primary" onclick="finishExam(false)">پایان و ثبت پاسخ‌ها</button>
+    </div>
+  </div>
+
+  <!-- ===== Result ===== -->
+  <div id="result" class="exam-panel" style="display:none">
+    <div class="res-hero" id="res-hero"></div>
+    <div class="res-breakdown" id="res-breakdown"></div>
+    <div class="res-actions">
+      <a class="btn btn-outline" href="exams.html">بازگشت به آزمون‌ها</a>
+      <a class="btn btn-outline" href="dashboard.html#resume">مشاهده رزومه من</a>
+      <a class="btn btn-primary" href="jobs.html">دیدن آگهی‌های مرتبط</a>
+    </div>
+  </div>
+
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+let EX = null, answers = [], idx = 0, timeLeft = 0, timerId = null;
+
+document.addEventListener("DOMContentLoaded", () => {
+  EX = AIO_EXAMS.find(e => e.id === Number(qs("id"))) || AIO_EXAMS[0];
+  const l = lab(EX.authorLabId);
+  document.getElementById("i-badge").textContent = EX.badge;
+  document.getElementById("i-title").textContent = EX.title;
+  document.getElementById("i-by").textContent = "طراح آزمون: " + l.name + (l.verified ? " ✔️" : "");
+  document.getElementById("i-desc").textContent = EX.desc;
+  document.getElementById("i-meta").innerHTML = `
+    <div><b>${fa(EX.questions.length)}</b><span>سؤال چندگزینه‌ای</span></div>
+    <div><b>${fa(EX.duration)}</b><span>دقیقه زمان</span></div>
+    <div><b>${fa(EX.passScore)}٪</b><span>حد نصاب قبولی</span></div>
+    <div><b>${EX.level}</b><span>سطح آزمون</span></div>`;
+  answers = new Array(EX.questions.length).fill(-1);
+});
+
+function startExam() {
+  if (!Auth.user) { toast("برای شرکت در آزمون ابتدا وارد حساب شوید"); setTimeout(() => location.href = "login.html", 1200); return; }
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("runner").style.display = "";
+  document.getElementById("q-total").textContent = fa(EX.questions.length);
+  timeLeft = EX.duration * 60;
+  tick();
+  timerId = setInterval(tick, 1000);
+  showQ(0);
+}
+
+function tick() {
+  const m = String(Math.floor(timeLeft / 60)).padStart(2, "0");
+  const s = String(timeLeft % 60).padStart(2, "0");
+  document.getElementById("timer").textContent = (m + ":" + s).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
+  document.getElementById("timer").classList.toggle("warn", timeLeft <= 60);
+  if (timeLeft <= 0) { clearInterval(timerId); finishExam(true); return; }
+  timeLeft--;
+}
+
+function showQ(i) {
+  idx = Math.max(0, Math.min(EX.questions.length - 1, i));
+  const q = EX.questions[idx];
+  document.getElementById("q-now").textContent = fa(idx + 1);
+  document.getElementById("eb-fill").style.width = ((idx + 1) / EX.questions.length * 100) + "%";
+  document.getElementById("q-text").textContent = q.q;
+  document.getElementById("q-options").innerHTML = q.options.map((o, k) => `
+    <label class="q-opt ${answers[idx] === k ? "sel" : ""}">
+      <input type="radio" name="opt" ${answers[idx] === k ? "checked" : ""} onchange="pick(${k})">
+      <span class="q-key">${"۱۲۳۴۵۶"[k]}</span><span>${o}</span>
+    </label>`).join("");
+  document.getElementById("q-nav").innerHTML = EX.questions.map((_, k) =>
+    `<button class="qn ${k === idx ? "cur" : ""} ${answers[k] > -1 ? "done" : ""}" onclick="showQ(${k})">${fa(k + 1)}</button>`).join("");
+}
+
+function pick(k) { answers[idx] = k; showQ(idx); }
+function move(d) { showQ(idx + d); }
+
+function finishExam(auto) {
+  if (!auto) {
+    const empty = answers.filter(a => a === -1).length;
+    if (empty && !confirm(`${empty} سؤال بی‌پاسخ مانده است. مطمئنید می‌خواهید آزمون را ثبت کنید؟`)) return;
+  }
+  clearInterval(timerId);
+  const correct = answers.filter((a, i) => a === EX.questions[i].answer).length;
+  const score = Math.round(correct / EX.questions.length * 100);
+  const passed = score >= EX.passScore;
+
+  document.getElementById("runner").style.display = "none";
+  document.getElementById("result").style.display = "";
+
+  let code = "";
+  if (passed) {
+    code = "AIO-" + EX.id + "-" + String(Math.abs(hash(Auth.user.name + EX.id + score))).slice(0, 6);
+    MyCerts.add({ examId: EX.id, title: EX.title, badge: EX.badge, score, code, date: "۱۴۰۵/۰۴/۰۵", issuer: lab(EX.authorLabId).name });
+  }
+
+  document.getElementById("res-hero").innerHTML = passed ? `
+    <div class="rh pass">
+      <div class="rh-icon">${EX.badge}</div>
+      <h1>قبول شدید! 🎉</h1>
+      <p>نمره شما <b>${fa(score)}٪</b> از حد نصاب <b>${fa(EX.passScore)}٪</b></p>
+      <div class="cert-strip">
+        <b>گواهی «${EX.title}»</b>
+        <span>به رزومه شما اضافه شد · کد رهگیری: ${code}</span>
+        <small>صادرکننده: ${lab(EX.authorLabId).name} — تأییدشده توسط آیولب</small>
+      </div>
+      <p class="rh-note">از این پس پروفایل شما نشان مهارت تأییدشده دارد و در فیلتر «دارای نشان مهارت» بانک رزومه کارفرمایان نمایش داده می‌شود.</p>
+    </div>` : `
+    <div class="rh fail">
+      <div class="rh-icon">📘</div>
+      <h1>این بار نشد</h1>
+      <p>نمره شما <b>${fa(score)}٪</b> — حد نصاب قبولی <b>${fa(EX.passScore)}٪</b> است.</p>
+      <p class="rh-note">این نمره در پروفایل عمومی شما نمایش داده نمی‌شود. می‌توانید پس از ۷ روز دوباره شرکت کنید. دوره پیشنهادی برای آمادگی در بخش «آموزش و رشد حرفه‌ای» موجود است.</p>
+      <a class="btn btn-outline" href="courses.html">دوره‌های آمادگی</a>
+    </div>`;
+
+  document.getElementById("res-breakdown").innerHTML = `
+    <h2>مرور پاسخ‌ها</h2>
+    ${EX.questions.map((q, i) => {
+      const ok = answers[i] === q.answer;
+      return `<div class="rb-item ${ok ? "ok" : "no"}">
+        <div class="rb-q"><span>${fa(i + 1)}</span> ${q.q}</div>
+        <div class="rb-a">
+          <span class="rb-yours">پاسخ شما: ${answers[i] > -1 ? q.options[answers[i]] : "بی‌پاسخ"}</span>
+          ${ok ? "" : `<span class="rb-right">پاسخ درست: ${q.options[q.answer]}</span>`}
+        </div>
+      </div>`;
+    }).join("")}`;
+}
+
+function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h << 5) - h + s.charCodeAt(i) | 0; return h; }
+</script>
+</body>
+</html>

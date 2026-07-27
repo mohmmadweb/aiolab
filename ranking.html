@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>رتبه‌بندی مراکز | آیولب</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="ranking.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / رتبه‌بندی مراکز</div>
+    <h1 data-i18n="rank.title">رتبه‌بندی مراکز</h1>
+    <p>رتبه هر مرکز بر پایه امتیاز واقعی کاربران در پنج شاخص محاسبه می‌شود — نه تبلیغات.</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:28px">
+  <div class="container">
+
+    <div class="rank-method">
+      <b>روش محاسبه امتیاز</b>
+      <p>میانگین امتیاز کاربران در پنج شاخص (حقوق و مزایا، محیط کاری، یادگیری، مدیریت، تعادل کار و زندگی)،
+         تعدیل‌شده با «ضریب اطمینان آماری» بر اساس تعداد نظرات، به‌علاوه امتیاز تکمیل بودن پروفایل و احراز هویت مرکز.
+         مراکز با کمتر از ۱۰ نظر با نشان «داده کم» مشخص می‌شوند.</p>
+    </div>
+
+    <div class="lab-filters">
+      <select id="r-prov"></select>
+      <select id="r-city"></select>
+      <select id="r-sector"><option value="">همه بخش‌ها</option></select>
+      <select id="r-kind"><option value="">همه انواع سازمان</option></select>
+      <select id="r-metric">
+        <option value="total">امتیاز کل</option>
+        <option value="salary">حقوق و مزایا</option>
+        <option value="environment">محیط کاری</option>
+        <option value="learning">یادگیری و آموزش</option>
+        <option value="management">مدیریت</option>
+        <option value="worklife">تعادل کار و زندگی</option>
+        <option value="avgSalary">میانگین حقوق پرداختی</option>
+      </select>
+    </div>
+
+    <div class="rank-table-wrap">
+      <table class="rank-table">
+        <thead>
+          <tr>
+            <th>رتبه</th><th>مرکز</th><th>شهر</th><th>نوع</th>
+            <th>امتیاز کل</th><th>حقوق</th><th>محیط</th><th>یادگیری</th><th>مدیریت</th><th>تعادل</th>
+            <th>میانگین حقوق</th><th>نظرات</th>
+          </tr>
+        </thead>
+        <tbody id="rank-body"></tbody>
+      </table>
+    </div>
+
+    <div class="rank-note">
+      امتیازها از نظرات ثبت‌شده پرسنل فعلی و پیشین می‌آید. اگر در یکی از این مراکز کار کرده‌اید،
+      <a href="#" onclick="rateFlow();return false">نظر خود را ثبت کنید</a> — نظرات ناشناس منتشر می‌شوند.
+    </div>
+  </div>
+</section>
+
+<!-- Rating modal -->
+<div class="modal-back" id="rate-modal" style="display:none">
+  <div class="modal">
+    <h2>ثبت امتیاز و نظر</h2>
+    <div class="form-field">
+      <label>مرکز</label>
+      <select id="rm-lab"></select>
+    </div>
+    <div id="rm-stars"></div>
+    <div class="form-field"><label>نقاط قوت</label><input type="text" id="rm-pros" placeholder="مثلاً: آموزش خوب، پرداخت منظم"></div>
+    <div class="form-field"><label>نقاط ضعف</label><input type="text" id="rm-cons" placeholder="مثلاً: حجم کاری بالا"></div>
+    <div class="form-field"><label>توضیح</label><textarea id="rm-text" rows="3" placeholder="تجربه شما از کار در این مرکز…"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="document.getElementById('rate-modal').style.display='none'">انصراف</button>
+      <button class="btn btn-primary" onclick="submitRate()">ثبت نظر ناشناس</button>
+    </div>
+  </div>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+const METRICS = ["salary", "environment", "learning", "management", "worklife"];
+
+document.addEventListener("DOMContentLoaded", () => {
+  bindProvinceCity("r-prov", "r-city", render);
+  document.getElementById("r-sector").insertAdjacentHTML("beforeend",
+    AIO_SECTORS.map(s => `<option value="${s.id}">${s.name}</option>`).join(""));
+  document.getElementById("r-kind").insertAdjacentHTML("beforeend",
+    AIO_ORG_KINDS.map(s => `<option value="${s.id}">${s.name}</option>`).join(""));
+  document.querySelectorAll(".lab-filters select").forEach(el => el.addEventListener("change", render));
+  render();
+});
+
+function render() {
+  const prov = document.getElementById("r-prov").value;
+  const city = document.getElementById("r-city").value;
+  const sector = document.getElementById("r-sector").value;
+  const kind = document.getElementById("r-kind").value;
+  const metric = document.getElementById("r-metric").value;
+
+  let list = AIO_LABS.filter(l =>
+    (!prov || l.provinceId === prov) && (!city || l.city === city) &&
+    (!sector || l.sector === sector) && (!kind || l.orgKind === kind));
+
+  list.sort((a, b) => {
+    if (metric === "total") return labScore(b) - labScore(a);
+    if (metric === "avgSalary") return b.avgSalary - a.avgSalary;
+    return b.ratingBreakdown[metric] - a.ratingBreakdown[metric];
+  });
+
+  document.getElementById("rank-body").innerHTML = list.map((l, i) => {
+    const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : fa(i + 1);
+    const low = l.ratingCount < 10;
+    return `<tr>
+      <td class="rk">${medal}</td>
+      <td class="rl">
+        <a href="lab.html?id=${l.id}">
+          <span class="job-logo sm" style="background:${l.color}">${l.name.replace("آزمایشگاه ", "").replace("شرکت ", "").charAt(0)}</span>
+          <b>${l.name}</b> ${l.verified ? "✔️" : ""}
+          ${low ? '<i class="low-data">داده کم</i>' : ""}
+        </a>
+      </td>
+      <td>${l.city}</td>
+      <td><span class="tiny-chip">${sectorName(l.sector)}</span></td>
+      <td class="score"><b>${fa(labScore(l))}</b>${starsHTML(l.rating, "sm")}</td>
+      ${METRICS.map(m => `<td class="${metric === m ? "hl" : ""}">${fa(l.ratingBreakdown[m])}</td>`).join("")}
+      <td class="${metric === "avgSalary" ? "hl" : ""}"><b>${fa(l.avgSalary)}</b> م.ت</td>
+      <td>${fa(l.ratingCount)}</td>
+    </tr>`;
+  }).join("");
+}
+
+function rateFlow() {
+  if (!Auth.user) { toast("برای ثبت نظر ابتدا وارد شوید"); setTimeout(() => location.href = "login.html", 1200); return; }
+  document.getElementById("rm-lab").innerHTML = AIO_LABS.map(l => `<option value="${l.id}">${l.name}</option>`).join("");
+  document.getElementById("rm-stars").innerHTML = [
+    ["salary", "حقوق و مزایا"], ["environment", "محیط کاری"], ["learning", "یادگیری و آموزش"],
+    ["management", "مدیریت"], ["worklife", "تعادل کار و زندگی"]
+  ].map(([id, label]) => `
+    <div class="rate-row">
+      <span>${label}</span>
+      <div class="rate-stars" data-metric="${id}">
+        ${[1,2,3,4,5].map(v => `<button onclick="pickStar('${id}',${v},this)">★</button>`).join("")}
+      </div>
+    </div>`).join("");
+  document.getElementById("rate-modal").style.display = "flex";
+}
+
+const myRating = {};
+function pickStar(metric, v, el) {
+  myRating[metric] = v;
+  [...el.parentElement.children].forEach((b, i) => b.classList.toggle("on", i < v));
+}
+
+function submitRate() {
+  if (Object.keys(myRating).length < 5) { toast("لطفاً به هر پنج شاخص امتیاز بدهید"); return; }
+  document.getElementById("rate-modal").style.display = "none";
+  toast("نظر شما ثبت شد ✓ پس از بازبینی، به‌صورت ناشناس منتشر می‌شود");
+}
+</script>
+</body>
+</html>

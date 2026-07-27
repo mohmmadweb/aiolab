@@ -109,13 +109,15 @@
     <form class="search-box" onsubmit="goSearch(event)">
       <div class="field">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke="currentColor" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
-        <input id="q" type="text" placeholder="شرح شغل، عنوان یا مهارت... (مثلاً کارشناس هماتولوژی)">
+        <input id="q" type="text" data-i18n-ph="search.q" placeholder="عنوان شغلی، مهارت یا نام مرکز…">
       </div>
       <div class="field">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <select id="city" title="شهر">
-          <option value="">همه شهرها</option>
-        </select>
+        <select id="prov" title="استان"></select>
+      </div>
+      <div class="field">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/></svg>
+        <select id="city" title="شهر"></select>
       </div>
       <div class="field">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v6L4.5 18a2.5 2.5 0 0 0 2.2 3.7h10.6a2.5 2.5 0 0 0 2.2-3.7L14 8V2"/><path d="M8.5 2h7"/></svg>
@@ -123,17 +125,51 @@
           <option value="">دسته‌بندی مشاغل</option>
         </select>
       </div>
-      <button class="btn btn-primary" type="submit">جستجو</button>
+      <button class="btn btn-primary" type="submit" data-i18n="act.search">جستجو</button>
     </form>
+
+    <!-- فیلترهای سریع صفحه اول -->
+    <div class="quick-filters">
+      <button type="button" class="qf" onclick="toggleAdv()">⚙️ <span data-i18n="act.advanced">جستجوی پیشرفته</span></button>
+      <a class="qf" href="jobs.html?remote=1">🏠 دورکاری</a>
+      <a class="qf" href="jobs.html?urgent=1">🔥 آگهی‌های فوری</a>
+      <a class="qf" href="jobs.html?type=پاره‌وقت">⏰ پاره‌وقت</a>
+      <a class="qf" href="jobs.html?type=کارآموزی">🎓 کارآموزی و داوطلب</a>
+      <a class="qf" href="jobs.html?shift=شب">🌙 شیفت شب</a>
+      <a class="qf" href="jobs.html?benefit=بیمه تکمیلی">🛡️ با بیمه تکمیلی</a>
+      <a class="qf" href="labs.html">🗺️ آزمایشگاه‌ها روی نقشه</a>
+    </div>
+
+    <!-- پنل جستجوی پیشرفته -->
+    <div class="adv-panel" id="adv-panel" style="display:none">
+      <div class="adv-grid">
+        <div class="af"><label>نوع همکاری</label><select id="a-type"><option value="">همه</option></select></div>
+        <div class="af"><label>شیفت کاری</label><select id="a-shift"><option value="">همه</option></select></div>
+        <div class="af"><label>حقوق ماهانه</label><select id="a-band"><option value="">همه</option></select></div>
+        <div class="af"><label>سابقه کار</label><select id="a-exp"><option value="">همه</option></select></div>
+        <div class="af"><label>مدرک تحصیلی</label><select id="a-degree"><option value="">همه</option></select></div>
+        <div class="af"><label>رشته تحصیلی</label><select id="a-field"><option value="">همه</option></select></div>
+        <div class="af"><label>جنسیت</label><select id="a-gender"><option value="">فرقی نمی‌کند</option></select></div>
+        <div class="af"><label>وضعیت سربازی</label><select id="a-military"><option value="">مهم نیست</option></select></div>
+        <div class="af"><label>نوع سازمان</label><select id="a-sector"><option value="">همه</option></select></div>
+        <div class="af"><label>دسته سازمان</label><select id="a-kind"><option value="">همه</option></select></div>
+        <div class="af"><label>مزایا</label><select id="a-benefit"><option value="">همه</option></select></div>
+        <div class="af"><label>تاریخ انتشار</label><select id="a-age"><option value="">همه زمان‌ها</option></select></div>
+      </div>
+      <div class="adv-foot">
+        <label class="check-item"><input type="checkbox" id="a-remote"> فقط دورکاری</label>
+        <label class="check-item"><input type="checkbox" id="a-verified"> فقط کارفرمایان تأییدشده</label>
+        <button class="btn btn-primary" onclick="goSearch(event, true)" data-i18n="act.apply">اعمال فیلتر</button>
+      </div>
+    </div>
 
     <div class="hero-tags">
       <span>جستجوهای پرتکرار:</span>
       <a href="jobs.html?dept=hematology">هماتولوژی</a>
       <a href="jobs.html?dept=sampling">نمونه‌گیری</a>
       <a href="jobs.html?dept=biochemistry">بیوشیمی</a>
-      <a href="jobs.html?shift=شب">شیفت شب</a>
       <a href="jobs.html?dept=genetics">ژنتیک</a>
-      <a href="jobs.html?city=دورکار">دورکاری</a>
+      <a href="jobs.html?dept=qc">کنترل کیفیت</a>
     </div>
 
     <!-- start journey (per sketch: ثبت‌نام ← ایجاد رزومه ← مسیر ارتقاء) -->
@@ -198,31 +234,77 @@
   </div>
 </section>
 
-<!-- ================= HOW IT WORKS ================= -->
+<!-- ================= MAP TEASER ================= -->
 <section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>آزمایشگاه‌ها روی نقشه</h2>
+        <p>هر مرکزی که ثبت می‌شود، دقیقاً روی نقشه پین می‌شود — نزدیک‌ترین فرصت شغلی به خانه‌ات را پیدا کن</p>
+      </div>
+      <a class="more" href="labs.html">مشاهده نقشه سراسری ←</a>
+    </div>
+    <a class="map-teaser" href="labs.html">
+      <div class="mt-pins" id="mt-pins"></div>
+      <div class="mt-cta"><b>🗺️ نقشه سراسری مراکز</b><span id="mt-count"></span></div>
+    </a>
+  </div>
+</section>
+
+<!-- ================= AFTER SIGNUP (UX answer) ================= -->
+<section class="section alt">
   <div class="container">
     <div class="section-head" style="justify-content:center;text-align:center">
       <div>
-        <h2>در ۳ قدم استخدام شو</h2>
-        <p>مسیر ساده از ساخت رزومه تا قرارداد</p>
+        <h2>بعد از ثبت‌نام دقیقاً چه کار کنم؟</h2>
+        <p>مسیر مشخص چهار قدمی — همین چک‌لیست در داشبورد شما هم دنبال می‌شود</p>
       </div>
     </div>
-    <div class="steps-grid">
+    <div class="steps-grid four">
       <div class="step-card">
         <div class="num">۱</div>
-        <h3>پروفایل حرفه‌ای بساز</h3>
-        <p>رزومه تخصصی آزمایشگاهی‌ات را با مهارت‌ها، دستگاه‌ها و سوابق کاری کامل کن.</p>
+        <h3>رزومه‌ات را کامل کن</h3>
+        <p>مهارت‌ها، دستگاه‌هایی که با آن‌ها کار کرده‌ای و سوابق را وارد کن. پروفایل بالای ۷۰٪ در جستجوی کارفرما بالاتر دیده می‌شود.</p>
+        <a href="dashboard.html#resume">رفتن به رزومه‌ساز ←</a>
       </div>
       <div class="step-card">
         <div class="num">۲</div>
-        <h3>فرصت مناسب را پیدا کن</h3>
-        <p>با فیلترهای تخصصی (بخش، شیفت، شهر، حقوق) دقیقاً همان شغلی که می‌خواهی را بیاب.</p>
+        <h3>«آماده به کار» را روشن کن</h3>
+        <p>با یک کلید، در بانک رزومه کارفرمایان قابل مشاهده می‌شوی و در آگهی‌های فوری اولویت می‌گیری.</p>
+        <a href="dashboard.html">فعال‌سازی در داشبورد ←</a>
       </div>
       <div class="step-card">
         <div class="num">۳</div>
-        <h3>درخواست بده و استخدام شو</h3>
-        <p>با یک کلیک رزومه بفرست، وضعیت درخواستت را دنبال کن و به مصاحبه دعوت شو.</p>
+        <h3>هشدار شغلی بساز</h3>
+        <p>جستجوی دلخواهت را ذخیره کن تا هر آگهی جدید مطابق آن، با پیامک و اعلان به تو خبر داده شود.</p>
+        <a href="jobs.html">ساخت هشدار شغلی ←</a>
       </div>
+      <div class="step-card">
+        <div class="num">۴</div>
+        <h3>آزمون مهارت بده</h3>
+        <p>نشان مهارت تأییدشده روی رزومه، شانس دعوت به مصاحبه را چند برابر می‌کند.</p>
+        <a href="exams.html">مشاهده آزمون‌ها ←</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= JOB ALERT (UX answer) ================= -->
+<section class="section">
+  <div class="container">
+    <div class="alert-band">
+      <div class="ab-text">
+        <span class="ab-ic">🔔</span>
+        <div>
+          <h2>چطور از آگهی‌های جدید باخبر شوم؟</h2>
+          <p>معیارهایت را یک‌بار بگو؛ هر آگهی جدیدی که با آن بخواند، از طریق <b>پیامک</b>، <b>ایمیل</b> و <b>اعلان داخل سایت</b> به تو خبر داده می‌شود. لازم نیست هر روز سایت را چک کنی.</p>
+        </div>
+      </div>
+      <form class="ab-form" onsubmit="quickAlert(event)">
+        <select id="al-dept"><option value="">بخش موردنظر…</option></select>
+        <select id="al-prov"></select>
+        <button class="btn btn-primary" type="submit">ساخت هشدار شغلی</button>
+      </form>
     </div>
   </div>
 </section>
@@ -255,6 +337,20 @@
   </div>
 </section>
 
+<!-- ================= FAQ ================= -->
+<section class="section alt">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2 data-i18n="faq.title">سؤالات پرتکرار</h2>
+        <p>پاسخ کوتاه به چیزهایی که بیشتر پرسیده می‌شود</p>
+      </div>
+      <a class="more" href="faq.html">همه سؤالات ←</a>
+    </div>
+    <div class="faq-home" id="faq-home"></div>
+  </div>
+</section>
+
 <!-- ================= CTA ================= -->
 <section class="section" style="padding-top:0">
   <div class="container">
@@ -270,9 +366,17 @@
 
 <footer id="site-footer" class="site-footer"></footer>
 
+<script src="assets/js/geo.js"></script>
 <script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
 <script>
+const ADV = [
+  ["a-type", AIO_JOB_TYPES], ["a-shift", AIO_SHIFTS], ["a-exp", AIO_EXPERIENCES],
+  ["a-degree", AIO_DEGREES], ["a-field", AIO_FIELDS_STUDY], ["a-gender", AIO_GENDERS],
+  ["a-military", AIO_MILITARY], ["a-benefit", AIO_BENEFITS]
+];
+
 document.addEventListener("DOMContentLoaded", () => {
   // stat icons
   document.getElementById("ic-1").innerHTML = ICONS.briefcase;
@@ -280,14 +384,45 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("ic-3").innerHTML = ICONS.flask;
   document.getElementById("ic-4").innerHTML = ICONS.shield;
 
-  // cities (+ دورکار per sketch)
-  const citySel = document.getElementById("city");
-  AIO_CITIES.forEach(c => citySel.insertAdjacentHTML("beforeend", `<option>${c}</option>`));
-  citySel.insertAdjacentHTML("beforeend", `<option>دورکار</option>`);
+  // province + city (وابسته به هم، همه استان‌ها و شهرها)
+  bindProvinceCity("prov", "city");
 
   // job categories
   const deptSel = document.getElementById("dept");
   AIO_DEPARTMENTS.forEach(d => deptSel.insertAdjacentHTML("beforeend", `<option value="${d.id}">${d.name}</option>`));
+
+  // advanced panel selects
+  ADV.forEach(([id, arr]) => document.getElementById(id).insertAdjacentHTML("beforeend",
+    arr.map(v => `<option value="${v}">${v}</option>`).join("")));
+  document.getElementById("a-band").insertAdjacentHTML("beforeend",
+    AIO_SALARY_BANDS.map(b => `<option value="${b.id}">${b.name}</option>`).join(""));
+  document.getElementById("a-sector").insertAdjacentHTML("beforeend",
+    AIO_SECTORS.map(s => `<option value="${s.id}">${s.name}</option>`).join(""));
+  document.getElementById("a-kind").insertAdjacentHTML("beforeend",
+    AIO_ORG_KINDS.map(s => `<option value="${s.id}">${s.name}</option>`).join(""));
+  document.getElementById("a-age").insertAdjacentHTML("beforeend",
+    AIO_POST_AGES.map(a => `<option value="${a.id}">${a.name}</option>`).join(""));
+
+  // job-alert band
+  document.getElementById("al-dept").insertAdjacentHTML("beforeend",
+    AIO_DEPARTMENTS.map(d => `<option value="${d.id}">${d.name}</option>`).join(""));
+  document.getElementById("al-prov").innerHTML = `<option value="">همه استان‌ها</option>` +
+    AIO_PROVINCES.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
+
+  // map teaser
+  document.getElementById("mt-count").textContent =
+    `${fa(AIO_LABS.length)} مرکز پین‌شده در ${fa(new Set(AIO_LABS.map(l => l.provinceId)).size)} استان`;
+  document.getElementById("mt-pins").innerHTML = AIO_LABS.slice(0, 9).map((l, i) => `
+    <span class="mt-pin" style="background:${l.color};top:${12 + (i % 3) * 26}%;${I18N.lang === "en" ? "left" : "right"}:${8 + Math.floor(i / 3) * 28 + (i % 3) * 6}%">
+      ${l.name.replace("آزمایشگاه ", "").replace("شرکت ", "").charAt(0)}</span>`).join("");
+
+  // FAQ (top 4)
+  const top = AIO_FAQ.flatMap(c => c.items).slice(0, 4);
+  document.getElementById("faq-home").innerHTML = top.map((it, i) => `
+    <details class="faq-item" ${i === 0 ? "open" : ""}>
+      <summary>${it.q}</summary>
+      <div class="fa-body">${it.a}</div>
+    </details>`).join("");
 
   // categories
   document.getElementById("cat-grid").innerHTML = AIO_DEPARTMENTS.map(d => {
@@ -318,17 +453,36 @@ document.addEventListener("DOMContentLoaded", () => {
     </a>`).join("");
 });
 
-function goSearch(e) {
+function toggleAdv() {
+  const p = document.getElementById("adv-panel");
+  p.style.display = p.style.display === "none" ? "" : "none";
+}
+
+function goSearch(e, adv) {
   e.preventDefault();
-  const q = document.getElementById("q").value.trim();
-  const c = document.getElementById("city").value;
-  const d = document.getElementById("dept").value;
   const p = new URLSearchParams();
-  if (q) p.set("q", q);
-  if (c) p.set("city", c);
-  if (d) p.set("dept", d);
-  // اگر فیلترها خالی باشد، صفحه فرصت‌های شغلی بدون فیلتر نمایش داده می‌شود (مطابق طرح)
+  const set = (k, v) => { if (v) p.set(k, v); };
+  set("q", document.getElementById("q").value.trim());
+  set("prov", document.getElementById("prov").value);
+  set("city", document.getElementById("city").value);
+  set("dept", document.getElementById("dept").value);
+  if (adv) {
+    set("type", document.getElementById("a-type").value);
+    set("shift", document.getElementById("a-shift").value);
+    set("benefit", document.getElementById("a-benefit").value);
+    if (document.getElementById("a-remote").checked) p.set("remote", "1");
+  }
   location.href = "jobs.html" + (p.toString() ? "?" + p.toString() : "");
+}
+
+function quickAlert(e) {
+  e.preventDefault();
+  if (!Auth.user) { toast("برای ساخت هشدار شغلی ابتدا ثبت‌نام کنید"); setTimeout(() => location.href = "register.html", 1200); return; }
+  const d = document.getElementById("al-dept").value;
+  const pr = document.getElementById("al-prov").value;
+  const title = [d ? dept(d).name : "همه بخش‌ها", pr ? provinceById(pr).name : "سراسر کشور"].join(" · ");
+  MyAlerts.add({ title, filters: { dept: d, provinceId: pr }, channels: ["پیامک", "ایمیل", "اعلان سایت"], created: "امروز" });
+  toast("هشدار شغلی «" + title + "» ساخته شد ✓");
 }
 </script>
 </body>

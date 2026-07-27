@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آزمون و گواهینامه مهارت | آیولب</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="exams.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / آزمون و گواهینامه</div>
+    <h1 data-i18n="exam.title">آزمون و گواهینامه مهارت</h1>
+    <p>آزمون‌ها را کارفرمایان و مراکز معتبر طراحی می‌کنند؛ شما آنلاین شرکت می‌کنید و در صورت قبولی، گواهی با کد رهگیری به‌صورت خودکار به رزومه شما اضافه می‌شود.</p>
+  </div>
+</div>
+
+<!-- How it works -->
+<section class="section" style="padding-bottom:0">
+  <div class="container">
+    <div class="steps-grid four">
+      <div class="step-card"><div class="num">۱</div><h3>کارفرما آزمون را طراحی می‌کند</h3>
+        <p>در پنل کارفرما، سؤالات چندگزینه‌ای، مدت آزمون و حد نصاب نمره تعیین می‌شود.</p></div>
+      <div class="step-card"><div class="num">۲</div><h3>آیولب بازبینی و منتشر می‌کند</h3>
+        <p>کارشناسان علمی، اعتبار سؤالات و کلید پاسخ را بررسی می‌کنند.</p></div>
+      <div class="step-card"><div class="num">۳</div><h3>کارجو آنلاین آزمون می‌دهد</h3>
+        <p>آزمون زمان‌دار است و نمره بلافاصله پس از پایان اعلام می‌شود.</p></div>
+      <div class="step-card"><div class="num">۴</div><h3>گواهی روی رزومه می‌نشیند</h3>
+        <p>در صورت قبولی، نشان مهارت تأییدشده به پروفایل شما اضافه و برای کارفرمایان قابل مشاهده می‌شود.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- My certificates -->
+<section class="section" id="my-certs-sec" style="display:none">
+  <div class="container">
+    <div class="section-head"><div><h2>گواهی‌های من</h2><p>نشان‌های مهارتی تأییدشده روی رزومه شما</p></div></div>
+    <div class="cert-grid" id="my-certs"></div>
+  </div>
+</section>
+
+<!-- Exam list -->
+<section class="section alt">
+  <div class="container">
+    <div class="section-head">
+      <div><h2>آزمون‌های فعال</h2><p>هر آزمون توسط مرکز طراح آن پشتیبانی می‌شود</p></div>
+      <a class="more" href="employer.html#exambuilder">کارفرما هستید؟ آزمون بسازید ←</a>
+    </div>
+    <div class="exam-grid" id="exam-grid"></div>
+  </div>
+</section>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("exam-grid").innerHTML = AIO_EXAMS.map(e => {
+    const l = lab(e.authorLabId);
+    const passed = MyCerts.all().find(c => c.examId === e.id);
+    return `<div class="exam-card" style="--ec:${e.color};--ebg:${e.bg}">
+      <div class="ex-top">
+        <div class="ex-badge">${e.badge}</div>
+        <div>
+          <h3>${e.title}</h3>
+          <div class="ex-by">طراح: ${l.name} ${l.verified ? "✔️" : ""}</div>
+        </div>
+        ${passed ? '<span class="ex-passed">قبول شده ✓</span>' : ""}
+      </div>
+      <p class="ex-desc">${e.desc}</p>
+      <div class="ex-meta">
+        <span>${fa(e.questions.length)} سؤال</span>
+        <span>${fa(e.duration)} دقیقه</span>
+        <span>حد نصاب ${fa(e.passScore)}٪</span>
+        <span class="ex-level">${e.level}</span>
+      </div>
+      <div class="ex-stats">
+        <span>👥 ${fa(e.takers)} شرکت‌کننده</span>
+        <span>🎖️ ${fa(e.certIssued)} گواهی صادرشده</span>
+      </div>
+      <a class="btn btn-primary btn-block" href="exam.html?id=${e.id}">${passed ? "شرکت مجدد" : "شروع آزمون"}</a>
+    </div>`;
+  }).join("");
+
+  const certs = MyCerts.all();
+  if (certs.length) {
+    document.getElementById("my-certs-sec").style.display = "";
+    document.getElementById("my-certs").innerHTML = certs.map(c => `
+      <div class="cert-card">
+        <div class="cc-badge">${c.badge || "🎖️"}</div>
+        <b>${c.title}</b>
+        <span class="cc-score">نمره: ${fa(c.score)}٪</span>
+        <span class="cc-code">کد رهگیری: ${c.code}</span>
+        <span class="cc-date">${c.date}</span>
+      </div>`).join("");
+  }
+});
+</script>
+</body>
+</html>

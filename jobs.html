@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>فرصت‌های شغلی | آیولب</title>
+<title>جستجوی پیشرفته فرصت‌های شغلی | آیولب</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
 <link rel="stylesheet" href="assets/css/style.css">
@@ -15,139 +15,282 @@
 <div class="page-head">
   <div class="container">
     <div class="breadcrumb"><a href="index.html">خانه</a> / فرصت‌های شغلی</div>
-    <h1>فرصت‌های شغلی آزمایشگاهی</h1>
-    <p>جستجوی تخصصی در میان آگهی‌های استخدام آزمایشگاه‌های تشخیص طبی و پژوهشی</p>
+    <h1>جستجوی پیشرفته فرصت‌های شغلی</h1>
+    <p>فیلتر بر اساس استان و شهر، بخش، نوع همکاری، حقوق، مزایا، مدرک، سابقه، جنسیت، وضعیت سربازی و نوع سازمان</p>
   </div>
 </div>
 
 <div class="container listing-layout">
 
-  <!-- Filters -->
-  <aside class="filters">
-    <h3>فیلترها <button onclick="resetFilters()">حذف همه</button></h3>
+  <!-- ===== Filters ===== -->
+  <aside class="filters" id="filters">
+    <h3><span data-i18n="act.filters">فیلترها</span> <button onclick="resetFilters()" data-i18n="act.clearAll">حذف همه</button></h3>
 
     <div class="filter-group">
-      <label>جستجو</label>
-      <input type="text" id="f-q" placeholder="عنوان یا مهارت...">
+      <label>جستجوی متنی</label>
+      <input type="text" id="f-q" data-i18n-ph="search.q" placeholder="عنوان شغلی، مهارت یا نام مرکز…">
+    </div>
+
+    <div class="filter-group">
+      <label>استان</label>
+      <select id="f-prov"></select>
     </div>
 
     <div class="filter-group">
       <label>شهر</label>
-      <select id="f-city"><option value="">همه شهرها</option></select>
+      <select id="f-city"></select>
     </div>
 
     <div class="filter-group">
-      <label>بخش آزمایشگاهی</label>
+      <label>بخش / دسته شغلی</label>
       <select id="f-dept"><option value="">همه بخش‌ها</option></select>
     </div>
 
-    <div class="filter-group">
-      <label>نوع همکاری</label>
+    <details class="filter-group acc" open>
+      <summary>نوع همکاری</summary>
       <div id="f-types"></div>
-    </div>
+    </details>
 
-    <div class="filter-group">
-      <label>شیفت کاری</label>
+    <details class="filter-group acc">
+      <summary>شیفت کاری</summary>
       <div id="f-shifts"></div>
-    </div>
+    </details>
+
+    <details class="filter-group acc" open>
+      <summary>حقوق ماهانه</summary>
+      <div id="f-salary"></div>
+    </details>
+
+    <details class="filter-group acc">
+      <summary>سابقه کار</summary>
+      <div id="f-exp"></div>
+    </details>
+
+    <details class="filter-group acc">
+      <summary>مدرک تحصیلی</summary>
+      <div id="f-degree"></div>
+    </details>
+
+    <details class="filter-group acc">
+      <summary>رشته تحصیلی</summary>
+      <div id="f-field"></div>
+    </details>
+
+    <details class="filter-group acc">
+      <summary>جنسیت</summary>
+      <div id="f-gender"></div>
+    </details>
+
+    <details class="filter-group acc">
+      <summary>وضعیت سربازی</summary>
+      <div id="f-military"></div>
+    </details>
+
+    <details class="filter-group acc">
+      <summary>مزایا و تسهیلات</summary>
+      <div id="f-benefits" class="scroll-box"></div>
+    </details>
+
+    <details class="filter-group acc">
+      <summary>نوع سازمان</summary>
+      <div id="f-sector"></div>
+      <div class="sep"></div>
+      <div id="f-kind"></div>
+    </details>
+
+    <details class="filter-group acc">
+      <summary>اندازه سازمان</summary>
+      <div id="f-size"></div>
+    </details>
+
+    <details class="filter-group acc">
+      <summary>تاریخ انتشار</summary>
+      <div id="f-age"></div>
+    </details>
 
     <div class="filter-group">
       <label>وضعیت آگهی</label>
-      <label class="check-item"><input type="checkbox" id="f-urgent"> فقط آگهی‌های فوری</label>
-      <label class="check-item"><input type="checkbox" id="f-featured"> فقط آگهی‌های ویژه</label>
+      <label class="check-item"><input type="checkbox" id="f-urgent"> فقط آگهی‌های فوری 🔥</label>
+      <label class="check-item"><input type="checkbox" id="f-featured"> فقط آگهی‌های ویژه ⭐</label>
+      <label class="check-item"><input type="checkbox" id="f-remote"> امکان دورکاری 🏠</label>
+      <label class="check-item"><input type="checkbox" id="f-verified"> فقط کارفرمایان تأییدشده ✔️</label>
     </div>
   </aside>
 
-  <!-- Results -->
+  <!-- ===== Results ===== -->
   <main class="listing-main">
+
     <div class="toolbar">
       <span class="count"><b id="count">۰</b> فرصت شغلی یافت شد</span>
-      <select id="f-sort">
-        <option value="new">جدیدترین</option>
-        <option value="urgent">فوری‌ها اول</option>
-        <option value="featured">ویژه‌ها اول</option>
-      </select>
+      <div class="tb-right">
+        <button class="btn btn-outline btn-sm" onclick="saveAlert()">🔔 ساخت هشدار شغلی از این جستجو</button>
+        <select id="f-sort">
+          <option value="new">جدیدترین</option>
+          <option value="urgent">فوری‌ها اول</option>
+          <option value="featured">ویژه‌ها اول</option>
+          <option value="salary">بیشترین حقوق</option>
+          <option value="rating">امتیاز کارفرما</option>
+        </select>
+      </div>
     </div>
+
+    <div class="active-chips" id="chips"></div>
+
     <div class="job-list" id="job-list"></div>
+
     <div class="empty-state" id="empty" style="display:none">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4-4"/></svg>
       <b>نتیجه‌ای یافت نشد</b>
-      یکی از فیلترها را تغییر دهید یا حذف کنید.
+      یکی از فیلترها را تغییر دهید — یا از این جستجو «هشدار شغلی» بسازید تا به‌محض انتشار آگهی مطابق، به شما خبر دهیم.
+      <div style="margin-top:14px"><button class="btn btn-primary" onclick="saveAlert()">🔔 ساخت هشدار شغلی</button></div>
     </div>
   </main>
 </div>
 
 <footer id="site-footer" class="site-footer"></footer>
 
+<script src="assets/js/geo.js"></script>
 <script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
 <script>
-const TYPES = ["تمام‌وقت", "پاره‌وقت", "شیفتی", "موقت", "قراردادی"];
-const SHIFTS = ["صبح", "عصر", "شب", "صبح و عصر"];
+function checks(containerId, name, values, labels) {
+  document.getElementById(containerId).innerHTML = values.map((v, i) =>
+    `<label class="check-item"><input type="checkbox" name="${name}" value="${v}"> ${labels ? labels[i] : v}</label>`).join("");
+}
 
 document.addEventListener("DOMContentLoaded", () => {
-  const citySel = document.getElementById("f-city");
-  AIO_CITIES.forEach(c => citySel.insertAdjacentHTML("beforeend", `<option>${c}</option>`));
-  citySel.insertAdjacentHTML("beforeend", `<option>دورکار</option>`);
-  const deptSel = document.getElementById("f-dept");
-  AIO_DEPARTMENTS.forEach(d => deptSel.insertAdjacentHTML("beforeend", `<option value="${d.id}">${d.name}</option>`));
-  document.getElementById("f-types").innerHTML = TYPES.map(t =>
-    `<label class="check-item"><input type="checkbox" name="type" value="${t}"> ${t}</label>`).join("");
-  document.getElementById("f-shifts").innerHTML = SHIFTS.map(s =>
-    `<label class="check-item"><input type="checkbox" name="shift" value="${s}"> ${s}</label>`).join("");
+  bindProvinceCity("f-prov", "f-city", render);
+  document.getElementById("f-dept").insertAdjacentHTML("beforeend",
+    AIO_DEPARTMENTS.map(d => `<option value="${d.id}">${d.name}</option>`).join(""));
 
-  // apply URL params
-  if (qs("q")) document.getElementById("f-q").value = qs("q");
-  if (qs("city")) citySel.value = qs("city");
-  if (qs("dept")) deptSel.value = qs("dept");
-  if (qs("shift")) { const cb = document.querySelector(`input[name="shift"][value="${qs("shift")}"]`); if (cb) cb.checked = true; }
+  checks("f-types",    "type",     AIO_JOB_TYPES);
+  checks("f-shifts",   "shift",    AIO_SHIFTS);
+  checks("f-salary",   "band",     AIO_SALARY_BANDS.map(b => b.id), AIO_SALARY_BANDS.map(b => b.name));
+  checks("f-exp",      "exp",      AIO_EXPERIENCES);
+  checks("f-degree",   "degree",   AIO_DEGREES);
+  checks("f-field",    "field",    AIO_FIELDS_STUDY);
+  checks("f-gender",   "gender",   AIO_GENDERS);
+  checks("f-military", "military", AIO_MILITARY);
+  checks("f-benefits", "benefit",  AIO_BENEFITS);
+  checks("f-sector",   "sector",   AIO_SECTORS.map(s => s.id), AIO_SECTORS.map(s => s.name));
+  checks("f-kind",     "kind",     AIO_ORG_KINDS.map(s => s.id), AIO_ORG_KINDS.map(s => s.name));
+  checks("f-size",     "size",     AIO_ORG_SIZES);
+  document.getElementById("f-age").innerHTML = AIO_POST_AGES.map(a =>
+    `<label class="check-item"><input type="radio" name="age" value="${a.id}"> ${a.name}</label>`).join("") +
+    `<label class="check-item"><input type="radio" name="age" value="" checked> همه زمان‌ها</label>`;
 
-  document.querySelectorAll(".filters input, .filters select, #f-sort").forEach(el =>
-    el.addEventListener("input", render));
+  applyURLParams();
+
+  document.querySelectorAll(".filters input, .filters select, #f-sort")
+    .forEach(el => el.addEventListener("input", render));
   render();
 });
 
-function getChecked(name) {
-  return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(i => i.value);
+function applyURLParams() {
+  if (qs("q")) document.getElementById("f-q").value = qs("q");
+  if (qs("prov")) { document.getElementById("f-prov").value = qs("prov");
+                    document.getElementById("f-prov").dispatchEvent(new Event("change")); }
+  if (qs("city")) document.getElementById("f-city").value = qs("city");
+  if (qs("dept")) document.getElementById("f-dept").value = qs("dept");
+  if (qs("remote")) document.getElementById("f-remote").checked = true;
+  if (qs("urgent")) document.getElementById("f-urgent").checked = true;
+  ["type", "shift", "benefit"].forEach(n => {
+    const v = qs(n); if (!v) return;
+    const cb = document.querySelector(`input[name="${n}"][value="${v}"]`); if (cb) cb.checked = true;
+  });
+}
+
+const getChecked = name => [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(i => i.value);
+
+function currentFilters() {
+  return {
+    q: document.getElementById("f-q").value.trim(),
+    provinceId: document.getElementById("f-prov").value,
+    city: document.getElementById("f-city").value,
+    dept: document.getElementById("f-dept").value,
+    types: getChecked("type"),
+    shifts: getChecked("shift"),
+    salaryBands: getChecked("band"),
+    experiences: getChecked("exp"),
+    degrees: getChecked("degree"),
+    fields: getChecked("field"),
+    genders: getChecked("gender"),
+    militaries: getChecked("military"),
+    benefits: getChecked("benefit"),
+    sectors: getChecked("sector"),
+    orgKinds: getChecked("kind"),
+    sizes: getChecked("size"),
+    postAge: (document.querySelector('input[name="age"]:checked') || {}).value || "",
+    remote: document.getElementById("f-remote").checked,
+    urgent: document.getElementById("f-urgent").checked,
+    featured: document.getElementById("f-featured").checked,
+    verifiedOnly: document.getElementById("f-verified").checked
+  };
 }
 
 function render() {
-  const q = document.getElementById("f-q").value.trim();
-  const city = document.getElementById("f-city").value;
-  const dp = document.getElementById("f-dept").value;
-  const types = getChecked("type");
-  const shifts = getChecked("shift");
-  const urgent = document.getElementById("f-urgent").checked;
-  const featured = document.getElementById("f-featured").checked;
-  const sort = document.getElementById("f-sort").value;
+  const f = currentFilters();
+  const list = sortJobs(filterJobs(f), document.getElementById("f-sort").value);
 
-  let list = AIO_JOBS.filter(j => {
-    const l = lab(j.labId);
-    if (q && !(j.title + l.name + j.skills.join(" ")).includes(q)) return false;
-    if (city && j.city !== city) return false;
-    if (dp && j.dept !== dp) return false;
-    if (types.length && !types.includes(j.type)) return false;
-    if (shifts.length && !shifts.includes(j.shift)) return false;
-    if (urgent && !j.urgent) return false;
-    if (featured && !j.featured) return false;
-    return true;
-  });
-
-  if (sort === "new") list.sort((a, b) => a.days - b.days);
-  if (sort === "urgent") list.sort((a, b) => b.urgent - a.urgent || a.days - b.days);
-  if (sort === "featured") list.sort((a, b) => b.featured - a.featured || a.days - b.days);
-
-  document.getElementById("count").textContent = list.length.toLocaleString("fa-IR");
+  document.getElementById("count").textContent = fa(list.length);
   document.getElementById("job-list").innerHTML = list.map(jobCardHTML).join("");
   document.getElementById("empty").style.display = list.length ? "none" : "block";
+  renderChips(f);
+}
+
+function renderChips(f) {
+  const chips = [];
+  const add = (label, clear) => chips.push(`<button class="a-chip" onclick="${clear}">${label} ✕</button>`);
+  if (f.q) add(`«${f.q}»`, `document.getElementById('f-q').value='';render()`);
+  if (f.provinceId) add(provinceById(f.provinceId).name, `document.getElementById('f-prov').value='';document.getElementById('f-prov').dispatchEvent(new Event('change'));render()`);
+  if (f.city) add(f.city, `document.getElementById('f-city').value='';render()`);
+  if (f.dept) add(dept(f.dept).name, `document.getElementById('f-dept').value='';render()`);
+  const groups = { type: f.types, shift: f.shifts, exp: f.experiences, degree: f.degrees,
+                   field: f.fields, gender: f.genders, military: f.militaries, benefit: f.benefits, size: f.sizes };
+  Object.entries(groups).forEach(([name, arr]) => (arr || []).forEach(v =>
+    add(v, `uncheck('${name}','${v}')`)));
+  (f.salaryBands || []).forEach(id => add(AIO_SALARY_BANDS.find(b => b.id === id).name, `uncheck('band','${id}')`));
+  (f.sectors || []).forEach(id => add(sectorName(id), `uncheck('sector','${id}')`));
+  (f.orgKinds || []).forEach(id => add(orgKindName(id), `uncheck('kind','${id}')`));
+  if (f.remote) add("دورکاری", `document.getElementById('f-remote').checked=false;render()`);
+  if (f.urgent) add("فوری", `document.getElementById('f-urgent').checked=false;render()`);
+  if (f.featured) add("ویژه", `document.getElementById('f-featured').checked=false;render()`);
+  if (f.verifiedOnly) add("تأییدشده", `document.getElementById('f-verified').checked=false;render()`);
+
+  document.getElementById("chips").innerHTML = chips.length
+    ? chips.join("") + `<button class="a-chip clear" onclick="resetFilters()">حذف همه فیلترها</button>`
+    : "";
+}
+
+function uncheck(name, value) {
+  const cb = document.querySelector(`input[name="${name}"][value="${value}"]`);
+  if (cb) cb.checked = false;
+  render();
 }
 
 function resetFilters() {
   document.querySelectorAll(".filters input[type=checkbox]").forEach(i => i.checked = false);
+  document.querySelectorAll('input[name="age"]').forEach(i => i.checked = i.value === "");
   document.getElementById("f-q").value = "";
-  document.getElementById("f-city").value = "";
+  document.getElementById("f-prov").value = "";
   document.getElementById("f-dept").value = "";
+  bindProvinceCity("f-prov", "f-city", render);
   render();
+}
+
+/* ---- هشدار شغلی: پاسخ به «چطور از آگهی‌های جدید باخبر شوم؟» ---- */
+function saveAlert() {
+  if (!Auth.user) { toast("برای ساخت هشدار شغلی وارد حساب شوید"); setTimeout(() => location.href = "login.html", 1200); return; }
+  const f = currentFilters();
+  const parts = [];
+  if (f.q) parts.push(f.q);
+  if (f.dept) parts.push(dept(f.dept).name);
+  if (f.city) parts.push(f.city);
+  else if (f.provinceId) parts.push(provinceById(f.provinceId).name);
+  (f.types || []).forEach(t => parts.push(t));
+  MyAlerts.add({ title: parts.join(" · ") || "همه فرصت‌های شغلی", filters: f, channels: ["پیامک", "اعلان سایت"], created: "امروز" });
+  toast("هشدار شغلی ساخته شد ✓ آگهی‌های جدید مطابق این جستجو به شما اطلاع داده می‌شود");
 }
 </script>
 </body>

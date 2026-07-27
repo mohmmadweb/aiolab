@@ -22,24 +22,47 @@
         🧪 <b>حالت دمو:</b> اطلاعات شما جایی ذخیره نمی‌شود؛ فقط برای نمایش پروتوتایپ است.
       </div>
 
-      <div class="role-switch">
-        <button type="button" id="rb-seeker" class="active" onclick="setRole('seeker')">👤 کارجو هستم</button>
-        <button type="button" id="rb-employer" onclick="setRole('employer')">🏥 کارفرما هستم</button>
+      <div class="role-switch three">
+        <button type="button" id="rb-seeker" class="active" onclick="setRole('seeker')">👤 کارجو</button>
+        <button type="button" id="rb-volunteer" onclick="setRole('volunteer')">🎓 داوطلب</button>
+        <button type="button" id="rb-employer" onclick="setRole('employer')">🏥 کارفرما</button>
       </div>
+      <div class="role-hint" id="role-hint">پرسنل آزمایشگاه که سابقه کاری دارد و دنبال موقعیت جدید است.</div>
 
       <div class="form-field" id="f-name">
         <label id="name-label">نام و نام خانوادگی</label>
         <input type="text" id="name" placeholder="مثلاً: علی رضایی" required>
       </div>
+
+      <!-- ویژه داوطلب -->
+      <div class="form-field" id="f-vol" style="display:none">
+        <label>وضعیت تحصیلی</label>
+        <select id="vol-status">
+          <option>دانشجوی علوم آزمایشگاهی</option>
+          <option>دانشجوی سال آخر</option>
+          <option>فارغ‌التحصیل بدون سابقه کار</option>
+          <option>در حال تغییر رشته شغلی</option>
+          <option>متقاضی کارآموزی</option>
+        </select>
+      </div>
+
+      <!-- ویژه کارفرما -->
       <div class="form-field" id="f-field" style="display:none">
         <label>نوع مرکز</label>
         <select id="center-type">
           <option>آزمایشگاه تشخیص طبی</option>
           <option>آزمایشگاه بیمارستانی</option>
           <option>آزمایشگاه ژنتیک</option>
+          <option>آزمایشگاه دولتی / مرجع</option>
           <option>مرکز پژوهشی</option>
-          <option>شرکت تجهیزات آزمایشگاهی</option>
+          <option>تولیدکننده تجهیزات و کیت</option>
+          <option>توزیع‌کننده / واردکننده</option>
         </select>
+      </div>
+
+      <div class="form-field">
+        <label>استان</label>
+        <select id="prov"></select>
       </div>
       <div class="form-field">
         <label>شماره موبایل</label>
@@ -68,25 +91,41 @@
   </div>
 </div>
 
+<script src="assets/js/geo.js"></script>
 <script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
 <script>
 let role = "seeker";
+const HINTS = {
+  seeker: "پرسنل آزمایشگاه که سابقه کاری دارد و دنبال موقعیت جدید است.",
+  volunteer: "دانشجو، تازه‌فارغ‌التحصیل یا کسی که می‌خواهد تازه وارد بازار کار آزمایشگاه شود. مسیر شما با کارآموزی، آزمون مهارت و خودارزیابی شروع می‌شود.",
+  employer: "آزمایشگاه، بیمارستان، مرکز پژوهشی، تولیدکننده یا توزیع‌کننده تجهیزات که نیرو جذب می‌کند."
+};
+
 document.addEventListener("DOMContentLoaded", () => {
-  if (qs("role") === "employer") setRole("employer");
+  document.getElementById("prov").innerHTML = `<option value="">استان خود را انتخاب کنید</option>` +
+    AIO_PROVINCES.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
+  const r = qs("role");
+  if (r === "employer" || r === "volunteer") setRole(r);
 });
+
 function setRole(r) {
   role = r;
-  document.getElementById("rb-seeker").classList.toggle("active", r === "seeker");
-  document.getElementById("rb-employer").classList.toggle("active", r === "employer");
+  ["seeker", "volunteer", "employer"].forEach(x =>
+    document.getElementById("rb-" + x).classList.toggle("active", x === r));
+  document.getElementById("role-hint").textContent = HINTS[r];
   document.getElementById("name-label").textContent = r === "employer" ? "نام مرکز / آزمایشگاه" : "نام و نام خانوادگی";
   document.getElementById("name").placeholder = r === "employer" ? "مثلاً: آزمایشگاه نور" : "مثلاً: علی رضایی";
   document.getElementById("f-field").style.display = r === "employer" ? "block" : "none";
+  document.getElementById("f-vol").style.display = r === "volunteer" ? "block" : "none";
 }
+
 function doRegister(e) {
   e.preventDefault();
   const name = document.getElementById("name").value.trim() || "کاربر آیولب";
-  Auth.login(name, role === "employer" ? "employer" : "seeker");
+  Auth.login(name, role === "employer" ? "employer" : role);
+  if (role === "volunteer") Store.set("volunteer_status", document.getElementById("vol-status").value);
   location.href = role === "employer" ? "employer.html" : "dashboard.html";
 }
 </script>

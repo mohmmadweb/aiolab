@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تست شخصیت‌شناسی MBTI | آیولب</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>body{background:var(--navy-50)}</style>
+</head>
+<body data-page="assessment.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / <a href="assessment.html">خودارزیابی</a> / تست MBTI</div>
+    <h1>تست شخصیت‌شناسی MBTI</h1>
+    <p>۲۴ سؤال · حدود ۵ دقیقه · نتیجه با مشاغل آزمایشگاهی متناسب با تیپ شما تطبیق داده می‌شود</p>
+  </div>
+</div>
+
+<div class="container test-wrap">
+
+  <!-- Intro -->
+  <div id="m-intro" class="exam-panel">
+    <h2>پیش از شروع</h2>
+    <ul class="ep-rules-list">
+      <li>هیچ پاسخ درست یا غلطی وجود ندارد؛ گزینه‌ای را انتخاب کنید که <b>معمولاً</b> به شما نزدیک‌تر است.</li>
+      <li>به جای «آنچه باید باشم»، بر اساس «آنچه واقعاً هستم» پاسخ دهید.</li>
+      <li>نتیجه در پروفایل شما ذخیره می‌شود و نمایش آن به کارفرمایان کاملاً اختیاری است.</li>
+      <li>این نسخه کوتاه برای خودشناسی شغلی طراحی شده و جایگزین ارزیابی رسمی روان‌سنجی نیست.</li>
+    </ul>
+    <div class="mbti-others">
+      <b>آزمون‌های دیگر (به‌زودی):</b>
+      <span>هالند (رغبت‌سنج شغلی)</span><span>NEO (پنج عاملی)</span>
+      <span>هوش هیجانی EQ</span><span>هوش عمومی IQ</span>
+    </div>
+    <button class="btn btn-primary btn-lg btn-block" onclick="start()">شروع تست</button>
+    <div id="prev-result"></div>
+  </div>
+
+  <!-- Runner -->
+  <div id="m-run" class="exam-panel" style="display:none">
+    <div class="exam-bar">
+      <div class="eb-left">
+        <span class="eb-q">سؤال <b id="m-now">۱</b> از <b id="m-total">۲۴</b></span>
+        <div class="eb-progress"><i id="m-fill"></i></div>
+      </div>
+    </div>
+    <div class="q-box">
+      <h2 id="m-q">…</h2>
+      <div class="mbti-opts">
+        <button class="mbti-opt" id="opt-a" onclick="answer('a')"></button>
+        <button class="mbti-opt" id="opt-b" onclick="answer('b')"></button>
+      </div>
+    </div>
+    <div class="q-actions"><button class="btn btn-outline" onclick="back()">سؤال قبلی</button></div>
+  </div>
+
+  <!-- Result -->
+  <div id="m-res" class="exam-panel" style="display:none"></div>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+let ans = [], i = 0;
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("m-total").textContent = fa(AIO_MBTI_QUESTIONS.length);
+  const prev = MyMBTI.get();
+  if (prev) document.getElementById("prev-result").innerHTML =
+    `<div class="prev-note">نتیجه قبلی شما: <b>${prev.type}</b> — ${AIO_MBTI_TYPES[prev.type].name}
+     <a href="#" onclick="showResult(MyMBTI.get());return false">مشاهده دوباره</a></div>`;
+});
+
+function start() {
+  ans = new Array(AIO_MBTI_QUESTIONS.length).fill(null);
+  i = 0;
+  document.getElementById("m-intro").style.display = "none";
+  document.getElementById("m-run").style.display = "";
+  show();
+}
+
+function show() {
+  const q = AIO_MBTI_QUESTIONS[i];
+  document.getElementById("m-now").textContent = fa(i + 1);
+  document.getElementById("m-fill").style.width = ((i + 1) / AIO_MBTI_QUESTIONS.length * 100) + "%";
+  document.getElementById("m-q").textContent = q.q;
+  const a = document.getElementById("opt-a"), b = document.getElementById("opt-b");
+  a.textContent = q.a; b.textContent = q.b;
+  a.classList.toggle("sel", ans[i] === "a");
+  b.classList.toggle("sel", ans[i] === "b");
+}
+
+function answer(v) {
+  ans[i] = v;
+  if (i < AIO_MBTI_QUESTIONS.length - 1) { i++; show(); }
+  else compute();
+}
+
+function back() { if (i > 0) { i--; show(); } }
+
+function compute() {
+  const score = { E: 0, I: 0, S: 0, N: 0, T: 0, F: 0, J: 0, P: 0 };
+  AIO_MBTI_QUESTIONS.forEach((q, k) => {
+    if (!ans[k]) return;
+    const pair = q.d.split("");             // "EI" -> ["E","I"]
+    score[ans[k] === "a" ? pair[0] : pair[1]]++;
+  });
+  const type = (score.E >= score.I ? "E" : "I") + (score.S >= score.N ? "S" : "N") +
+               (score.T >= score.F ? "T" : "F") + (score.J >= score.P ? "J" : "P");
+  const res = { type, score, date: "۱۴۰۵/۰۴/۰۵" };
+  MyMBTI.set(res);
+  showResult(res);
+}
+
+function pct(a, b) { return Math.round(a / Math.max(1, a + b) * 100); }
+
+function showResult(res) {
+  const t = AIO_MBTI_TYPES[res.type], s = res.score;
+  document.getElementById("m-intro").style.display = "none";
+  document.getElementById("m-run").style.display = "none";
+  const box = document.getElementById("m-res");
+  box.style.display = "";
+  box.innerHTML = `
+    <div class="mbti-hero">
+      <div class="mh-type">${res.type}</div>
+      <h1>${t.name}</h1>
+      <p>${t.short}</p>
+    </div>
+    <div class="mbti-bars">
+      ${bar("برون‌گرا (E)", "درون‌گرا (I)", pct(s.E, s.I))}
+      ${bar("حسی (S)", "شهودی (N)", pct(s.S, s.N))}
+      ${bar("منطقی (T)", "احساسی (F)", pct(s.T, s.F))}
+      ${bar("قضاوتی (J)", "ادراکی (P)", pct(s.J, s.P))}
+    </div>
+    <div class="mbti-fit">
+      <h2>مشاغل آزمایشگاهی متناسب با تیپ شما</h2>
+      <div class="fit-chips">${t.fit.map(f => `<span>${f}</span>`).join("")}</div>
+      <div class="fit-jobs" id="fit-jobs"></div>
+    </div>
+    <div class="mbti-privacy">
+      <label class="check-item"><input type="checkbox" id="show-emp" checked onchange="togglePrivacy()">
+        نمایش تیپ شخصیتی من به کارفرمایان روی پروفایل</label>
+    </div>
+    <div class="res-actions">
+      <a class="btn btn-outline" href="assessment.html">رفتن به خودارزیابی مهارت</a>
+      <a class="btn btn-primary" href="dashboard.html#resume">مشاهده رزومه من</a>
+    </div>`;
+
+  const matched = AIO_JOBS.filter(j => t.fit.some(f =>
+    j.title.includes(f.split(" ")[0]) || dept(j.dept).name.includes(f.split(" ")[0]))).slice(0, 3);
+  document.getElementById("fit-jobs").innerHTML = matched.length
+    ? `<h3>آگهی‌های فعال مرتبط</h3><div class="job-grid">${matched.map(jobCardHTML).join("")}</div>` : "";
+}
+
+function bar(left, right, p) {
+  return `<div class="mb-row">
+    <span class="mb-l">${left}</span>
+    <div class="mb-track"><i style="width:${p}%"></i><b style="${p >= 50 ? "right" : "left"}:6px">${fa(p >= 50 ? p : 100 - p)}٪</b></div>
+    <span class="mb-r">${right}</span>
+  </div>`;
+}
+
+function togglePrivacy() {
+  const on = document.getElementById("show-emp").checked;
+  Store.set("mbti_public", on);
+  toast(on ? "تیپ شخصیتی شما برای کارفرمایان نمایش داده می‌شود" : "تیپ شخصیتی شما مخفی شد");
+}
+</script>
+</body>
+</html>

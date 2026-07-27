@@ -6,6 +6,7 @@
 <title>پروفایل آزمایشگاه | آیولب</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body data-page="labs.html">
@@ -32,49 +33,141 @@
       <h3>مزایای همکاری</h3>
       <div class="job-meta" id="l-perks"></div>
     </div>
+    <!-- امتیاز و رتبه‌بندی -->
+    <div class="panel">
+      <h2>امتیاز کاربران و رتبه‌بندی</h2>
+      <div class="rating-block">
+        <div class="rb-total">
+          <b id="r-score">۰</b>
+          <div id="r-stars"></div>
+          <span id="r-count"></span>
+          <span class="rb-rank" id="r-rank"></span>
+        </div>
+        <div class="rb-bars" id="r-bars"></div>
+      </div>
+      <button class="btn btn-outline" onclick="location.href='ranking.html'">مشاهده در جدول رتبه‌بندی</button>
+    </div>
+
+    <!-- نظرات -->
+    <div class="panel">
+      <h2>نظر پرسنل فعلی و پیشین</h2>
+      <div id="l-reviews"></div>
+    </div>
+
     <div class="panel">
       <h2>فرصت‌های شغلی فعال <span id="l-count" class="chip teal" style="font-size:12px"></span></h2>
       <div class="job-list" id="l-jobs"></div>
     </div>
   </main>
   <aside>
+    <!-- میانگین حقوق -->
+    <div class="side-card salary-card">
+      <span class="sc-label">میانگین حقوق پرداختی</span>
+      <div class="sc-val"><b id="s-salary">—</b> <span>میلیون تومان / ماه</span></div>
+      <div class="sc-cmp" id="s-salary-cmp"></div>
+      <small id="s-salary-date"></small>
+    </div>
+
     <div class="side-card">
       <h2 style="font-size:16px;margin-bottom:10px">اطلاعات مجموعه</h2>
       <div class="row"><span>نوع مرکز</span><b id="s-type"></b></div>
-      <div class="row"><span>شهر</span><b id="s-city"></b></div>
+      <div class="row"><span>بخش مالکیت</span><b id="s-sector"></b></div>
+      <div class="row"><span>دسته سازمان</span><b id="s-kind"></b></div>
+      <div class="row"><span>استان / شهر</span><b id="s-city"></b></div>
       <div class="row"><span>تعداد پرسنل</span><b id="s-staff"></b></div>
+      <div class="row"><span>اندازه سازمان</span><b id="s-size"></b></div>
       <div class="row"><span>سال تأسیس</span><b id="s-founded"></b></div>
       <div class="row"><span>وضعیت احراز</span><b id="s-verified"></b></div>
       <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="msgLab()">ارسال پیام به آزمایشگاه</button>
+    </div>
+
+    <!-- موقعیت روی نقشه -->
+    <div class="side-card">
+      <h2 style="font-size:16px;margin-bottom:10px">موقعیت روی نقشه</h2>
+      <div id="lab-map" class="map-box small"></div>
+      <p class="addr" id="s-address"></p>
     </div>
   </aside>
 </div>
 
 <footer id="site-footer" class="site-footer"></footer>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="assets/js/geo.js"></script>
 <script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/map.js"></script>
 <script>
+const METRIC_LABELS = { salary: "حقوق و مزایا", environment: "محیط کاری", learning: "یادگیری و آموزش",
+                        management: "مدیریت", worklife: "تعادل کار و زندگی" };
+
 document.addEventListener("DOMContentLoaded", () => {
   const L = AIO_LABS.find(l => l.id === (parseInt(qs("id")) || 1)) || AIO_LABS[0];
   document.title = L.name + " | آیولب";
   const logo = document.getElementById("l-logo");
   logo.style.background = L.color;
-  logo.textContent = L.name.replace("آزمایشگاه ", "").charAt(0);
-  document.getElementById("l-name").textContent = L.name;
-  document.getElementById("l-sub").textContent = L.type + " · " + L.city;
+  logo.textContent = L.name.replace("آزمایشگاه ", "").replace("شرکت ", "").charAt(0);
+  document.getElementById("l-name").textContent = L.name + (L.verified ? " ✔️" : "");
+  document.getElementById("l-sub").textContent = `${L.type} · ${L.city} · ${sectorName(L.sector)}`;
   document.getElementById("l-about").textContent = L.about;
   document.getElementById("l-perks").innerHTML = L.perks.map(p => `<span class="chip teal">${p}</span>`).join("");
+
   const jobs = AIO_JOBS.filter(j => j.labId === L.id);
-  document.getElementById("l-count").textContent = jobs.length.toLocaleString("fa-IR") + " آگهی";
+  document.getElementById("l-count").textContent = fa(jobs.length) + " آگهی";
   document.getElementById("l-jobs").innerHTML = jobs.length
     ? jobs.map(jobCardHTML).join("")
     : '<p style="color:var(--navy-400);font-size:14px">در حال حاضر آگهی فعالی ندارد.</p>';
+
+  /* اطلاعات جانبی */
   document.getElementById("s-type").textContent = L.type;
-  document.getElementById("s-city").textContent = L.city;
-  document.getElementById("s-staff").textContent = L.staff.toLocaleString("fa-IR") + " نفر";
-  document.getElementById("s-founded").textContent = L.founded.toLocaleString("fa-IR").replace(/٬/g, "");
+  document.getElementById("s-sector").textContent = sectorName(L.sector);
+  document.getElementById("s-kind").textContent = orgKindName(L.orgKind);
+  document.getElementById("s-city").textContent = (provinceById(L.provinceId) || {}).name + " / " + L.city;
+  document.getElementById("s-staff").textContent = fa(L.staff) + " نفر";
+  document.getElementById("s-size").textContent = L.size;
+  document.getElementById("s-founded").textContent = String(L.founded).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
   document.getElementById("s-verified").textContent = L.verified ? "✔️ تأییدشده" : "در انتظار احراز";
+  document.getElementById("s-address").textContent = L.address || "";
+
+  /* میانگین حقوق */
+  const market = AIO_LABS.reduce((s, x) => s + x.avgSalary, 0) / AIO_LABS.length;
+  const diff = Math.round((L.avgSalary - market) / market * 100);
+  document.getElementById("s-salary").textContent = fa(L.avgSalary);
+  document.getElementById("s-salary-cmp").innerHTML = diff >= 0
+    ? `<span class="up">▲ ${fa(Math.abs(diff))}٪ بالاتر از میانگین بازار</span>`
+    : `<span class="down">▼ ${fa(Math.abs(diff))}٪ پایین‌تر از میانگین بازار</span>`;
+  document.getElementById("s-salary-date").textContent = "ثبت‌شده توسط مرکز · به‌روزرسانی: " + L.avgSalaryUpdated;
+
+  /* امتیاز و رتبه */
+  const ranked = [...AIO_LABS].sort((a, b) => labScore(b) - labScore(a));
+  const rank = ranked.findIndex(x => x.id === L.id) + 1;
+  document.getElementById("r-score").textContent = fa(labScore(L));
+  document.getElementById("r-stars").innerHTML = starsHTML(L.rating, "lg");
+  document.getElementById("r-count").textContent = `بر پایه ${fa(L.ratingCount)} نظر`;
+  document.getElementById("r-rank").innerHTML = `رتبه <b>${fa(rank)}</b> از ${fa(AIO_LABS.length)} مرکز`;
+  document.getElementById("r-bars").innerHTML = Object.entries(METRIC_LABELS).map(([k, label]) => {
+    const v = L.ratingBreakdown[k];
+    return `<div class="rbar"><span>${label}</span>
+      <div class="rbar-track"><i style="width:${v / 5 * 100}%"></i></div>
+      <b>${fa(v)}</b></div>`;
+  }).join("");
+
+  /* نظرات */
+  const revs = AIO_REVIEWS.filter(r => r.labId === L.id);
+  document.getElementById("l-reviews").innerHTML = revs.length ? revs.map(r => `
+    <div class="review">
+      <div class="rv-head">
+        <div><b>${r.author}</b><span>${r.role} · ${r.date}</span></div>
+        ${starsHTML(r.stars)}
+      </div>
+      <p>${r.text}</p>
+      <div class="rv-tags"><span class="pro">＋ ${r.pros}</span><span class="con">－ ${r.cons}</span></div>
+    </div>`).join("")
+    : `<div class="empty-inline">هنوز نظری ثبت نشده است. اگر در این مرکز کار کرده‌اید، اولین نفر باشید.</div>`;
+
+  /* نقشه */
+  renderLabsMap("lab-map", [L]);
 });
 function msgLab() {
   if (!Auth.user) { location.href = "login.html"; return; }

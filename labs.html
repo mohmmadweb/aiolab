@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>آزمایشگاه‌های عضو | آیولب</title>
+<title>آزمایشگاه‌ها روی نقشه | آیولب</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body data-page="labs.html">
@@ -15,32 +16,61 @@
 <div class="page-head">
   <div class="container">
     <div class="breadcrumb"><a href="index.html">خانه</a> / آزمایشگاه‌ها</div>
-    <h1>آزمایشگاه‌های عضو پلتفرم</h1>
-    <p>پروفایل رسمی آزمایشگاه‌ها، بیمارستان‌ها، مراکز پژوهشی و شرکت‌های تجهیزات آزمایشگاهی</p>
+    <h1 data-i18n="labs.title">آزمایشگاه‌ها و مراکز عضو</h1>
+    <p>هر مرکزی که در آیولب ثبت می‌شود، روی نقشه سراسری پین می‌شود — آزمایشگاه، بیمارستان، مرکز پژوهشی، تولیدکننده و توزیع‌کننده تجهیزات.</p>
   </div>
 </div>
 
-<section class="section" style="padding-top:36px">
+<section class="section" style="padding-top:28px">
   <div class="container">
-    <div class="toolbar" style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
-      <input type="text" id="f-q" placeholder="نام آزمایشگاه..." style="flex:1;min-width:200px;padding:11px 16px;border:1px solid var(--navy-200);border-radius:9px;font-size:14px;outline:none">
-      <select id="f-city" style="padding:11px 16px;border:1px solid var(--navy-200);border-radius:9px;font-size:14px">
-        <option value="">همه شهرها</option>
-      </select>
-      <select id="f-type" style="padding:11px 16px;border:1px solid var(--navy-200);border-radius:9px;font-size:14px">
-        <option value="">همه انواع مراکز</option>
-        <option>آزمایشگاه تشخیص طبی</option>
-        <option>آزمایشگاه بیمارستانی</option>
-        <option>آزمایشگاه ژنتیک</option>
-        <option>مرکز پژوهشی</option>
-        <option>شرکت تجهیزات</option>
-      </select>
+
+    <!-- Tabs -->
+    <div class="view-tabs">
+      <button class="vt active" data-view="map" onclick="setView('map')">🗺️ <span data-i18n="labs.map">نمایش روی نقشه</span></button>
+      <button class="vt" data-view="list" onclick="setView('list')">☰ <span data-i18n="labs.list">نمایش فهرستی</span></button>
+      <span class="vt-count"><b id="lab-count">۰</b> <span data-i18n="labs.count">مرکز ثبت‌شده</span></span>
+      <a href="employer.html#addlab" class="btn btn-primary vt-add">+ ثبت آزمایشگاه من</a>
     </div>
-    <div class="lab-grid" id="lab-grid"></div>
+
+    <!-- Filters -->
+    <div class="lab-filters">
+      <input type="text" id="f-q" placeholder="نام مرکز…">
+      <select id="f-prov"></select>
+      <select id="f-city"></select>
+      <select id="f-sector"><option value="">همه بخش‌ها (دولتی/خصوصی…)</option></select>
+      <select id="f-kind"><option value="">همه انواع سازمان</option></select>
+      <select id="f-sort">
+        <option value="rating">بیشترین امتیاز</option>
+        <option value="salary">بیشترین میانگین حقوق</option>
+        <option value="jobs">بیشترین فرصت شغلی</option>
+        <option value="name">نام (الفبا)</option>
+      </select>
+      <label class="check-item inline"><input type="checkbox" id="f-verified"> فقط تأییدشده</label>
+      <button class="btn btn-ghost" onclick="resetLabFilters()">حذف فیلترها</button>
+    </div>
+
+    <!-- Map view -->
+    <div id="view-map" class="split-view">
+      <div id="labs-map" class="map-box"></div>
+      <aside class="map-side" id="map-side"></aside>
+    </div>
+
+    <!-- List view -->
+    <div id="view-list" style="display:none">
+      <div class="lab-grid" id="lab-grid"></div>
+    </div>
+
     <div class="empty-state" id="empty" style="display:none">
-      <b>آزمایشگاهی یافت نشد</b>
+      <b>مرکزی یافت نشد</b>
       فیلترها را تغییر دهید.
     </div>
+
+    <p class="map-note">
+      موتور نقشه: <b>Leaflet</b> با کاشی‌های <b>OpenStreetMap</b> (بدون نیاز به کلید).
+      برای سوییچ به نقشه فارسی <b>نشان</b>، کافی است کلید رایگان وب را از
+      <a href="https://developer.neshan.org" target="_blank" rel="noopener">developer.neshan.org</a>
+      بگیرید و در فایل <code>assets/js/map.js</code> در <code>AIO_MAP_CONFIG.neshanKey</code> قرار دهید.
+    </p>
   </div>
 </section>
 
@@ -48,33 +78,113 @@
   <div class="container">
     <div class="cta-band">
       <div>
-        <h2>آزمایشگاه شما هنوز عضو آیولب نیست؟</h2>
-        <p>پروفایل رسمی بسازید، برند کارفرمایی‌تان را تقویت کنید و به هزاران متخصص آزمایشگاهی دسترسی پیدا کنید.</p>
+        <h2>آزمایشگاه شما هنوز روی نقشه آیولب نیست؟</h2>
+        <p>پروفایل رسمی بسازید، موقعیت مرکزتان را روی نقشه پین کنید و به هزاران متخصص آزمایشگاهی دیده شوید.</p>
       </div>
-      <a href="login.html?role=employer" class="btn btn-lg">ایجاد پروفایل آزمایشگاه</a>
+      <a href="employer.html#addlab" class="btn btn-lg">ثبت آزمایشگاه روی نقشه</a>
     </div>
   </div>
 </section>
 
 <footer id="site-footer" class="site-footer"></footer>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="assets/js/geo.js"></script>
 <script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/map.js"></script>
 <script>
+let mapApi = null, currentList = [];
+
 document.addEventListener("DOMContentLoaded", () => {
-  const citySel = document.getElementById("f-city");
-  AIO_CITIES.forEach(c => citySel.insertAdjacentHTML("beforeend", `<option>${c}</option>`));
-  ["f-q", "f-city", "f-type"].forEach(id => document.getElementById(id).addEventListener("input", render));
+  bindProvinceCity("f-prov", "f-city", render);
+  document.getElementById("f-sector").insertAdjacentHTML("beforeend",
+    AIO_SECTORS.map(s => `<option value="${s.id}">${s.name}</option>`).join(""));
+  document.getElementById("f-kind").insertAdjacentHTML("beforeend",
+    AIO_ORG_KINDS.map(s => `<option value="${s.id}">${s.name}</option>`).join(""));
+
+  document.querySelectorAll(".lab-filters input, .lab-filters select")
+    .forEach(el => el.addEventListener("input", render));
+
   render();
+  buildMap();
 });
+
+function currentFilters() {
+  return {
+    q: document.getElementById("f-q").value.trim(),
+    prov: document.getElementById("f-prov").value,
+    city: document.getElementById("f-city").value,
+    sector: document.getElementById("f-sector").value,
+    kind: document.getElementById("f-kind").value,
+    verified: document.getElementById("f-verified").checked,
+    sort: document.getElementById("f-sort").value
+  };
+}
+
 function render() {
-  const q = document.getElementById("f-q").value.trim();
-  const city = document.getElementById("f-city").value;
-  const type = document.getElementById("f-type").value;
-  const list = AIO_LABS.filter(l =>
-    (!q || l.name.includes(q)) && (!city || l.city === city) && (!type || l.type === type));
+  const f = currentFilters();
+  let list = AIO_LABS.filter(l =>
+    (!f.q || l.name.includes(f.q)) &&
+    (!f.prov || l.provinceId === f.prov) &&
+    (!f.city || l.city === f.city) &&
+    (!f.sector || l.sector === f.sector) &&
+    (!f.kind || l.orgKind === f.kind) &&
+    (!f.verified || l.verified));
+
+  const jobsOf = l => AIO_JOBS.filter(j => j.labId === l.id).length;
+  if (f.sort === "rating") list.sort((a, b) => labScore(b) - labScore(a));
+  if (f.sort === "salary") list.sort((a, b) => b.avgSalary - a.avgSalary);
+  if (f.sort === "jobs")   list.sort((a, b) => jobsOf(b) - jobsOf(a));
+  if (f.sort === "name")   list.sort((a, b) => a.name.localeCompare(b.name, "fa"));
+
+  currentList = list;
+  document.getElementById("lab-count").textContent = fa(list.length);
   document.getElementById("lab-grid").innerHTML = list.map(labCardHTML).join("");
   document.getElementById("empty").style.display = list.length ? "none" : "block";
+
+  document.getElementById("map-side").innerHTML = list.map(l => `
+    <button class="ms-item" onclick="focusLab(${l.id})">
+      <span class="ms-dot" style="background:${l.color}"></span>
+      <div class="ms-body">
+        <b>${l.name} ${l.verified ? "✔️" : ""}</b>
+        <span>${l.city} · ${sectorName(l.sector)}</span>
+        <div class="ms-meta">
+          ${starsHTML(l.rating)} <b>${fa(l.rating)}</b>
+          <i>·</i> میانگین حقوق ${fa(l.avgSalary)} م.ت
+          <i>·</i> ${fa(AIO_JOBS.filter(j => j.labId === l.id).length)} آگهی
+        </div>
+      </div>
+    </button>`).join("") || `<div class="ms-empty">مرکزی با این فیلترها نیست.</div>`;
+
+  if (mapApi) buildMap();
+}
+
+function buildMap() {
+  if (mapApi && mapApi.map) mapApi.map.remove();   // جلوگیری از خطای «container already initialized»
+  const box = document.getElementById("labs-map");
+  box.innerHTML = "";
+  mapApi = renderLabsMap("labs-map", currentList);
+}
+
+function focusLab(id) { if (mapApi && mapApi.focus) mapApi.focus(id); }
+
+function setView(v) {
+  document.querySelectorAll(".vt").forEach(b => b.classList.toggle("active", b.dataset.view === v));
+  document.getElementById("view-map").style.display = v === "map" ? "" : "none";
+  document.getElementById("view-list").style.display = v === "list" ? "" : "none";
+  if (v === "map") setTimeout(() => { if (mapApi && mapApi.map) mapApi.map.invalidateSize(); }, 60);
+}
+
+function resetLabFilters() {
+  document.getElementById("f-q").value = "";
+  document.getElementById("f-prov").value = "";
+  document.getElementById("f-sector").value = "";
+  document.getElementById("f-kind").value = "";
+  document.getElementById("f-verified").checked = false;
+  bindProvinceCity("f-prov", "f-city", render);
+  render();
 }
 </script>
 </body>
