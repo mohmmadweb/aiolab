@@ -85,19 +85,22 @@ input, select, textarea { font-family: inherit; }
   background: rgba(255,255,255,.92); backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--navy-100);
 }
-.site-header .container { max-width: 1360px; }
-.header-inner { display: flex; align-items: center; gap: 18px; height: 68px; }
-.logo { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 20px; color: var(--navy-900); flex-shrink: 0; }
-.logo .logo-mark { width: 34px; height: 34px; }
+.site-header .container { max-width: 1280px; }
+.header-inner { display: flex; align-items: center; gap: 14px; height: 66px; min-width: 0; }
+.logo { display: flex; align-items: center; gap: 9px; font-weight: 800; font-size: 19px; color: var(--navy-900); flex-shrink: 0; }
+.logo .logo-mark { width: 32px; height: 32px; }
 .logo span b { color: var(--teal-600); }
-.main-nav { display: flex; gap: 2px; flex: 1; justify-content: center; }
-.main-nav a {
-  padding: 7px 10px; border-radius: 8px; font-size: 13.5px; font-weight: 500;
+.main-nav { display: flex; gap: 2px; flex: 1; justify-content: center; min-width: 0; }
+.main-nav .nav-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 8px 13px; border-radius: 9px; font-size: 14px; font-weight: 500;
   color: var(--navy-600); transition: all .15s; white-space: nowrap;
+  background: none; border: none; font-family: inherit;
 }
-.main-nav a:hover, .main-nav a.active { color: var(--teal-700); background: var(--teal-50); }
+.main-nav .nav-link:hover, .main-nav .nav-link.active,
+.nav-group.active > .nav-link, .nav-group.open > .nav-link { color: var(--teal-700); background: var(--teal-50); }
 .header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.header-actions .btn { font-size: 12.8px; padding: 8px 13px; }
+.header-actions .btn { font-size: 13px; padding: 9px 15px; }
 .menu-toggle { display: none; background: none; border: none; padding: 6px; }
 .menu-toggle svg { width: 26px; height: 26px; stroke: var(--navy-800); }
 
@@ -565,15 +568,7 @@ table.data tr:last-child td { border-bottom: none; }
 .modal h3 { font-size: 19px; color: var(--navy-900); margin-bottom: 18px; }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 1280px) {
-  .main-nav {
-    display: none; position: absolute; top: 68px; right: 0; left: 0;
-    background: #fff; flex-direction: column; padding: 14px; border-bottom: 1px solid var(--navy-100); box-shadow: var(--shadow-lg);
-  }
-  .main-nav.open { display: flex; }
-  .main-nav a { font-size: 14.5px; padding: 10px 14px; }
-  .menu-toggle { display: block; }
-}
+/* منوی موبایل در بخش «بازبینی کلی» انتهای فایل تعریف شده است (breakpoint: 1080px) */
 @media (max-width: 1024px) {
   .hero-grid { grid-template-columns: 1fr; text-align: center; }
   .hero .sub { margin-inline: auto; }
@@ -617,14 +612,16 @@ table.data tr:last-child td { border-bottom: none; }
    =============================================== */
 
 /* ---------- نوار عمودی‌های برند ---------- */
-.vertical-bar { background: var(--teal-900); color: #cbd5e1; font-size: 12.5px; }
-.vertical-bar .container { display: flex; align-items: center; gap: 6px; padding: 7px 24px; flex-wrap: wrap; }
-.vb-label { color: #7dd3fc; font-weight: 700; margin-left: 6px; }
-.vb-item { color: #e2e8f0; text-decoration: none; padding: 4px 11px; border-radius: 20px; display: inline-flex; align-items: center; gap: 5px; transition: .18s; }
+.vertical-bar { background: var(--teal-900); color: #94a3b8; font-size: 11.5px; }
+.vertical-bar .container { max-width: 1280px; display: flex; align-items: center; gap: 2px; padding: 0 20px; height: 32px; overflow-x: auto; scrollbar-width: none; }
+.vertical-bar .container::-webkit-scrollbar { display: none; }
+.vb-label { color: #64748b; font-weight: 600; margin-inline-end: 10px; white-space: nowrap; letter-spacing: .2px; }
+.vb-item { color: #cbd5e1; text-decoration: none; padding: 3px 10px; border-radius: 14px; white-space: nowrap; transition: .18s; }
 .vb-item.active { background: var(--vc); color: #fff; font-weight: 700; }
-.vb-item.soon { opacity: .72; }
-.vb-item.soon:hover { opacity: 1; background: rgba(255,255,255,.08); }
-.soon-tag { font-style: normal; font-size: 10px; background: rgba(255,255,255,.16); padding: 1px 6px; border-radius: 10px; }
+.vb-item.soon { color: #64748b; }
+.vb-item.soon::after { content: "·"; margin-inline-start: 5px; color: #475569; }
+.vb-item.soon:last-child::after { content: ""; }
+.vb-item.soon:hover { color: #cbd5e1; }
 
 /* ---------- سوییچ زبان ---------- */
 .lang-wrap { position: relative; }
@@ -1120,4 +1117,270 @@ table.data tr:last-child td { border-bottom: none; }
   .map-box { height: 380px; }
   .view-tabs .vt-add { margin-inline-start: 0; width: 100%; }
   .rate-row { grid-template-columns: 1fr; }
+}
+
+/* ===============================================
+   ==========  بازبینی کلی (Revision)  ===========
+   منوی گروه‌بندی‌شده، کارت لیستی آگهی، نظم اندازه‌ها
+   =============================================== */
+
+/* ---------- جلوگیری از اسکرول افقی در کل سایت ---------- */
+html, body { max-width: 100%; overflow-x: hidden; }
+.container { width: 100%; }
+/* فقط جایی که واقعاً لازم است اجازه کوچک‌شدن flex-item را می‌دهیم
+   (min-width سراسری باعث بریده‌شدن متن‌ها می‌شود) */
+.header-inner, .main-nav, .listing-main, .dash-main, .ms-body, .ai-body, .ob-body, .nm-txt { min-width: 0; }
+
+/* ---------- منوی کشویی هدر ---------- */
+.nav-group { position: relative; }
+.nav-group > .nav-link { cursor: pointer; }
+.ng-caret { width: 13px; height: 13px; transition: transform .2s; opacity: .6; }
+.nav-group.open .ng-caret { transform: rotate(180deg); }
+.nav-menu {
+  position: absolute; top: calc(100% + 9px); inset-inline-start: 50%; transform: translateX(-50%) translateY(-6px);
+  background: #fff; border: 1px solid var(--navy-200); border-radius: 13px; box-shadow: var(--shadow-lg);
+  padding: 8px; min-width: 300px; z-index: 90;
+  opacity: 0; visibility: hidden; transition: opacity .16s, transform .16s, visibility .16s;
+}
+.nav-group:hover .nav-menu, .nav-group.open .nav-menu {
+  opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0);
+}
+.nav-menu::before { content: ""; position: absolute; top: -9px; inset-inline: 0; height: 9px; }
+.nav-menu a { display: flex; gap: 11px; align-items: flex-start; padding: 10px 12px; border-radius: 9px; transition: .14s; }
+.nav-menu a:hover { background: var(--teal-50); }
+.nav-menu a.on { background: var(--teal-50); }
+.nm-ic { width: 32px; height: 32px; border-radius: 9px; background: var(--navy-50); color: var(--teal-700);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.nm-ic svg { width: 17px; height: 17px; }
+.nav-menu a:hover .nm-ic, .nav-menu a.on .nm-ic { background: var(--teal-100); }
+.nm-txt b { display: block; font-size: 13.5px; font-weight: 600; color: var(--navy-900); line-height: 1.6; }
+.nm-txt small { display: block; font-size: 11.5px; color: var(--navy-400); line-height: 1.6; }
+
+/* ---------- کارت آگهی در نمای فهرستی ---------- */
+.job-list .job-card {
+  display: grid; grid-template-columns: 1fr 200px; gap: 4px 22px;
+  align-items: center; padding: 20px 24px;
+}
+.job-list .job-card > .top { grid-column: 1; grid-row: 1; }
+.job-list .job-card > .job-meta { grid-column: 1; grid-row: 2; margin-top: 11px; }
+.job-list .job-card > .foot {
+  grid-column: 2; grid-row: 1 / span 2; flex-direction: column; align-items: flex-start; justify-content: center;
+  gap: 7px; margin: 0; padding: 4px 22px 4px 0; height: 100%;
+  border-top: none; border-inline-start: 1px dashed var(--navy-200);
+}
+.job-list .job-card > .foot .salary { font-size: 15px; }
+.job-list .job-card > .foot::after {
+  content: "مشاهده آگهی ←"; font-size: 12px; color: var(--teal-600); font-weight: 600; opacity: 0; transition: .18s;
+}
+.job-list .job-card:hover > .foot::after { opacity: 1; }
+.job-list .job-card h3 { font-size: 17px; }
+
+/* ---------- ساید‌بار فیلترها ---------- */
+.filters { align-self: start; }
+.filters h3 { display: flex; justify-content: space-between; align-items: center; }
+.filter-group { padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--navy-100); }
+.filter-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.filter-group > label { display: block; font-size: 12.5px; font-weight: 700; color: var(--navy-800); margin-bottom: 8px; }
+.filter-group select, .filter-group > input[type=text] {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--navy-200); border-radius: 8px;
+  font: inherit; font-size: 13.5px; outline: none; background: #fff; color: var(--navy-800);
+}
+.filter-group select:focus, .filter-group > input[type=text]:focus { border-color: var(--teal-500); }
+.filter-group.acc { padding-bottom: 0; }
+.filter-group.acc summary { padding: 9px 10px; margin: 0 -10px; border-radius: 8px; font-size: 13px; }
+.filter-group.acc summary:hover { background: var(--navy-50); }
+.filter-group.acc[open] summary { margin-bottom: 8px; }
+.filter-group.acc > div { padding-bottom: 12px; }
+.filters .check-item { margin-bottom: 8px; line-height: 1.6; }
+.filters .check-item:last-child { margin-bottom: 0; }
+.scroll-box { max-height: 200px; overflow-y: auto; padding-inline-end: 6px; }
+.scroll-box::-webkit-scrollbar { width: 5px; }
+.scroll-box::-webkit-scrollbar-thumb { background: var(--navy-200); border-radius: 3px; }
+
+/* ---------- ریتم عمودی و اندازه‌های یکدست ---------- */
+.page-head h1 { font-size: 27px; line-height: 1.6; }
+.page-head p { font-size: 14.5px; }
+.section-head h2 { font-size: 22px; }
+.section-head p { font-size: 14px; }
+.dash-title { font-size: 22px; }
+.panel h2 { font-size: 17px; }
+.exam-panel h1 { font-size: 22px; }
+.toast { z-index: 300; }
+
+/* ---------- منوی موبایل ---------- */
+@media (max-width: 1080px) {
+  .main-nav {
+    position: absolute; top: 100%; inset-inline: 0; background: #fff; flex-direction: column;
+    padding: 10px; border-bottom: 1px solid var(--navy-200); box-shadow: var(--shadow-md);
+    display: none; gap: 3px; max-height: 78vh; overflow-y: auto;
+  }
+  .main-nav.open { display: flex; }
+  .main-nav .nav-link { width: 100%; justify-content: space-between; font-size: 15px; padding: 12px 14px; }
+  .menu-toggle { display: block; }
+  .nav-menu {
+    position: static; transform: none; opacity: 1; visibility: visible; box-shadow: none;
+    border: none; border-inline-start: 2px solid var(--teal-100); border-radius: 0;
+    min-width: 0; margin: 2px 14px 8px; padding: 0; display: none;
+  }
+  .nav-group.open .nav-menu { display: block; transform: none; }
+  .nav-group:hover .nav-menu { opacity: 1; }
+  .nav-group:not(.open):hover .nav-menu { display: none; }
+  .header-inner { height: 60px; }
+}
+@media (max-width: 900px) {
+  .job-list .job-card { grid-template-columns: 1fr; }
+  .job-list .job-card > .foot {
+    grid-column: 1; grid-row: 3; flex-direction: row; align-items: center; justify-content: space-between;
+    width: 100%; padding: 13px 0 0; margin-top: 14px;
+    border-inline-start: none; border-top: 1px dashed var(--navy-200);
+  }
+  .job-list .job-card > .foot::after { display: none; }
+}
+@media (max-width: 860px) {
+  .hdr-login { display: none; }
+  .header-actions .btn { font-size: 12.5px; padding: 8px 12px; }
+}
+@media (max-width: 620px) {
+  /* دکمه‌های ورود از نوار بالا به داخل منو منتقل می‌شوند (حذف نمی‌شوند) */
+  .header-actions .btn { display: none; }
+  .header-actions { gap: 5px; }
+  .logo { font-size: 17px; }
+  .logo .logo-mark { width: 28px; height: 28px; }
+  .icon-btn { width: 34px; height: 34px; }
+  .lang-btn { padding: 0 9px; }
+  .page-head h1 { font-size: 21px; }
+  .section-head h2 { font-size: 19px; }
+  .hero-center h1 { font-size: 25px; }
+  .container { padding: 0 14px; }
+}
+
+/* دکمه‌های ورود داخل منوی موبایل */
+.nav-cta { display: none; }
+@media (max-width: 1080px) {
+  .nav-cta { display: flex; flex-direction: column; gap: 8px; padding: 12px 6px 4px; margin-top: 8px; border-top: 1px solid var(--navy-100); }
+  .nav-cta .btn { display: inline-flex !important; }
+}
+/* نوار نشانه‌ها و ایموجی‌ها */
+.ab-ic { line-height: 1; display: inline-flex; align-items: center; }
+.icon-btn { overflow: visible; }
+
+/* ---------- جلوگیری از فشار min-content روی ستون‌های گرید در عرض کم ---------- */
+body { overflow-wrap: break-word; }
+.detail-layout > *, .listing-layout > *, .dash-layout > *, .faq-layout > *,
+.split-view > *, .auth-wrap > *, .feed-layout > * { min-width: 0; }
+.panel, .side-card { min-width: 0; }
+@media (max-width: 620px) {
+  .panel, .side-card, .exam-panel { padding: 18px 16px; }
+  .page-head { padding: 22px 0 20px; }
+}
+
+/* ---------- گریدهای فرم با تعداد ستون مشخص (به‌جای style این‌لاین، تا ریسپانسیو بماند) ---------- */
+.form-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+.form-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1200px) { .form-grid.cols-4 { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 900px)  { .form-grid.cols-4 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 620px)  { .form-grid.cols-4, .form-grid.cols-2 { grid-template-columns: 1fr; } }
+
+/* ---------- جعبه جستجوی صفحه اصلی: چهار فیلد بدون بریدگی متن ---------- */
+.hero-center .hero-inner { max-width: 940px; }
+.hero-center .search-box { max-width: 940px; }
+.search-box .field { min-width: 0; }
+.search-box .field:first-child { flex: 1.9; }
+.search-box .field:not(:first-child) { flex: 1.05; }
+.search-box .field select { text-overflow: ellipsis; }
+.search-box .btn { flex-shrink: 0; }
+
+/* ---------- فیلترهای سریع: دو ردیف مرتب ---------- */
+.quick-filters { max-width: 880px; margin-inline: auto; row-gap: 9px; }
+.qf { padding: 7px 13px; font-size: 12.5px; line-height: 1.5; }
+
+/* ---------- طرح لبه هیرو داخل هیرو بماند ---------- */
+.hero-center { overflow: hidden; }
+.hero-bg-art { opacity: .38; }
+.hero-bg-art.left { opacity: .26; }
+
+/* ---------- نشان «فوری/ویژه» در نمای فهرستی کنار عنوان ---------- */
+.job-list .job-card > .badge-urgent,
+.job-list .job-card > .badge-featured {
+  position: static; grid-column: 1; grid-row: 1; align-self: start;
+  justify-self: start; margin-bottom: 0; order: -1;
+}
+.job-list .job-card {
+  grid-template-areas: "badge  side" "top side" "meta side";
+  grid-template-rows: auto auto auto; row-gap: 0;
+}
+.job-list .job-card > .badge-urgent, .job-list .job-card > .badge-featured { grid-area: badge; margin-bottom: 9px; }
+.job-list .job-card > .top { grid-area: top; }
+.job-list .job-card > .job-meta { grid-area: meta; }
+.job-list .job-card > .foot { grid-area: side; }
+
+/* ---------- دکمه زبان: کد زبان به‌جای ایموجی پرچم (ایموجی پرچم روی ویندوز رندر نمی‌شود) ---------- */
+.lang-btn { width: auto !important; gap: 6px; padding: 0 11px; }
+.lang-btn svg { width: 16px; height: 16px; stroke: var(--navy-500); }
+.lang-code { font-size: 12px; font-weight: 700; color: var(--navy-600); letter-spacing: .3px; }
+.lm-code { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 20px;
+  background: var(--navy-100); border-radius: 5px; font-size: 10.5px; font-weight: 800; color: var(--navy-600); }
+.lang-menu button.active .lm-code { background: var(--teal-100); color: var(--teal-800); }
+@media (max-width: 620px) { .lang-btn { padding: 0 8px; } .lang-btn svg { display: none; } }
+
+/* ---------- نوار فیلتر صفحات نقشه و رتبه‌بندی: چیدمان شبکه‌ای مرتب ---------- */
+.lab-filters {
+  display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px;
+  background: #fff; border: 1px solid var(--navy-200); border-radius: var(--radius);
+  padding: 14px; margin-bottom: 18px; align-items: center;
+}
+.lab-filters input, .lab-filters select { width: 100%; min-width: 0; }
+.lab-filters .check-item.inline { justify-content: flex-start; margin: 0; white-space: nowrap; }
+.lab-filters .btn { width: 100%; }
+@media (max-width: 1100px) { .lab-filters { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 700px)  { .lab-filters { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 460px)  { .lab-filters { grid-template-columns: 1fr; } }
+
+/* ---------- کلاس‌های کمکی که در مارک‌آپ استفاده شده‌اند ---------- */
+.steps-grid.four { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 1100px) { .steps-grid.four { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 620px)  { .steps-grid.four { grid-template-columns: 1fr; } }
+.steps-grid.four .step-card a { display: inline-block; margin-top: 10px; font-size: 12.5px;
+  color: var(--teal-700); font-weight: 600; }
+.steps-grid.four .step-card a:hover { text-decoration: underline; }
+
+.assess-intro p { font-size: 14px; color: var(--navy-600); line-height: 2.1; }
+.faq-main { min-width: 0; }
+.res-hero { margin-bottom: 8px; }
+.rh.fail h1 { color: var(--navy-700); }
+.rh.fail .btn { margin-top: 16px; }
+.hdr-emp { white-space: nowrap; }
+.enamad.samandehi .en-mark { background: var(--teal-100); color: var(--teal-800); }
+
+/* ---------- فیلترها روی موبایل: جمع‌شونده تا نتایج بالا بیایند ---------- */
+.filters .f-toggle { display: none; }
+@media (max-width: 980px) {
+  .filters { padding: 0; border-radius: var(--radius); }
+  .filters h3 {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    margin: 0; padding: 15px 18px; cursor: pointer; user-select: none;
+  }
+  .filters .f-toggle { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px;
+    color: var(--teal-700); font-weight: 600; margin-inline-start: auto; }
+  .filters .f-toggle::after { content: "▾"; transition: transform .2s; }
+  .filters.open .f-toggle::after { transform: rotate(180deg); }
+  .filters .f-body { display: none; padding: 0 18px 18px; }
+  .filters.open .f-body { display: block; }
+  .filters h3 > button { order: 3; }
+}
+
+/* ---------- کارت آگهی در موبایل: تک‌ستونی (باید بعد از تعریف grid-template-areas بیاید) ---------- */
+@media (max-width: 900px) {
+  .job-list .job-card {
+    grid-template-columns: 1fr;
+    grid-template-areas: "badge" "top" "meta" "side";
+    grid-template-rows: auto auto auto auto;
+  }
+  .job-list .job-card > .foot {
+    flex-direction: row; align-items: center; justify-content: space-between;
+    width: 100%; padding: 13px 0 0; margin-top: 14px; height: auto;
+    border-inline-start: none; border-top: 1px dashed var(--navy-200);
+  }
+  .job-list .job-card > .foot::after { display: none; }
+  .job-list .job-card h3 { font-size: 15.5px; }
 }

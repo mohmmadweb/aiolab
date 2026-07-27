@@ -67,23 +67,52 @@ const MyMBTI    = { get: () => Store.get("mbti", null),  set: r => Store.set("mb
 const MyAssess  = { get: () => Store.get("assess", null), set: r => Store.set("assess", r) };
 const MyLabs    = { all: () => Store.get("mylabs", []),  add: l => Store.push("mylabs", l) };
 
+/* ---------- ساختار منو ----------
+   ده مقصد قبلی حفظ شده‌اند، فقط در ۵ گروه مرتب شده‌اند تا نوار بالا شلوغ نباشد. */
+const AIO_NAV = [
+  { href: "index.html", key: "nav.home", label: "خانه" },
+  { href: "jobs.html",  key: "nav.jobs", label: "فرصت‌های شغلی" },
+  { key: "nav.labs", label: "آزمایشگاه‌ها", children: [
+      { href: "labs.html",    label: "آزمایشگاه‌ها روی نقشه", desc: "نقشه سراسری مراکز عضو", icon: "pin" },
+      { href: "ranking.html", label: "رتبه‌بندی مراکز",       desc: "امتیاز کاربران و میانگین حقوق", icon: "chart" }
+  ]},
+  { key: "nav.growth", label: "رشد حرفه‌ای", children: [
+      { href: "dashboard.html#resume", label: "رزومه حرفه‌ای من", desc: "رزومه‌ساز تخصصی آزمایشگاه", icon: "doc" },
+      { href: "exams.html",     label: "آزمون و گواهینامه", desc: "نشان مهارت تأییدشده روی رزومه", icon: "shield" },
+      { href: "assessment.html",label: "خودارزیابی مهارت",  desc: "۶ حوزه، نمودار مهارت و تحلیل شکاف", icon: "chart" },
+      { href: "mbti.html",      label: "تست شخصیت‌شناسی MBTI", desc: "تیپ شخصیتی و مشاغل متناسب", icon: "path" },
+      { href: "courses.html",   label: "آموزش و دوره‌ها",   desc: "دوره‌های تخصصی و مهارتی", icon: "grad" }
+  ]},
+  { key: "nav.content", label: "جامعه و محتوا", children: [
+      { href: "magazine.html",  label: "در آزمایشگاه چه می‌گذرد؟", desc: "مجله تخصصی آیولب", icon: "doc" },
+      { href: "community.html", label: "جامعه آزمایشگاهی", desc: "شبکه حرفه‌ای پرسنل آزمایشگاه", icon: "users" },
+      { href: "faq.html",       label: "سؤالات پرتکرار",   desc: "پاسخ کوتاه به پرسش‌های رایج", icon: "comment" }
+  ]}
+];
+
 /* ---------- Header / Footer ---------- */
 function renderHeader(active) {
   const u = Auth.user;
-  const nav = [
-    ["index.html", "nav.home", "خانه"],
-    ["jobs.html", "nav.jobs", "فرصت‌های شغلی"],
-    ["labs.html", "nav.labs", "آزمایشگاه‌ها"],
-    ["ranking.html", "nav.ranking", "رتبه‌بندی مراکز"],
-    ["exams.html", "nav.exams", "آزمون و گواهینامه"],
-    ["assessment.html", "nav.assessment", "خودارزیابی"],
-    ["courses.html", "nav.courses", "آموزش"],
-    ["magazine.html", "nav.magazine", "مجله"],
-    ["community.html", "nav.community", "جامعه"],
-    ["faq.html", "nav.faq", "سؤالات پرتکرار"]
-  ];
-  const navHTML = nav.map(([href, key, label]) =>
-    `<a href="${href}" data-i18n="${key}" class="${active === href.split("#")[0] ? "active" : ""}">${label}</a>`).join("");
+  const isOn = href => active === href.split("#")[0];
+
+  const navHTML = AIO_NAV.map((item, i) => {
+    if (!item.children)
+      return `<a href="${item.href}" data-i18n="${item.key}" class="nav-link ${isOn(item.href) ? "active" : ""}">${item.label}</a>`;
+    const on = item.children.some(c => isOn(c.href));
+    return `<div class="nav-group ${on ? "active" : ""}">
+      <button class="nav-link" onclick="toggleNavGroup(event,${i})" aria-expanded="false">
+        <span data-i18n="${item.key}">${item.label}</span>
+        <svg class="ng-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="nav-menu">
+        ${item.children.map(c => `
+          <a href="${c.href}" class="${isOn(c.href) ? "on" : ""}">
+            <span class="nm-ic">${ICONS[c.icon] || ICONS.flask}</span>
+            <span class="nm-txt"><b>${c.label}</b><small>${c.desc}</small></span>
+          </a>`).join("")}
+      </div>
+    </div>`;
+  }).join("");
 
   const unread = (typeof AIO_MESSAGES !== "undefined") ? AIO_MESSAGES.filter(m => m.unread).length : 0;
   const msgBtn = `
@@ -122,34 +151,53 @@ function renderHeader(active) {
       </div>`;
   } else {
     actions = `
-      <a href="login.html" class="btn btn-ghost" data-i18n="act.login">ثبت‌نام / ورود کارجو</a>
-      <a href="login.html?role=employer" class="btn btn-outline" data-i18n="act.employer">ورود آزمایشگاه | ثبت آگهی</a>
+      <a href="login.html" class="btn btn-ghost hdr-login" data-i18n="act.login">ورود کارجو</a>
+      <a href="login.html?role=employer" class="btn btn-primary hdr-emp" data-i18n="act.employer">ثبت آگهی استخدام</a>
       ${langBtn}${msgBtn}`;
   }
 
-  /* نوار عمودی‌های برند aio */
+  /* نوار عمودی‌های برند aio — فشرده */
   const verticals = (typeof AIO_VERTICALS !== "undefined") ? `
     <div class="vertical-bar">
       <div class="container">
-        <span class="vb-label">خانواده آیو:</span>
+        <span class="vb-label">خانواده آیو</span>
         ${AIO_VERTICALS.map(v => `
           <a class="vb-item ${v.active ? "active" : "soon"}" href="${v.active ? "index.html" : "#"}"
-             ${v.active ? "" : 'onclick="toast(\'به‌زودی راه‌اندازی می‌شود\');return false"'}
-             style="--vc:${v.color};--vbg:${v.bg}">
-            ${v.name}${v.active ? "" : '<i class="soon-tag">به‌زودی</i>'}
-          </a>`).join("")}
+             title="${v.slug}${v.active ? "" : " — به‌زودی"}"
+             ${v.active ? "" : 'onclick="toast(\'این بخش به‌زودی راه‌اندازی می‌شود\');return false"'}
+             style="--vc:${v.color}">${v.name}</a>`).join("")}
       </div>
     </div>` : "";
+
+  /* همان دکمه‌های ورود، داخل منوی موبایل هم تکرار می‌شوند تا در عرض کم چیزی از دست نرود */
+  const mobileCta = u ? `
+    <div class="nav-cta">
+      <a href="${u.role === "employer" ? "employer.html" : "dashboard.html"}" class="btn btn-primary btn-block">
+        ${u.role === "employer" ? "پنل کارفرما" : "داشبورد من"}</a>
+    </div>` : `
+    <div class="nav-cta">
+      <a href="login.html" class="btn btn-outline btn-block">ورود / ثبت‌نام کارجو</a>
+      <a href="login.html?role=employer" class="btn btn-primary btn-block">ورود آزمایشگاه | ثبت آگهی</a>
+    </div>`;
 
   document.getElementById("site-header").innerHTML = `
     ${verticals}
     <div class="container header-inner">
       <a href="index.html" class="logo">${LOGO_SVG}<span>آیو<b>لب</b></span></a>
-      <nav class="main-nav" id="main-nav">${navHTML}</nav>
+      <nav class="main-nav" id="main-nav">${navHTML}${mobileCta}</nav>
       <div class="header-actions">${actions}
-        <button class="menu-toggle" onclick="document.getElementById('main-nav').classList.toggle('open')">${ICONS.menu}</button>
+        <button class="menu-toggle" aria-label="منو" onclick="document.getElementById('main-nav').classList.toggle('open')">${ICONS.menu}</button>
       </div>
     </div>`;
+}
+
+function toggleNavGroup(e, i) {
+  e.preventDefault(); e.stopPropagation();
+  const g = e.currentTarget.parentElement;
+  const open = g.classList.contains("open");
+  document.querySelectorAll(".nav-group.open").forEach(x => x.classList.remove("open"));
+  if (!open) g.classList.add("open");
+  e.currentTarget.setAttribute("aria-expanded", String(!open));
 }
 
 function toggleMsgs(e) {
@@ -387,8 +435,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("site-footer")) renderFooter();
   if (typeof I18N !== "undefined") I18N.apply();
   document.addEventListener("click", e => {
-    document.querySelectorAll(".user-menu.open, .msg-menu.open, .lang-menu.open").forEach(m => {
-      if (!m.parentElement.contains(e.target)) m.classList.remove("open");
+    document.querySelectorAll(".user-menu.open, .msg-menu.open, .lang-menu.open, .nav-group.open").forEach(m => {
+      if (!m.contains(e.target) && !m.parentElement.contains(e.target)) m.classList.remove("open");
     });
+  });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") document.querySelectorAll(".open").forEach(m => m.classList.remove("open"));
   });
 });

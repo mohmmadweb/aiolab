@@ -7,9 +7,9 @@
    ========================================== */
 
 const AIO_LANGS = [
-  { id: "fa", name: "فارسی",   flag: "🇮🇷", dir: "rtl" },
-  { id: "en", name: "English", flag: "🇬🇧", dir: "ltr" },
-  { id: "ar", name: "العربية", flag: "🇸🇦", dir: "rtl" }
+  { id: "fa", name: "فارسی",   code: "FA", dir: "rtl" },
+  { id: "en", name: "English", code: "EN", dir: "ltr" },
+  { id: "ar", name: "العربية", code: "AR", dir: "rtl" }
 ];
 
 const DICT = {
@@ -21,6 +21,8 @@ const DICT = {
     "nav.jobs": "فرصت‌های شغلی",
     "nav.resume": "رزومه حرفه‌ای من",
     "nav.labs": "آزمایشگاه‌ها",
+    "nav.growth": "رشد حرفه‌ای",
+    "nav.content": "جامعه و محتوا",
     "nav.ranking": "رتبه‌بندی مراکز",
     "nav.exams": "آزمون و گواهینامه",
     "nav.assessment": "خودارزیابی",
@@ -29,8 +31,8 @@ const DICT = {
     "nav.community": "جامعه آزمایشگاهی",
     "nav.faq": "سؤالات پرتکرار",
 
-    "act.login": "ثبت‌نام / ورود کارجو",
-    "act.employer": "ورود آزمایشگاه | ثبت آگهی",
+    "act.login": "ورود کارجو",
+    "act.employer": "ثبت آگهی استخدام",
     "act.dashboard": "داشبورد من",
     "act.employerPanel": "پنل کارفرما",
     "act.logout": "خروج از حساب",
@@ -83,6 +85,8 @@ const DICT = {
     "nav.jobs": "Jobs",
     "nav.resume": "My Resume",
     "nav.labs": "Laboratories",
+    "nav.growth": "Professional growth",
+    "nav.content": "Community & content",
     "nav.ranking": "Rankings",
     "nav.exams": "Exams & Certificates",
     "nav.assessment": "Self-assessment",
@@ -91,8 +95,8 @@ const DICT = {
     "nav.community": "Community",
     "nav.faq": "FAQ",
 
-    "act.login": "Sign up / Log in",
-    "act.employer": "Employer login | Post a job",
+    "act.login": "Log in",
+    "act.employer": "Post a job",
     "act.dashboard": "My dashboard",
     "act.employerPanel": "Employer panel",
     "act.logout": "Log out",
@@ -145,6 +149,8 @@ const DICT = {
     "nav.jobs": "الوظائف",
     "nav.resume": "سيرتي الذاتية",
     "nav.labs": "المختبرات",
+    "nav.growth": "التطوير المهني",
+    "nav.content": "المجتمع والمحتوى",
     "nav.ranking": "تصنيف المراكز",
     "nav.exams": "الاختبارات والشهادات",
     "nav.assessment": "التقييم الذاتي",
@@ -153,8 +159,8 @@ const DICT = {
     "nav.community": "المجتمع",
     "nav.faq": "الأسئلة الشائعة",
 
-    "act.login": "التسجيل / الدخول",
-    "act.employer": "دخول المختبر | نشر إعلان",
+    "act.login": "الدخول",
+    "act.employer": "نشر إعلان",
     "act.dashboard": "لوحتي",
     "act.employerPanel": "لوحة صاحب العمل",
     "act.logout": "تسجيل الخروج",
@@ -232,17 +238,26 @@ const I18N = {
       const v = I18N.t(el.dataset.i18nTitle);
       if (v) el.title = v;
     });
+
+    /* خود دکمه زبان با data-i18n ساخته نمی‌شود، پس دستی به‌روز می‌شود */
+    document.querySelectorAll(".lang-code").forEach(el => { el.textContent = meta.code; });
+    document.querySelectorAll(".lang-btn").forEach(el => { el.title = I18N.t("lang.label"); });
+    document.querySelectorAll(".lang-menu button").forEach(btn => {
+      const code = (btn.querySelector(".lm-code") || {}).textContent;
+      btn.classList.toggle("active", code === meta.code);
+    });
   },
 
   switcherHTML() {
     const cur = AIO_LANGS.find(x => x.id === I18N.lang) || AIO_LANGS[0];
     return `<div class="lang-wrap">
       <button class="icon-btn lang-btn" onclick="this.nextElementSibling.classList.toggle('open');event.stopPropagation()" title="${I18N.t("lang.label")}">
-        <span class="lang-flag">${cur.flag}</span><span class="lang-code">${cur.id.toUpperCase()}</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/></svg>
+        <span class="lang-code">${cur.code}</span>
       </button>
       <div class="lang-menu">
         ${AIO_LANGS.map(l => `<button class="${l.id === cur.id ? "active" : ""}" onclick="I18N.set('${l.id}')">
-            <span>${l.flag}</span> ${l.name}</button>`).join("")}
+            <span class="lm-code">${l.code}</span> ${l.name}</button>`).join("")}
       </div>
     </div>`;
   }

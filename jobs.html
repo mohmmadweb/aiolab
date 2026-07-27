@@ -24,8 +24,13 @@
 
   <!-- ===== Filters ===== -->
   <aside class="filters" id="filters">
-    <h3><span data-i18n="act.filters">فیلترها</span> <button onclick="resetFilters()" data-i18n="act.clearAll">حذف همه</button></h3>
+    <h3 onclick="if(event.target.tagName!=='BUTTON')this.parentElement.classList.toggle('open')">
+      <span data-i18n="act.filters">فیلترها</span>
+      <span class="f-toggle">نمایش / بستن</span>
+      <button onclick="resetFilters()" data-i18n="act.clearAll">حذف همه</button>
+    </h3>
 
+    <div class="f-body">
     <div class="filter-group">
       <label>جستجوی متنی</label>
       <input type="text" id="f-q" data-i18n-ph="search.q" placeholder="عنوان شغلی، مهارت یا نام مرکز…">
@@ -114,6 +119,7 @@
       <label class="check-item"><input type="checkbox" id="f-featured"> فقط آگهی‌های ویژه ⭐</label>
       <label class="check-item"><input type="checkbox" id="f-remote"> امکان دورکاری 🏠</label>
       <label class="check-item"><input type="checkbox" id="f-verified"> فقط کارفرمایان تأییدشده ✔️</label>
+    </div>
     </div>
   </aside>
 
