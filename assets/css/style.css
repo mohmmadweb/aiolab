@@ -1384,3 +1384,8 @@ body { overflow-wrap: break-word; }
   .job-list .job-card > .foot::after { display: none; }
   .job-list .job-card h3 { font-size: 15.5px; }
 }
+
+/* ---------- هایلایت فیلد ناقص در فرم‌ها ---------- */
+.field-error { border-color: var(--rose-500) !important; box-shadow: 0 0 0 3px rgba(244,63,94,.14); animation: fieldShake .3s; }
+@keyframes fieldShake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+select:disabled { background: var(--navy-50); color: var(--navy-400); cursor: not-allowed; }

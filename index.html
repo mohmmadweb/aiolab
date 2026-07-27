@@ -4,7 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>آیولب | کاریابی تخصصی پرسنل آزمایشگاه</title>
-<meta name="description" content="آیولب — پلتفرم تخصصی کاریابی پرسنل آزمایشگاه‌های تشخیص طبی و پژوهشی ایران">
+<meta name="description" content="آیولب — پلتفرم تخصصی کاریابی پرسنل آزمایشگاه‌های تشخیص طبی و پژوهشی ایران. جستجوی پیشرفته آگهی، نقشه سراسری مراکز، آزمون مهارت و رزومه‌ساز تخصصی.">
+<meta name="theme-color" content="#0d9488">
+<link rel="canonical" href="https://aiolab.ir/index.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="آیولب | کاریابی تخصصی پرسنل آزمایشگاه">
+<meta property="og:description" content="آیولب — پلتفرم تخصصی کاریابی پرسنل آزمایشگاه‌های تشخیص طبی و پژوهشی ایران. جستجوی پیشرفته آگهی، نقشه سراسری مراکز، آزمون مهارت و رزومه‌ساز تخصصی.">
+<meta property="og:url" content="https://aiolab.ir/index.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3Cpath d='M20 12v8.5L13.5 32a4 4 0 0 0 3.5 6h14a4 4 0 0 0 3.5-6L28 20.5V12' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
 <link rel="stylesheet" href="assets/css/style.css">
@@ -113,15 +121,15 @@
       </div>
       <div class="field">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <select id="prov" title="استان"></select>
+        <select id="prov" title="استان" aria-label="استان"></select>
       </div>
       <div class="field">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/></svg>
-        <select id="city" title="شهر"></select>
+        <select id="city" title="شهر" aria-label="شهر"></select>
       </div>
       <div class="field">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v6L4.5 18a2.5 2.5 0 0 0 2.2 3.7h10.6a2.5 2.5 0 0 0 2.2-3.7L14 8V2"/><path d="M8.5 2h7"/></svg>
-        <select id="dept" title="دسته‌بندی مشاغل">
+        <select id="dept" title="دسته‌بندی مشاغل" aria-label="دسته‌بندی مشاغل">
           <option value="">دسته‌بندی مشاغل</option>
         </select>
       </div>
@@ -143,18 +151,18 @@
     <!-- پنل جستجوی پیشرفته -->
     <div class="adv-panel" id="adv-panel" style="display:none">
       <div class="adv-grid">
-        <div class="af"><label>نوع همکاری</label><select id="a-type"><option value="">همه</option></select></div>
-        <div class="af"><label>شیفت کاری</label><select id="a-shift"><option value="">همه</option></select></div>
-        <div class="af"><label>حقوق ماهانه</label><select id="a-band"><option value="">همه</option></select></div>
-        <div class="af"><label>سابقه کار</label><select id="a-exp"><option value="">همه</option></select></div>
-        <div class="af"><label>مدرک تحصیلی</label><select id="a-degree"><option value="">همه</option></select></div>
-        <div class="af"><label>رشته تحصیلی</label><select id="a-field"><option value="">همه</option></select></div>
-        <div class="af"><label>جنسیت</label><select id="a-gender"><option value="">فرقی نمی‌کند</option></select></div>
-        <div class="af"><label>وضعیت سربازی</label><select id="a-military"><option value="">مهم نیست</option></select></div>
-        <div class="af"><label>نوع سازمان</label><select id="a-sector"><option value="">همه</option></select></div>
-        <div class="af"><label>دسته سازمان</label><select id="a-kind"><option value="">همه</option></select></div>
-        <div class="af"><label>مزایا</label><select id="a-benefit"><option value="">همه</option></select></div>
-        <div class="af"><label>تاریخ انتشار</label><select id="a-age"><option value="">همه زمان‌ها</option></select></div>
+        <div class="af"><label for="a-type">نوع همکاری</label><select id="a-type" aria-label="نوع همکاری"><option value="">همه</option></select></div>
+        <div class="af"><label for="a-shift">شیفت کاری</label><select id="a-shift" aria-label="شیفت کاری"><option value="">همه</option></select></div>
+        <div class="af"><label for="a-band">حقوق ماهانه</label><select id="a-band" aria-label="حقوق ماهانه"><option value="">همه</option></select></div>
+        <div class="af"><label for="a-exp">سابقه کار</label><select id="a-exp" aria-label="سابقه کار"><option value="">همه</option></select></div>
+        <div class="af"><label for="a-degree">مدرک تحصیلی</label><select id="a-degree" aria-label="مدرک تحصیلی"><option value="">همه</option></select></div>
+        <div class="af"><label for="a-field">رشته تحصیلی</label><select id="a-field" aria-label="رشته تحصیلی"><option value="">همه</option></select></div>
+        <div class="af"><label for="a-gender">جنسیت</label><select id="a-gender" aria-label="جنسیت"><option value="">فرقی نمی‌کند</option></select></div>
+        <div class="af"><label for="a-military">وضعیت سربازی</label><select id="a-military" aria-label="وضعیت سربازی"><option value="">مهم نیست</option></select></div>
+        <div class="af"><label for="a-sector">نوع سازمان</label><select id="a-sector" aria-label="نوع سازمان"><option value="">همه</option></select></div>
+        <div class="af"><label for="a-kind">دسته سازمان</label><select id="a-kind" aria-label="دسته سازمان"><option value="">همه</option></select></div>
+        <div class="af"><label for="a-benefit">مزایا</label><select id="a-benefit" aria-label="مزایا"><option value="">همه</option></select></div>
+        <div class="af"><label for="a-age">تاریخ انتشار</label><select id="a-age" aria-label="تاریخ انتشار"><option value="">همه زمان‌ها</option></select></div>
       </div>
       <div class="adv-foot">
         <label class="check-item"><input type="checkbox" id="a-remote"> فقط دورکاری</label>
@@ -301,8 +309,8 @@
         </div>
       </div>
       <form class="ab-form" onsubmit="quickAlert(event)">
-        <select id="al-dept"><option value="">بخش موردنظر…</option></select>
-        <select id="al-prov"></select>
+        <select id="al-dept" aria-label="بخش موردنظر برای هشدار شغلی"><option value="">بخش موردنظر…</option></select>
+        <select id="al-prov" aria-label="استان موردنظر برای هشدار شغلی"></select>
         <button class="btn btn-primary" type="submit">ساخت هشدار شغلی</button>
       </form>
     </div>

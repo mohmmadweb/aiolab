@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>آزمایشگاه‌ها روی نقشه | آیولب</title>
+<meta name="description" content="نقشه سراسری آزمایشگاه‌ها و مراکز عضو آیولب — آزمایشگاه تشخیص طبی، بیمارستانی، مرکز پژوهشی، تولیدکننده و توزیع‌کننده تجهیزات.">
+<meta name="theme-color" content="#0d9488">
+<link rel="canonical" href="https://aiolab.ir/labs.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="آزمایشگاه‌ها روی نقشه | آیولب">
+<meta property="og:description" content="نقشه سراسری آزمایشگاه‌ها و مراکز عضو آیولب — آزمایشگاه تشخیص طبی، بیمارستانی، مرکز پژوهشی، تولیدکننده و توزیع‌کننده تجهیزات.">
+<meta property="og:url" content="https://aiolab.ir/labs.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
@@ -34,12 +43,12 @@
 
     <!-- Filters -->
     <div class="lab-filters">
-      <input type="text" id="f-q" placeholder="نام مرکز…">
-      <select id="f-prov"></select>
-      <select id="f-city"></select>
-      <select id="f-sector"><option value="">همه بخش‌ها (دولتی/خصوصی…)</option></select>
-      <select id="f-kind"><option value="">همه انواع سازمان</option></select>
-      <select id="f-sort">
+      <input type="text" id="f-q" placeholder="نام مرکز…" aria-label="جستجوی نام مرکز">
+      <select id="f-prov" aria-label="استان" title="استان"></select>
+      <select id="f-city" aria-label="شهر" title="شهر"></select>
+      <select id="f-sector" aria-label="بخش مالکیت" title="بخش مالکیت"><option value="">همه بخش‌ها (دولتی/خصوصی…)</option></select>
+      <select id="f-kind" aria-label="نوع سازمان" title="نوع سازمان"><option value="">همه انواع سازمان</option></select>
+      <select id="f-sort" aria-label="مرتب‌سازی" title="مرتب‌سازی">
         <option value="rating">بیشترین امتیاز</option>
         <option value="salary">بیشترین میانگین حقوق</option>
         <option value="jobs">بیشترین فرصت شغلی</option>

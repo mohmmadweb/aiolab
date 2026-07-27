@@ -177,6 +177,16 @@ const AIO_LABS = [
     rating: 3.5, ratingCount: 19,
     ratingBreakdown: { salary: 4.0, environment: 3.4, learning: 3.1, management: 3.3, worklife: 3.5 } },
 
+  /* مرکز تازه‌عضو با نظرات کم — نمونه‌ای برای نمایش نشان «داده کم» در رتبه‌بندی */
+  { id: 13, name: "آزمایشگاه تخصصی سینا", vertical: "lab", city: "قم", provinceId: "qom",
+    type: "آزمایشگاه تشخیص طبی", sector: "private", orgKind: "clinical", size: "کمتر از ۱۰ نفر",
+    color: "#d97706", lat: 34.6420, lng: 50.8790, address: "قم، بلوار امین، ساختمان پزشکان سینا",
+    about: "آزمایشگاه سینا مرکزی نوپا در قم با تمرکز بر آزمایش‌های روتین و هورمون‌شناسی است و به‌تازگی به آیولب پیوسته است.",
+    perks: ["بیمه تکمیلی", "ساعت کاری منظم"], staff: 9, founded: 1402, verified: false,
+    avgSalary: 13.5, avgSalaryUpdated: "۱۴۰۵/۰۳/۲۵",
+    rating: 4.2, ratingCount: 6,
+    ratingBreakdown: { salary: 3.5, environment: 4.5, learning: 4.0, management: 4.5, worklife: 4.5 } },
+
   { id: 12, name: "آزمایشگاه دانشگاه علوم پزشکی شیراز", vertical: "lab", city: "شیراز", provinceId: "fars",
     type: "آزمایشگاه دانشگاهی", sector: "university", orgKind: "research", size: "بیش از ۲۰۰ نفر",
     color: "#0f766e", lat: 29.6400, lng: 52.5250, address: "شیراز، میدان نمازی، دانشکده پیراپزشکی",

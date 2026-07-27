@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>داشبورد کارجو | آیولب</title>
+<meta name="description" content="داشبورد کارجو آیولب: رزومه‌ساز تخصصی، پیگیری درخواست‌ها، هشدار شغلی، گواهی‌های مهارتی و مسیر ارتقاء شغلی.">
+<meta name="theme-color" content="#0d9488">
+<link rel="canonical" href="https://aiolab.ir/dashboard.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="داشبورد کارجو | آیولب">
+<meta property="og:description" content="داشبورد کارجو آیولب: رزومه‌ساز تخصصی، پیگیری درخواست‌ها، هشدار شغلی، گواهی‌های مهارتی و مسیر ارتقاء شغلی.">
+<meta property="og:url" content="https://aiolab.ir/dashboard.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
 <link rel="stylesheet" href="assets/css/style.css">
@@ -126,11 +135,11 @@
         <h2>ساخت هشدار جدید</h2>
         <div class="form-grid cols-4">
           <div class="form-field"><label>عنوان یا مهارت</label><input type="text" id="na-q" placeholder="مثلاً: هماتولوژی"></div>
-          <div class="form-field"><label>بخش</label><select id="na-dept"><option value="">همه بخش‌ها</option></select></div>
-          <div class="form-field"><label>استان</label><select id="na-prov"></select></div>
-          <div class="form-field"><label>شهر</label><select id="na-city"></select></div>
-          <div class="form-field"><label>نوع همکاری</label><select id="na-type"><option value="">همه</option></select></div>
-          <div class="form-field"><label>حداقل حقوق</label><select id="na-band"><option value="">مهم نیست</option></select></div>
+          <div class="form-field"><label>بخش</label><select id="na-dept" aria-label="بخش"><option value="">همه بخش‌ها</option></select></div>
+          <div class="form-field"><label>استان</label><select id="na-prov" aria-label="استان"></select></div>
+          <div class="form-field"><label>شهر</label><select id="na-city" aria-label="شهر"></select></div>
+          <div class="form-field"><label>نوع همکاری</label><select id="na-type" aria-label="نوع همکاری"><option value="">همه</option></select></div>
+          <div class="form-field"><label>حداقل حقوق</label><select id="na-band" aria-label="حداقل حقوق"><option value="">مهم نیست</option></select></div>
           <div class="form-field full">
             <label>کانال اطلاع‌رسانی</label>
             <div class="channels">
@@ -142,7 +151,7 @@
           </div>
           <div class="form-field full">
             <label>تناوب اطلاع‌رسانی</label>
-            <select id="na-freq"><option>آنی (به‌محض انتشار)</option><option>خلاصه روزانه</option><option>خلاصه هفتگی</option></select>
+            <select id="na-freq" aria-label="تناوب اطلاع‌رسانی"><option>آنی (به‌محض انتشار)</option><option>خلاصه روزانه</option><option>خلاصه هفتگی</option></select>
           </div>
         </div>
         <button class="btn btn-primary" onclick="createAlert()">🔔 ساخت هشدار شغلی</button>
@@ -266,6 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderSkills();
   document.getElementById("devices").innerHTML = devices.map(d => `<span class="tag">${d}</span>`).join("");
 
+  renderOTW();
   initOnboard();
   initAlerts();
   initCerts();
@@ -299,12 +309,22 @@ function addSkill() {
   const inp = document.getElementById("new-skill");
   if (inp.value.trim()) { skills.push(inp.value.trim()); inp.value = ""; renderSkills(); toast("مهارت اضافه شد ✓"); }
 }
-function toggleOTW() {
+/* وضعیت «آماده به کار» تنها یک منبع حقیقت دارد: حافظه محلی.
+   قبلاً دکمه همیشه روشن نمایش داده می‌شد ولی چیزی ذخیره نشده بود،
+   بنابراین قدم دوم چک‌لیست هیچ‌وقت تیک نمی‌خورد. */
+function renderOTW() {
+  const on = Store.get("otw", false);
   const b = document.getElementById("otw");
-  const off = b.classList.toggle("off");
-  b.innerHTML = `<span class="dot"></span> ${off ? "غیرفعال" : "آماده به کار"}`;
-  Store.set("otw", !off);
-  toast(off ? "وضعیت آماده‌به‌کار غیرفعال شد" : "وضعیت آماده‌به‌کار فعال شد ✓ کارفرمایان شما را می‌بینند");
+  b.classList.toggle("off", !on);
+  b.innerHTML = `<span class="dot"></span> ${on ? "آماده به کار" : "غیرفعال — برای دیده‌شدن روشن کنید"}`;
+  b.setAttribute("aria-pressed", String(on));
+}
+
+function toggleOTW() {
+  const on = !Store.get("otw", false);
+  Store.set("otw", on);
+  renderOTW();
+  toast(on ? "وضعیت آماده‌به‌کار فعال شد ✓ کارفرمایان شما را می‌بینند" : "وضعیت آماده‌به‌کار غیرفعال شد");
   initOnboard();
 }
 

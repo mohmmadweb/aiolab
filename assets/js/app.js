@@ -403,18 +403,29 @@ function sortJobs(list, sort) {
   return a;
 }
 
-/* پر کردن انتخابگر استان/شهر به‌صورت وابسته */
-function bindProvinceCity(provSelId, citySelId, onChange) {
+/* پر کردن انتخابگر استان/شهر به‌صورت وابسته
+   opts.mode = "filter" (پیش‌فرض، «همه استان‌ها») یا "form" (اجباری، «انتخاب کنید»)
+   opts.remote = افزودن گزینه دورکاری (پیش‌فرض فقط در حالت filter) */
+function bindProvinceCity(provSelId, citySelId, onChange, opts) {
   const ps = document.getElementById(provSelId), cs = document.getElementById(citySelId);
   if (!ps || !cs) return;
-  ps.innerHTML = `<option value="">همه استان‌ها</option>` +
+  opts = opts || {};
+  const form = opts.mode === "form";
+  const remote = opts.remote !== undefined ? opts.remote : !form;
+  const provPh = form ? "استان را انتخاب کنید" : "همه استان‌ها";
+  const cityPh = form ? "ابتدا استان را انتخاب کنید" : "همه شهرها";
+
+  ps.innerHTML = `<option value="">${provPh}</option>` +
     AIO_PROVINCES.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
+
   function fillCities() {
     const p = provinceById(ps.value);
-    const cities = p ? p.cities : AIO_ALL_CITIES;
-    cs.innerHTML = `<option value="">همه شهرها</option>` +
+    // در فرم، تا وقتی استان انتخاب نشده فهرست شهر خالی می‌ماند تا کاربر گمراه نشود
+    const cities = p ? p.cities : (form ? [] : AIO_ALL_CITIES);
+    cs.innerHTML = `<option value="">${p || !form ? (form ? "شهر را انتخاب کنید" : "همه شهرها") : cityPh}</option>` +
       cities.map(c => `<option value="${c}">${c}</option>`).join("") +
-      `<option value="${AIO_REMOTE}">${AIO_REMOTE}</option>`;
+      (remote ? `<option value="${AIO_REMOTE}">${AIO_REMOTE}</option>` : "");
+    cs.disabled = form && !p;
   }
   fillCities();
   // onchange (نه addEventListener) تا فراخوانی دوباره‌ی این تابع شنونده تکراری نسازد

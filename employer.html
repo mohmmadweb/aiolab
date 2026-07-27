@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>پنل کارفرما | آیولب</title>
+<meta name="description" content="پنل کارفرما آیولب: ثبت مرکز روی نقشه، انتشار آگهی استخدام، بانک رزومه با جستجوی پیشرفته و طراحی آزمون مهارت.">
+<meta name="theme-color" content="#0d9488">
+<link rel="canonical" href="https://aiolab.ir/employer.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="پنل کارفرما | آیولب">
+<meta property="og:description" content="پنل کارفرما آیولب: ثبت مرکز روی نقشه، انتشار آگهی استخدام، بانک رزومه با جستجوی پیشرفته و طراحی آزمون مهارت.">
+<meta property="og:url" content="https://aiolab.ir/employer.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
 <link rel="stylesheet" href="assets/css/style.css">
@@ -80,8 +89,8 @@
           <div class="form-field"><label>دسته سازمان *</label><select id="lb-kind"></select></div>
           <div class="form-field"><label>اندازه سازمان</label><select id="lb-size"></select></div>
           <div class="form-field"><label>سال تأسیس</label><input type="number" id="lb-founded" placeholder="۱۳۸۵"></div>
-          <div class="form-field"><label>استان *</label><select id="lb-prov"></select></div>
-          <div class="form-field"><label>شهر *</label><select id="lb-city"></select></div>
+          <div class="form-field"><label>استان *</label><select id="lb-prov" aria-label="استان"></select></div>
+          <div class="form-field"><label>شهر *</label><select id="lb-city" aria-label="شهر"></select></div>
           <div class="form-field full"><label>آدرس دقیق</label><input type="text" id="lb-address" placeholder="خیابان، کوچه، پلاک"></div>
           <div class="form-field full"><label>درباره مرکز</label><textarea id="lb-about" rows="3" placeholder="معرفی کوتاه مرکز، تخصص‌ها و تجهیزات شاخص"></textarea></div>
         </div>
@@ -191,8 +200,8 @@
       <div class="panel" style="margin-bottom:16px">
         <div class="form-grid cols-4">
           <div class="form-field"><label>مهارت / عنوان شغلی</label><input type="text" id="rb-q" placeholder="مثلاً: هماتولوژی"></div>
-          <div class="form-field"><label>استان (محدوده جغرافیایی)</label><select id="rb-prov"></select></div>
-          <div class="form-field"><label>شهر</label><select id="rb-city"></select></div>
+          <div class="form-field"><label>استان (محدوده جغرافیایی)</label><select id="rb-prov" aria-label="استان"></select></div>
+          <div class="form-field"><label>شهر</label><select id="rb-city" aria-label="شهر"></select></div>
           <div class="form-field"><label>شعاع جغرافیایی</label>
             <select id="rb-radius"><option>محدودیت ندارد</option><option>تا ۱۰ کیلومتر</option><option>تا ۲۵ کیلومتر</option><option>تا ۵۰ کیلومتر</option><option>هم‌استان</option></select></div>
           <div class="form-field"><label>رشته تحصیلی</label><select id="rb-field"><option value="">همه</option></select></div>
@@ -432,7 +441,7 @@ function initAddLab() {
   opt("lb-sector", AIO_SECTORS, "id", "name");
   opt("lb-kind", AIO_ORG_KINDS, "id", "name");
   opt("lb-size", AIO_ORG_SIZES);
-  bindProvinceCity("lb-prov", "lb-city", () => goToCity());
+  bindProvinceCity("lb-prov", "lb-city", () => goToCity(), { mode: "form" });
 
   document.getElementById("lb-perks").innerHTML = AIO_BENEFITS.map(b =>
     `<button type="button" class="cp" onclick="this.classList.toggle('on')">${b}</button>`).join("");
@@ -477,9 +486,16 @@ function previewSalary() {
 
 function submitLab() {
   const name = document.getElementById("lb-name").value.trim();
-  if (!name) { toast("نام مرکز را وارد کنید"); return; }
-  if (!pinned) { toast("لطفاً موقعیت مرکز را روی نقشه پین کنید"); return; }
-  const salary = parseFloat(document.getElementById("lb-salary").value) || 0;
+  const prov = document.getElementById("lb-prov").value;
+  const city = document.getElementById("lb-city").value;
+  const salaryRaw = document.getElementById("lb-salary").value;
+  /* همه فیلدهای ستاره‌دار پیش از ثبت بررسی می‌شوند */
+  if (!name) { toast("نام مرکز را وارد کنید"); focusField("lb-name"); return; }
+  if (!prov) { toast("استان مرکز را انتخاب کنید"); focusField("lb-prov"); return; }
+  if (!city) { toast("شهر مرکز را انتخاب کنید"); focusField("lb-city"); return; }
+  if (!salaryRaw || parseFloat(salaryRaw) <= 0) { toast("میانگین حقوق پرداختی را وارد کنید"); focusField("lb-salary"); return; }
+  if (!pinned) { toast("لطفاً موقعیت مرکز را روی نقشه پین کنید"); focusField("pick-map"); return; }
+  const salary = parseFloat(salaryRaw) || 0;
   MyLabs.add({
     name, lat: pinned.lat, lng: pinned.lng,
     provinceId: document.getElementById("lb-prov").value,
@@ -490,6 +506,16 @@ function submitLab() {
     perks: [...document.querySelectorAll("#lb-perks .cp.on")].map(b => b.textContent)
   });
   toast("مرکز ثبت شد ✓ پس از تأیید کارشناسان، روی نقشه سراسری نمایش داده می‌شود");
+}
+
+/* پرش و هایلایت فیلد ناقص، تا کاربر دنبال خطا نگردد */
+function focusField(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  el.classList.add("field-error");
+  setTimeout(() => el.classList.remove("field-error"), 2200);
+  if (el.focus && el.tagName !== "DIV") el.focus();
 }
 
 /* ================== بانک رزومه پیشرفته ================== */
