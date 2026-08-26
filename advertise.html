@@ -32,11 +32,13 @@
 <!-- ============ چرا آیولب ============ -->
 <section class="section">
   <div class="container">
-    <div class="stats-strip" id="ad-stats"></div>
+    <div class="stats-strip flat" id="ad-stats"></div>
 
     <div class="section-head" style="margin-top:34px">
-      <h2>چرا آیولب؟</h2>
-      <p>مخاطب شما اینجا دقیقاً همان کسی است که تصمیم خرید می‌گیرد یا با دستگاه شما کار می‌کند</p>
+      <div>
+        <h2>چرا آیولب؟</h2>
+        <p>مخاطب شما اینجا دقیقاً همان کسی است که تصمیم خرید می‌گیرد یا با دستگاه شما کار می‌کند</p>
+      </div>
     </div>
     <div class="steps-grid four" id="why-grid"></div>
   </div>
@@ -46,8 +48,10 @@
 <section class="section alt">
   <div class="container">
     <div class="section-head">
-      <h2>پکیج‌های تبلیغاتی</h2>
-      <p>چهار قالب همکاری، از بنر ساده تا رپورتاژ اختصاصی</p>
+      <div>
+        <h2>پکیج‌های تبلیغاتی</h2>
+        <p>چهار قالب همکاری، از بنر ساده تا رپورتاژ اختصاصی</p>
+      </div>
     </div>
     <div class="svc-grid" id="ad-packages"></div>
   </div>
@@ -57,8 +61,10 @@
 <section class="section">
   <div class="container">
     <div class="section-head">
-      <h2>نمونه جایگاه‌های نمایش</h2>
-      <p>تبلیغ شما این‌گونه در صفحات آیولب دیده می‌شود</p>
+      <div>
+        <h2>نمونه جایگاه‌های نمایش</h2>
+        <p>تبلیغ شما این‌گونه در صفحات آیولب دیده می‌شود</p>
+      </div>
     </div>
     <div class="ad-slot">
       <span class="ad-tag">تبلیغ</span>
@@ -83,32 +89,34 @@
 <section class="section alt">
   <div class="container">
     <div class="section-head">
-      <h2>درخواست همکاری</h2>
-      <p>فرم را پر کنید؛ کارشناسان آیولب با شما تماس می‌گیرند</p>
+      <div>
+        <h2>درخواست همکاری</h2>
+        <p>فرم را پر کنید؛ کارشناسان آیولب با شما تماس می‌گیرند</p>
+      </div>
     </div>
     <form class="panel" style="max-width:760px;margin:0 auto" onsubmit="submitAdRequest(event)">
       <div class="form-grid cols-2">
-        <div class="field">
+        <div class="form-field">
           <label for="ad-company">نام شرکت</label>
           <input id="ad-company" required placeholder="مثلاً شرکت زیست‌تجهیز">
         </div>
-        <div class="field">
+        <div class="form-field">
           <label for="ad-person">نام و نام خانوادگی</label>
           <input id="ad-person" required placeholder="نام مسئول بازاریابی">
         </div>
-        <div class="field">
+        <div class="form-field">
           <label for="ad-phone">تلفن تماس</label>
           <input id="ad-phone" required placeholder="۰۹۱۲۰۰۰۰۰۰۰" inputmode="tel">
         </div>
-        <div class="field">
+        <div class="form-field">
           <label for="ad-email">ایمیل</label>
           <input id="ad-email" type="email" placeholder="name@company.com">
         </div>
-        <div class="field">
+        <div class="form-field">
           <label for="ad-pkg">پکیج موردنظر</label>
           <select id="ad-pkg"></select>
         </div>
-        <div class="field">
+        <div class="form-field">
           <label for="ad-field">حوزه فعالیت</label>
           <select id="ad-field">
             <option value="">انتخاب کنید</option>
@@ -121,7 +129,7 @@
           </select>
         </div>
       </div>
-      <div class="field">
+      <div class="form-field">
         <label for="ad-msg">توضیحات</label>
         <textarea id="ad-msg" rows="4" placeholder="درباره محصول یا خدمت خود و هدف تبلیغ بنویسید…"></textarea>
       </div>
