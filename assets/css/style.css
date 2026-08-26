@@ -1389,3 +1389,134 @@ body { overflow-wrap: break-word; }
 .field-error { border-color: var(--rose-500) !important; box-shadow: 0 0 0 3px rgba(244,63,94,.14); animation: fieldShake .3s; }
 @keyframes fieldShake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
 select:disabled { background: var(--navy-50); color: var(--navy-400); cursor: not-allowed; }
+
+/* ===============================================
+   لایه ۴ — خدمات، تعرفه، گزارش‌ها و تبلیغات
+   (افزوده‌ی مدل درآمدی؛ هیچ استایل قبلی بازنویسی نشده)
+   =============================================== */
+
+/* ---------- تب انتخاب نوع مشتری ---------- */
+.payer-tabs { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+.payer-tab {
+  display: inline-flex; align-items: center; gap: 9px; padding: 11px 20px; border-radius: 99px;
+  border: 1.5px solid var(--navy-200); background: #fff; color: var(--navy-600);
+  font-size: 14px; font-weight: 700; transition: all .18s;
+}
+.payer-tab svg { width: 18px; height: 18px; }
+.payer-tab:hover { border-color: var(--teal-500); color: var(--teal-700); }
+.payer-tab.on { background: var(--teal-600); border-color: var(--teal-600); color: #fff; box-shadow: var(--shadow-md); }
+.payer-tab .cnt { font-size: 12px; opacity: .75; }
+
+/* ---------- گروه خدمات ---------- */
+.svc-group { margin-bottom: 44px; scroll-margin-top: 90px; }
+.svc-group-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 18px; }
+.svc-group-head .gh-ic { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; flex-shrink: 0; }
+.svc-group-head .gh-ic svg { width: 24px; height: 24px; }
+.svc-group-head h2 { font-size: 20px; color: var(--navy-900); margin-bottom: 3px; }
+.svc-group-head p { font-size: 13.5px; color: var(--navy-500); line-height: 1.75; }
+
+/* ---------- کارت خدمت ---------- */
+.svc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; align-items: stretch; }
+.svc-card {
+  position: relative; display: flex; flex-direction: column;
+  background: #fff; border: 1.5px solid var(--navy-100); border-radius: var(--radius);
+  padding: 22px 20px; transition: all .2s;
+}
+.svc-card:hover { border-color: var(--teal-500); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.svc-card.featured { border-color: var(--teal-600); box-shadow: var(--shadow-md); }
+.svc-badge {
+  position: absolute; top: -12px; inset-inline-start: 18px; background: var(--teal-600); color: #fff;
+  font-size: 11px; font-weight: 700; padding: 4px 13px; border-radius: 99px; white-space: nowrap;
+}
+.svc-head { display: flex; align-items: flex-start; gap: 11px; margin-bottom: 12px; }
+.svc-ic { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; flex-shrink: 0; }
+.svc-ic svg { width: 21px; height: 21px; }
+.svc-ttl { flex: 1; min-width: 0; }
+.svc-ttl h3 { font-size: 15.5px; color: var(--navy-900); line-height: 1.55; margin-bottom: 2px; }
+.svc-stream { font-size: 11.5px; color: var(--navy-400); }
+.svc-code {
+  font-size: 11px; font-weight: 700; color: var(--navy-400); background: var(--navy-50);
+  border: 1px solid var(--navy-100); border-radius: 7px; padding: 2px 7px; flex-shrink: 0;
+  font-family: "Segoe UI", Tahoma, sans-serif; letter-spacing: .3px;
+}
+.svc-code.sm { font-size: 10.5px; }
+.svc-desc { font-size: 13px; color: var(--navy-600); line-height: 1.85; margin-bottom: 14px; }
+.svc-feats { margin-bottom: 16px; }
+.svc-feats li { font-size: 12.8px; color: var(--navy-600); padding: 5px 21px 5px 0; position: relative; line-height: 1.7; }
+.svc-feats li::before { content: "✓"; position: absolute; right: 0; top: 5px; color: var(--teal-600); font-weight: 800; }
+.svc-price { margin-top: auto; padding-top: 14px; border-top: 1px dashed var(--navy-200); }
+.svc-price b { font-size: 21px; font-weight: 800; color: var(--teal-700); display: block; line-height: 1.5; }
+.svc-price.free b { color: var(--teal-600); }
+.svc-unit { font-size: 12px; color: var(--navy-400); }
+.svc-meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 11px 0 12px; }
+.chip.sm { font-size: 11px; padding: 3px 9px; background: var(--navy-50); color: var(--navy-500); border-radius: 7px; }
+.chip.sm.warn { background: var(--amber-100); color: #92400e; }
+.svc-note { font-size: 11.5px; color: var(--amber-500); margin-bottom: 12px; line-height: 1.7; }
+.free-txt { color: var(--teal-600); }
+
+/* ---------- جدول تعرفه ---------- */
+.price-table-wrap { overflow-x: auto; border: 1.5px solid var(--navy-100); border-radius: var(--radius); background: #fff; }
+.price-table { width: 100%; border-collapse: collapse; min-width: 760px; }
+.price-table th, .price-table td { padding: 13px 14px; text-align: right; font-size: 13px; border-bottom: 1px solid var(--navy-100); vertical-align: middle; }
+.price-table thead th { background: var(--navy-50); color: var(--navy-600); font-size: 12.5px; font-weight: 700; white-space: nowrap; }
+.price-table tbody tr:last-child td { border-bottom: 0; }
+.price-table tbody tr:hover { background: var(--teal-50); }
+.price-table .muted { color: var(--navy-400); font-size: 12px; line-height: 1.7; }
+.price-table .ta-c { text-align: center; white-space: nowrap; }
+.price-table td b { color: var(--navy-900); }
+
+/* ---------- بنر تبلیغاتی (تأمین‌کننده) ---------- */
+.ad-slot {
+  display: flex; align-items: center; gap: 16px; padding: 16px 20px; margin: 22px 0;
+  border: 1.5px dashed var(--violet-500); border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--violet-100), #fff);
+}
+.ad-slot .ad-tag {
+  font-size: 10.5px; font-weight: 700; color: var(--violet-500); border: 1px solid var(--violet-500);
+  border-radius: 6px; padding: 2px 7px; flex-shrink: 0;
+}
+.ad-slot .ad-body { flex: 1; min-width: 0; }
+.ad-slot .ad-body b { font-size: 14.5px; color: var(--navy-900); display: block; margin-bottom: 3px; }
+.ad-slot .ad-body span { font-size: 12.5px; color: var(--navy-500); }
+
+/* ---------- کارت گزارش بازار کار ---------- */
+.report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+.report-card { background: #fff; border: 1.5px solid var(--navy-100); border-radius: var(--radius); padding: 24px 22px; transition: all .2s; }
+.report-card:hover { border-color: var(--amber-500); box-shadow: var(--shadow-md); }
+.report-card .rc-ic { width: 44px; height: 44px; border-radius: 12px; background: var(--amber-100); color: var(--amber-500); display: grid; place-items: center; margin-bottom: 14px; }
+.report-card .rc-ic svg { width: 23px; height: 23px; }
+.report-card h3 { font-size: 16px; color: var(--navy-900); margin-bottom: 8px; }
+.report-card p { font-size: 13px; color: var(--navy-600); line-height: 1.85; margin-bottom: 14px; }
+
+/* ---------- سفارش‌های من (داشبورد) ---------- */
+.order-item {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+  border: 1.5px solid var(--navy-100); border-radius: var(--radius-sm); margin-bottom: 10px; background: #fff;
+}
+.order-item .oi-code { font-size: 11px; font-weight: 700; color: var(--teal-700); background: var(--teal-50); border-radius: 6px; padding: 3px 8px; flex-shrink: 0; }
+.order-item .oi-body { flex: 1; min-width: 0; }
+.order-item .oi-body b { font-size: 14px; color: var(--navy-900); display: block; }
+.order-item .oi-body small { font-size: 12px; color: var(--navy-400); }
+.order-item .oi-price { font-size: 14px; font-weight: 800; color: var(--teal-700); white-space: nowrap; }
+
+/* ---------- جعبه مقایسه اشتراک ---------- */
+.plan-compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+
+/* ---------- عنوان فرعی داخل بخش ---------- */
+.sub-head {
+  font-size: 16px; color: var(--navy-900); margin-bottom: 14px; padding-inline-start: 12px;
+  border-inline-start: 3px solid var(--teal-600); line-height: 1.6;
+}
+
+/* ---------- انتخاب نقش: چهار گزینه ---------- */
+.role-switch.four { display: grid; grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 620px) { .role-switch.four { grid-template-columns: repeat(2, 1fr); } }
+
+/* ---------- ریسپانسیو لایه ۴ ---------- */
+@media (max-width: 720px) {
+  .svc-grid { grid-template-columns: 1fr; }
+  .payer-tab { padding: 9px 15px; font-size: 13px; }
+  .svc-group-head { gap: 11px; }
+  .svc-group-head h2 { font-size: 17.5px; }
+  .ad-slot { flex-direction: column; align-items: flex-start; gap: 10px; }
+}

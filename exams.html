@@ -61,6 +61,16 @@
       <a class="more" href="employer.html#exambuilder">کارفرما هستید؟ آزمون بسازید ←</a>
     </div>
     <div class="exam-grid" id="exam-grid"></div>
+
+    <!-- تعرفه آزمون و گواهی (R15، R16) -->
+    <div class="section-head" style="margin-top:40px">
+      <h2>تعرفه آزمون و گواهینامه</h2>
+      <p>گواهی آیولب مستقیم به رزومه شما افزوده می‌شود و در موتور تطبیق امتیاز می‌آورد</p>
+    </div>
+    <div class="svc-grid" id="exam-pricing"></div>
+    <p class="svc-note" style="margin-top:14px;text-align:center">
+      دارندگان <a href="pricing.html">اشتراک سالانه کارجو</a> تا ۴۰٪ تخفیف روی آزمون‌ها دریافت می‌کنند.
+    </p>
   </div>
 </section>
 
@@ -72,6 +82,9 @@
 <script src="assets/js/app.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("exam-pricing").innerHTML =
+    servicesOf("exam").map(x => serviceCardHTML(x, { cta: "خرید و شرکت در آزمون" })).join("");
+
   document.getElementById("exam-grid").innerHTML = AIO_EXAMS.map(e => {
     const l = lab(e.authorLabId);
     const passed = MyCerts.all().find(c => c.examId === e.id);

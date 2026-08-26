@@ -87,6 +87,12 @@ const AIO_NAV = [
       { href: "magazine.html",  label: "در آزمایشگاه چه می‌گذرد؟", desc: "مجله تخصصی آیولب", icon: "doc" },
       { href: "community.html", label: "جامعه آزمایشگاهی", desc: "شبکه حرفه‌ای پرسنل آزمایشگاه", icon: "users" },
       { href: "faq.html",       label: "سؤالات پرتکرار",   desc: "پاسخ کوتاه به پرسش‌های رایج", icon: "comment" }
+  ]},
+  { key: "nav.services", label: "خدمات و تعرفه", children: [
+      { href: "services.html",  label: "خدمات آیولب",     desc: "همه سرویس‌های کارجو، آزمایشگاه و تأمین‌کننده", icon: "briefcase" },
+      { href: "pricing.html",   label: "تعرفه‌ها",         desc: "قیمت شفاف تک‌تک خدمات و اشتراک‌ها", icon: "chart" },
+      { href: "reports.html",   label: "گزارش بازار کار",  desc: "تحلیل حقوق، عرضه و تقاضای تخصص‌ها", icon: "doc" },
+      { href: "advertise.html", label: "تبلیغات و همکاری", desc: "ویژه تأمین‌کنندگان تجهیزات و مواد", icon: "machine" }
   ]}
 ];
 
@@ -134,9 +140,12 @@ function renderHeader(active) {
 
   const langBtn = (typeof I18N !== "undefined") ? I18N.switcherHTML() : "";
 
+  const dash = !u ? "dashboard.html"
+             : (u.role === "employer" ? "employer.html"
+             : (u.role === "supplier" ? "advertise.html" : "dashboard.html"));
+
   let actions;
   if (u) {
-    const dash = u.role === "employer" ? "employer.html" : "dashboard.html";
     actions = `
       ${langBtn}${msgBtn}
       <div class="user-chip">
@@ -144,7 +153,8 @@ function renderHeader(active) {
           <span class="avatar">${u.name.charAt(0)}</span>${u.name}
         </button>
         <div class="user-menu">
-          <a href="${dash}">${u.role === "employer" ? "پنل کارفرما" : "داشبورد من"}</a>
+          <a href="${dash}">${u.role === "employer" ? "پنل کارفرما"
+                            : (u.role === "supplier" ? "پنل تأمین‌کننده" : "داشبورد من")}</a>
           <a href="${dash}#notifications">اعلان‌ها</a>
           <button class="danger" onclick="Auth.logout()">خروج از حساب</button>
         </div>
@@ -172,8 +182,9 @@ function renderHeader(active) {
   /* همان دکمه‌های ورود، داخل منوی موبایل هم تکرار می‌شوند تا در عرض کم چیزی از دست نرود */
   const mobileCta = u ? `
     <div class="nav-cta">
-      <a href="${u.role === "employer" ? "employer.html" : "dashboard.html"}" class="btn btn-primary btn-block">
-        ${u.role === "employer" ? "پنل کارفرما" : "داشبورد من"}</a>
+      <a href="${dash}" class="btn btn-primary btn-block">
+        ${u.role === "employer" ? "پنل کارفرما"
+        : (u.role === "supplier" ? "پنل تأمین‌کننده" : "داشبورد من")}</a>
     </div>` : `
     <div class="nav-cta">
       <a href="login.html" class="btn btn-outline btn-block">ورود / ثبت‌نام کارجو</a>
@@ -222,6 +233,9 @@ function renderFooter() {
             <li><a href="jobs.html">جستجوی فرصت شغلی</a></li>
             <li><a href="dashboard.html">رزومه‌ساز حرفه‌ای</a></li>
             <li><a href="courses.html">دوره‌های آموزشی</a></li>
+            <li><a href="exams.html">آزمون و گواهینامه</a></li>
+            <li><a href="services.html#interview">مصاحبه تخصصی و توصیه‌نامه</a></li>
+            <li><a href="services.html#advice">مشاوره شغلی</a></li>
             <li><a href="magazine.html">راهنمای مسیر شغلی</a></li>
           </ul>
         </div>
@@ -231,13 +245,19 @@ function renderFooter() {
             <li><a href="login.html?role=employer">ثبت آگهی استخدام</a></li>
             <li><a href="employer.html">جستجوی بانک رزومه</a></li>
             <li><a href="employer.html#pricing">تعرفه‌ها و اشتراک</a></li>
-            <li><a href="labs.html">برندینگ کارفرمایی</a></li>
+            <li><a href="services.html#matching">تطبیق هوشمند</a></li>
+            <li><a href="services.html#hiring">خدمات استخدام کامل</a></li>
+            <li><a href="services.html#branding">برند کارفرمایی</a></li>
+            <li><a href="advertise.html">تبلیغات و اسپانسری</a></li>
           </ul>
         </div>
         <div>
           <h4>آیولب</h4>
           <ul>
             <li><a href="faq.html">سؤالات پرتکرار</a></li>
+            <li><a href="services.html">خدمات آیولب</a></li>
+            <li><a href="pricing.html">تعرفه‌ها و اشتراک</a></li>
+            <li><a href="reports.html">گزارش بازار کار</a></li>
             <li><a href="ranking.html">رتبه‌بندی مراکز</a></li>
             <li><a href="magazine.html">در آزمایشگاه چه می‌گذرد؟</a></li>
             <li><a href="community.html">جامعه آزمایشگاهی</a></li>
@@ -437,6 +457,108 @@ function requireLogin(role) {
   const u = Auth.user;
   if (!u) { location.href = "login.html" + (role === "employer" ? "?role=employer" : ""); return null; }
   return u;
+}
+
+/* ==========================================
+   خدمات و مدل درآمدی — توابع مشترک
+   داده در assets/js/data.js (AIO_SERVICES / AIO_SERVICE_GROUPS)
+   ========================================== */
+
+/* قیمت تومان → متن فارسی. 0 = رایگان، null = توافقی */
+function priceText(s) {
+  if (s.price === 0)    return s.freeLabel || "رایگان";
+  if (s.price === null) return s.priceLabel || "استعلام قیمت";
+  return fa(s.price) + " تومان";
+}
+
+/* عدد بزرگ به شکل خواناتر: ۱٬۰۰۰٬۰۰۰ → ۱ میلیون */
+function priceShort(s) {
+  if (s.price === 0)    return s.freeLabel || "رایگان";
+  if (s.price === null) return s.priceLabel || "استعلام قیمت";
+  if (s.price >= 1000000) {
+    const m = s.price / 1000000;
+    return (Number.isInteger(m) ? fa(m) : fa(+m.toFixed(1))) + " میلیون تومان";
+  }
+  return fa(s.price) + " تومان";
+}
+
+const service      = code => AIO_SERVICES.find(s => s.code === code);
+const servicesOf   = groupId => AIO_SERVICES.filter(s => s.group === groupId);
+const servicesFor  = payerId => AIO_SERVICES.filter(s => s.payer === payerId);
+const groupsFor    = payerId => AIO_SERVICE_GROUPS.filter(g => g.payer === payerId);
+const serviceGroup = id => AIO_SERVICE_GROUPS.find(g => g.id === id);
+const payerMeta    = id => AIO_PAYERS.find(p => p.id === id);
+const payModelName = id => { const m = AIO_PAY_MODELS.find(x => x.id === id); return m ? m.name : "—"; };
+
+/* کارت سرویس — استفاده مشترک در صفحه تعرفه، خدمات، پنل‌ها */
+function serviceCardHTML(s, opts) {
+  opts = opts || {};
+  const g = serviceGroup(s.group) || {};
+  const free = s.price === 0;
+  return `
+    <div class="svc-card ${s.highlight ? "featured" : ""} ${free ? "is-free" : ""}" id="svc-${s.code}">
+      ${s.highlight ? '<span class="svc-badge">پیشنهاد آیولب</span>' : ""}
+      <div class="svc-head">
+        <span class="svc-ic" style="background:${g.bg};color:${g.color}">${ICONS[g.icon] || ICONS.flask}</span>
+        <div class="svc-ttl">
+          <h3>${s.title}</h3>
+          <span class="svc-stream">${s.stream}</span>
+        </div>
+        ${opts.showCode !== false ? `<span class="svc-code">${s.code}</span>` : ""}
+      </div>
+      <p class="svc-desc">${s.desc}</p>
+      <ul class="svc-feats">${(s.features || []).map(f => `<li>${f}</li>`).join("")}</ul>
+      <div class="svc-price ${free ? "free" : ""}">
+        <b>${priceShort(s)}</b>
+        ${s.price ? `<span class="svc-unit">${s.unit}</span>` : ""}
+      </div>
+      <div class="svc-meta">
+        <span class="chip sm">${payModelName(s.model)}</span>
+        <span class="chip sm">${s.priceModel}</span>
+        ${s.limited ? '<span class="chip sm warn">ظرفیت محدود</span>' : ""}
+      </div>
+      ${s.note ? `<p class="svc-note">${s.note}</p>` : ""}
+      <button class="btn ${s.highlight ? "btn-primary" : "btn-outline"} btn-block"
+              onclick="orderService('${s.code}')">${opts.cta || (free ? "فعال‌سازی" : "سفارش این خدمت")}</button>
+    </div>`;
+}
+
+/* ردیف فشرده — برای جدول‌ها و پنل‌ها */
+function serviceRowHTML(s) {
+  return `
+    <tr>
+      <td><span class="svc-code sm">${s.code}</span></td>
+      <td><b>${s.title}</b><br><small class="muted">${s.desc}</small></td>
+      <td>${payModelName(s.model)}</td>
+      <td>${s.priceModel}</td>
+      <td class="ta-c"><b class="${s.price === 0 ? "free-txt" : ""}">${priceShort(s)}</b></td>
+      <td><button class="btn btn-sm btn-outline" onclick="orderService('${s.code}')">سفارش</button></td>
+    </tr>`;
+}
+
+/* سفارش خدمت — دمو: در localStorage ثبت و توست نمایش داده می‌شود */
+const MyOrders = {
+  all: () => Store.get("orders", []),
+  add: o => Store.push("orders", o),
+  remove(i) { const a = MyOrders.all(); a.splice(i, 1); Store.set("orders", a); }
+};
+
+function orderService(code) {
+  const s = service(code);
+  if (!s) return;
+  if (!Auth.user) {
+    toast("برای سفارش این خدمت ابتدا وارد شوید");
+    const role = s.payer === "lab" ? "?role=employer" : (s.payer === "supplier" ? "?role=supplier" : "");
+    setTimeout(() => location.href = "login.html" + role, 1200);
+    return;
+  }
+  MyOrders.add({ code: s.code, title: s.title, price: s.price, unit: s.unit, date: "امروز", status: "pending" });
+  toast(s.price === 0
+    ? `«${s.title}» فعال شد ✓`
+    : `«${s.title}» به سفارش‌های شما افزوده شد ✓ (پرداخت در نسخه متصل به درگاه)`);
+  // اگر صفحه فهرست سفارش‌ها را نشان می‌دهد، بلافاصله تازه شود
+  if (typeof renderEmployerOrders === "function") renderEmployerOrders();
+  if (typeof renderSeekerOrders   === "function") renderSeekerOrders();
 }
 
 /* ---------- Page bootstrap ---------- */

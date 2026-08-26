@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>خدمات آیولب | سرویس‌های کارجو، آزمایشگاه و تأمین‌کننده</title>
+<meta name="description" content="همه خدمات آیولب در یک نگاه: درج آگهی، تطبیق هوشمند، برند کارفرمایی، استخدام کامل، رزومه‌ساز هوشمند، آزمون و گواهینامه، مصاحبه تخصصی، مشاوره شغلی، گزارش بازار کار و تبلیغات.">
+<meta name="theme-color" content="#0d9488">
+<link rel="canonical" href="https://aiolab.ir/services.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="خدمات آیولب | سرویس‌های کارجو، آزمایشگاه و تأمین‌کننده">
+<meta property="og:description" content="همه خدمات آیولب در یک نگاه، با قیمت شفاف: از درج آگهی و تطبیق هوشمند تا آزمون، مصاحبه تخصصی و گزارش بازار کار.">
+<meta property="og:url" content="https://aiolab.ir/services.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3Cpath d='M20 12v8.5L13.5 32a4 4 0 0 0 3.5 6h14a4 4 0 0 0 3.5-6L28 20.5V12' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="services.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / خدمات آیولب</div>
+    <h1 data-i18n="svc.title">خدمات آیولب</h1>
+    <p data-i18n="svc.sub">همه سرویس‌های آیولب برای کارجو، آزمایشگاه و تأمین‌کننده — با قیمت شفاف.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+
+    <!-- انتخاب نوع مشتری -->
+    <div class="payer-tabs" id="payer-tabs"></div>
+
+    <!-- خلاصه آماری -->
+    <div class="stats-strip" id="svc-stats" style="margin-bottom:34px"></div>
+
+    <!-- گروه‌های خدمات -->
+    <div id="svc-groups"></div>
+
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section alt">
+  <div class="container">
+    <div class="cta-band">
+      <div>
+        <h2>مطمئن نیستید کدام خدمت مناسب شماست؟</h2>
+        <p>کارشناسان آیولب بر اساس نیاز و اندازه مجموعه شما بهترین ترکیب خدمات را پیشنهاد می‌دهند.</p>
+      </div>
+      <a href="pricing.html" class="btn btn-lg">جدول کامل تعرفه‌ها</a>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+let activePayer = "all";
+
+document.addEventListener("DOMContentLoaded", () => {
+  // اگر از لینک فوتر با #group آمده، همان گروه هدف قرار می‌گیرد
+  const hash = location.hash.slice(1);
+  const g = hash ? serviceGroup(hash) : null;
+  if (g) activePayer = g.payer;
+
+  renderTabs();
+  renderStats();
+  renderGroups();
+
+  if (g) setTimeout(() => document.getElementById("g-" + g.id)?.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
+});
+
+function renderTabs() {
+  const tabs = [{ id: "all", short: "همه خدمات", icon: "flask" }].concat(AIO_PAYERS);
+  document.getElementById("payer-tabs").innerHTML = tabs.map(p => {
+    const n = p.id === "all" ? AIO_SERVICES.length : servicesFor(p.id).length;
+    return `<button class="payer-tab ${p.id === activePayer ? "on" : ""}" onclick="setPayer('${p.id}')">
+      ${ICONS[p.icon] || ICONS.flask}
+      <span>${p.short || p.name}</span>
+      <span class="cnt">(${fa(n)})</span>
+    </button>`;
+  }).join("");
+}
+
+function setPayer(id) {
+  activePayer = id;
+  renderTabs(); renderStats(); renderGroups();
+  document.getElementById("svc-groups").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function visibleServices() {
+  return activePayer === "all" ? AIO_SERVICES : servicesFor(activePayer);
+}
+
+function renderStats() {
+  const list = visibleServices();
+  const priced = list.filter(s => s.price);
+  const min = priced.length ? Math.min(...priced.map(s => s.price)) : 0;
+  const free = list.filter(s => s.price === 0).length;
+  const items = [
+    { ic: "briefcase", n: fa(list.length), t: "خدمت قابل ارائه" },
+    { ic: "chart",     n: fa(new Set(list.map(s => s.group)).size), t: "جریان درآمدی" },
+    { ic: "shield",    n: free ? fa(free) : "—", t: "خدمت رایگان" },
+    { ic: "clock",     n: priced.length ? priceShort({ price: min }) : "—", t: "شروع قیمت از" }
+  ];
+  const tint = [["#ccfbf1","#0f766e"],["#e0f2fe","#0369a1"],["#ede9fe","#6d28d9"],["#fef3c7","#92400e"]];
+  document.getElementById("svc-stats").innerHTML = items.map((s, i) => `
+    <div class="stat-card">
+      <div class="ic" style="background:${tint[i][0]};color:${tint[i][1]}">${ICONS[s.ic]}</div>
+      <div><b>${s.n}</b><span>${s.t}</span></div>
+    </div>`).join("");
+}
+
+function renderGroups() {
+  const groups = AIO_SERVICE_GROUPS.filter(g => activePayer === "all" || g.payer === activePayer);
+  document.getElementById("svc-groups").innerHTML = groups.map(g => {
+    const list = servicesOf(g.id);
+    if (!list.length) return "";
+    const p = payerMeta(g.payer);
+    return `
+      <div class="svc-group" id="g-${g.id}">
+        <div class="svc-group-head">
+          <span class="gh-ic" style="background:${g.bg};color:${g.color}">${ICONS[g.icon] || ICONS.flask}</span>
+          <div>
+            <h2>${g.name} <span class="chip sm">${p ? p.name : ""}</span></h2>
+            <p>${g.desc}</p>
+          </div>
+        </div>
+        <div class="svc-grid">${list.map(s => serviceCardHTML(s)).join("")}</div>
+      </div>`;
+  }).join("");
+}
+</script>
+</body>
+</html>

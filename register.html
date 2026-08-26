@@ -4,14 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ثبت‌نام | آیولب</title>
-<meta name="description" content="ثبت‌نام رایگان در آیولب به‌عنوان کارجو، داوطلب یا کارفرما و شروع مسیر شغلی در حوزه آزمایشگاه.">
+<meta name="description" content="ثبت‌نام رایگان در آیولب به‌عنوان کارجو، داوطلب، کارفرما یا تأمین‌کننده و شروع مسیر شغلی در حوزه آزمایشگاه.">
 <meta name="theme-color" content="#0d9488">
 <link rel="canonical" href="https://aiolab.ir/register.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="آیولب">
 <meta property="og:locale" content="fa_IR">
 <meta property="og:title" content="ثبت‌نام | آیولب">
-<meta property="og:description" content="ثبت‌نام رایگان در آیولب به‌عنوان کارجو، داوطلب یا کارفرما و شروع مسیر شغلی در حوزه آزمایشگاه.">
+<meta property="og:description" content="ثبت‌نام رایگان در آیولب به‌عنوان کارجو، داوطلب، کارفرما یا تأمین‌کننده و شروع مسیر شغلی در حوزه آزمایشگاه.">
 <meta property="og:url" content="https://aiolab.ir/register.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
@@ -31,10 +31,11 @@
         🧪 <b>حالت دمو:</b> اطلاعات شما جایی ذخیره نمی‌شود؛ فقط برای نمایش پروتوتایپ است.
       </div>
 
-      <div class="role-switch three">
+      <div class="role-switch four">
         <button type="button" id="rb-seeker" class="active" onclick="setRole('seeker')">👤 کارجو</button>
         <button type="button" id="rb-volunteer" onclick="setRole('volunteer')">🎓 داوطلب</button>
         <button type="button" id="rb-employer" onclick="setRole('employer')">🏥 کارفرما</button>
+        <button type="button" id="rb-supplier" onclick="setRole('supplier')">🔬 تأمین‌کننده</button>
       </div>
       <div class="role-hint" id="role-hint">پرسنل آزمایشگاه که سابقه کاری دارد و دنبال موقعیت جدید است.</div>
 
@@ -109,24 +110,28 @@ let role = "seeker";
 const HINTS = {
   seeker: "پرسنل آزمایشگاه که سابقه کاری دارد و دنبال موقعیت جدید است.",
   volunteer: "دانشجو، تازه‌فارغ‌التحصیل یا کسی که می‌خواهد تازه وارد بازار کار آزمایشگاه شود. مسیر شما با کارآموزی، آزمون مهارت و خودارزیابی شروع می‌شود.",
-  employer: "آزمایشگاه، بیمارستان، مرکز پژوهشی، تولیدکننده یا توزیع‌کننده تجهیزات که نیرو جذب می‌کند."
+  employer: "آزمایشگاه، بیمارستان، مرکز پژوهشی، تولیدکننده یا توزیع‌کننده تجهیزات که نیرو جذب می‌کند.",
+  supplier: "تأمین‌کننده تجهیزات، مواد مصرفی، کیت یا خدمات آزمایشگاهی که می‌خواهد محصول خود را به جامعه آزمایشگاهی معرفی کند."
 };
 
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("prov").innerHTML = `<option value="">استان خود را انتخاب کنید</option>` +
     AIO_PROVINCES.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
   const r = qs("role");
-  if (r === "employer" || r === "volunteer") setRole(r);
+  if (r === "employer" || r === "volunteer" || r === "supplier") setRole(r);
 });
 
 function setRole(r) {
   role = r;
-  ["seeker", "volunteer", "employer"].forEach(x =>
+  ["seeker", "volunteer", "employer", "supplier"].forEach(x =>
     document.getElementById("rb-" + x).classList.toggle("active", x === r));
+  const org = r === "employer" || r === "supplier";
   document.getElementById("role-hint").textContent = HINTS[r];
-  document.getElementById("name-label").textContent = r === "employer" ? "نام مرکز / آزمایشگاه" : "نام و نام خانوادگی";
-  document.getElementById("name").placeholder = r === "employer" ? "مثلاً: آزمایشگاه نور" : "مثلاً: علی رضایی";
-  document.getElementById("f-field").style.display = r === "employer" ? "block" : "none";
+  document.getElementById("name-label").textContent = org
+    ? (r === "supplier" ? "نام شرکت" : "نام مرکز / آزمایشگاه") : "نام و نام خانوادگی";
+  document.getElementById("name").placeholder = org
+    ? (r === "supplier" ? "مثلاً: شرکت زیست‌تجهیز" : "مثلاً: آزمایشگاه نور") : "مثلاً: علی رضایی";
+  document.getElementById("f-field").style.display = org ? "block" : "none";
   document.getElementById("f-vol").style.display = r === "volunteer" ? "block" : "none";
 }
 
@@ -135,7 +140,8 @@ function doRegister(e) {
   const name = document.getElementById("name").value.trim() || "کاربر آیولب";
   Auth.login(name, role === "employer" ? "employer" : role);
   if (role === "volunteer") Store.set("volunteer_status", document.getElementById("vol-status").value);
-  location.href = role === "employer" ? "employer.html" : "dashboard.html";
+  location.href = role === "employer" ? "employer.html"
+    : (role === "supplier" ? "advertise.html" : "dashboard.html");
 }
 </script>
 </body>

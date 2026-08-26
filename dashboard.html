@@ -39,6 +39,9 @@
       <a href="#certs" data-sec="certs"></a>
       <a href="#saved" data-sec="saved"></a>
       <a href="#career" data-sec="career"></a>
+      <a href="#services" data-sec="services"></a>
+      <a href="#subscription" data-sec="subscription"></a>
+      <a href="#orders" data-sec="orders"></a>
       <a href="#notifications" data-sec="notifications"></a>
       <button class="danger" onclick="Auth.logout()"></button>
     </nav>
@@ -219,6 +222,34 @@
       </div>
     </section>
 
+    <!-- ===== خدمات ویژه کارجو (R13, R14, R15..R20) ===== -->
+    <section id="sec-services">
+      <h1 class="dash-title">خدمات ویژه من</h1>
+      <div class="panel" style="margin-bottom:18px">
+        <p>خدماتی که شانس استخدام شما را بالا می‌برند: از رزومه هوشمند و آزمون گواهی‌دار
+           تا مصاحبه تخصصی و مشاوره مسیر شغلی.</p>
+      </div>
+      <div id="seeker-services"></div>
+    </section>
+
+    <!-- ===== اشتراک کارجو (R29, R30) ===== -->
+    <section id="sec-subscription">
+      <h1 class="dash-title">اشتراک من</h1>
+      <div class="panel" style="margin-bottom:18px">
+        <p>با اشتراک سالانه، رزومه‌ساز هوشمند رایگان می‌شود و روی آزمون‌ها و دوره‌های آموزشی
+           تخفیف می‌گیرید. <a href="pricing.html">مقایسه کامل اشتراک‌ها ←</a></p>
+      </div>
+      <div class="plan-compare" id="seeker-plans"></div>
+    </section>
+
+    <!-- ===== سفارش‌های من ===== -->
+    <section id="sec-orders">
+      <h1 class="dash-title">سفارش‌های من</h1>
+      <div class="panel">
+        <div id="seeker-orders"></div>
+      </div>
+    </section>
+
     <!-- ===== Notifications ===== -->
     <section id="sec-notifications">
       <h1 class="dash-title">اعلان‌ها</h1>
@@ -245,6 +276,9 @@ const NAV_ITEMS = [
   ["certs", "گواهی و خودارزیابی", "grad"],
   ["saved", "آگهی‌های ذخیره‌شده", "bookmark"],
   ["career", "مسیر ارتقاء شغلی", "path"],
+  ["services", "خدمات ویژه من", "briefcase"],
+  ["subscription", "اشتراک من", "shield"],
+  ["orders", "سفارش‌های من", "bookmark"],
   ["notifications", "اعلان‌ها", "bell"]
 ];
 let skills = ["کار با سل‌کانتر Sysmex", "لام محیطی", "کنترل کیفیت داخلی", "نمونه‌گیری وریدی", "آشنایی با LIS"];
@@ -279,6 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initOnboard();
   initAlerts();
   initCerts();
+  initSeekerServices();
 
   document.getElementById("notifs").innerHTML = [
     ["🎉", "شما به مصاحبه «کارشناس هماتولوژی» در آزمایشگاه نور دعوت شدید.", "۲ ساعت پیش"],
@@ -292,6 +327,55 @@ document.addEventListener("DOMContentLoaded", () => {
       <div style="flex:1"><div style="font-size:14px;color:var(--navy-800)">${txt}</div><div style="font-size:12px;color:var(--navy-400);margin-top:3px">${t}</div></div>
     </div>`).join("");
 });
+
+/* ---------- خدمات کارجو (از مدل درآمدی) ---------- */
+function initSeekerServices() {
+  // گروه‌های خدمات کارجو، بدون اشتراک‌ها (که بخش جدا دارند)
+  const groups = groupsFor("seeker");
+  document.getElementById("seeker-services").innerHTML = groups.map(g => {
+    const list = servicesOf(g.id);
+    if (!list.length) return "";
+    return `
+      <div class="svc-group" id="sg-${g.id}">
+        <div class="svc-group-head">
+          <span class="gh-ic" style="background:${g.bg};color:${g.color}">${ICONS[g.icon] || ICONS.flask}</span>
+          <div><h2>${g.name}</h2><p>${g.desc}</p></div>
+        </div>
+        <div class="svc-grid">${list.map(x => serviceCardHTML(x)).join("")}</div>
+      </div>`;
+  }).join("");
+
+  document.getElementById("seeker-plans").innerHTML =
+    AIO_SERVICES.filter(x => x.plan && x.payer === "seeker").map(x => `
+      <div class="price-card ${x.highlight ? "featured" : ""}">
+        ${x.highlight ? '<span class="plan-badge">پیشنهاد آیولب</span>' : ""}
+        <h3>${x.title.replace("اشتراک سالانه ", "")}</h3>
+        <div class="price">${fa(x.price)}</div>
+        <div class="per">تومان / سالانه</div>
+        <ul>${x.features.map(f => `<li>${f}</li>`).join("")}</ul>
+        <button class="btn ${x.highlight ? "btn-primary" : "btn-outline"} btn-block"
+                onclick="orderService('${x.code}')">انتخاب این اشتراک</button>
+      </div>`).join("");
+
+  renderSeekerOrders();
+}
+
+function renderSeekerOrders() {
+  const box = document.getElementById("seeker-orders");
+  if (!box) return;
+  const list = MyOrders.all();
+  box.innerHTML = list.length ? list.map((o, i) => `
+    <div class="order-item">
+      <span class="oi-code">${o.code}</span>
+      <div class="oi-body"><b>${o.title}</b><small>${o.unit} · ثبت: ${o.date}</small></div>
+      <span class="oi-price">${o.price === 0 ? "رایگان" : fa(o.price) + " تومان"}</span>
+      <button class="btn btn-sm btn-ghost" onclick="cancelOrder(${i})">حذف</button>
+    </div>`).join("")
+    : `<p class="muted">هنوز سفارشی ثبت نکرده‌اید. از بخش
+       <a href="#services" onclick="showSec('services')">خدمات ویژه من</a> شروع کنید.</p>`;
+}
+
+function cancelOrder(i) { MyOrders.remove(i); renderSeekerOrders(); toast("سفارش حذف شد"); }
 
 function showSec(sec) {
   document.querySelectorAll(".dash-main > section").forEach(s => s.classList.remove("active"));

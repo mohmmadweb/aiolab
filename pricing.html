@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تعرفه‌ها و اشتراک‌ها | آیولب</title>
+<meta name="description" content="جدول کامل تعرفه خدمات آیولب: آگهی استخدام، تطبیق هوشمند، برند کارفرمایی، استخدام کامل، رزومه‌ساز، آزمون، مصاحبه تخصصی، مشاوره شغلی، تبلیغات، گزارش بازار کار و اشتراک‌های سالانه.">
+<meta name="theme-color" content="#0d9488">
+<link rel="canonical" href="https://aiolab.ir/pricing.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="تعرفه‌ها و اشتراک‌ها | آیولب">
+<meta property="og:description" content="قیمت شفاف تک‌تک خدمات آیولب و بسته‌های اشتراک سالانه آزمایشگاه و کارجو.">
+<meta property="og:url" content="https://aiolab.ir/pricing.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3Cpath d='M20 12v8.5L13.5 32a4 4 0 0 0 3.5 6h14a4 4 0 0 0 3.5-6L28 20.5V12' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="pricing.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / تعرفه‌ها</div>
+    <h1 data-i18n="price.title">تعرفه‌ها و اشتراک‌ها</h1>
+    <p>قیمت همه خدمات آیولب شفاف اعلام می‌شود. می‌توانید تک‌سرویس بخرید یا با اشتراک سالانه هزینه کمتری بپردازید.</p>
+  </div>
+</div>
+
+<!-- ============ اشتراک‌های سالانه ============ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2>اشتراک‌های سالانه</h2>
+      <p>بسته‌های ترکیبی با صرفه اقتصادی بیشتر نسبت به خرید تک‌سرویس</p>
+    </div>
+
+    <h3 class="sub-head">ویژه آزمایشگاه‌ها</h3>
+    <div class="plan-compare" id="plans-lab" style="margin-bottom:34px"></div>
+
+    <h3 class="sub-head">ویژه کارجویان</h3>
+    <div class="plan-compare" id="plans-seeker"></div>
+  </div>
+</section>
+
+<!-- ============ جدول کامل تعرفه ============ -->
+<section class="section alt">
+  <div class="container">
+    <div class="section-head">
+      <h2>جدول کامل تعرفه خدمات</h2>
+      <p>همه سرویس‌های آیولب به تفکیک نوع مشتری</p>
+    </div>
+
+    <div class="payer-tabs" id="payer-tabs"></div>
+    <div id="price-tables"></div>
+
+    <p class="svc-note" style="margin-top:20px;text-align:center">
+      قیمت‌ها به تومان و مربوط به سال جاری است. برای بسته‌های سازمانی و سفارشی با کارشناسان آیولب تماس بگیرید.
+    </p>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="section">
+  <div class="container">
+    <div class="cta-band">
+      <div>
+        <h2>بسته سفارشی می‌خواهید؟</h2>
+        <p>برای بیمارستان‌ها، مجموعه‌های زنجیره‌ای و همکاری‌های بلندمدت، بسته اختصاصی طراحی می‌کنیم.</p>
+      </div>
+      <button class="btn btn-lg" onclick="toast('کارشناسان ما با شما تماس می‌گیرند (دمو)')">درخواست بسته سازمانی</button>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+let activePayer = "all";
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderPlans();
+  renderTabs();
+  renderTables();
+});
+
+/* اشتراک‌های سالانه — R27..R30 */
+function planCardHTML(s) {
+  return `
+    <div class="price-card ${s.highlight ? "featured" : ""}">
+      ${s.highlight ? '<span class="plan-badge">پیشنهاد آیولب</span>' : ""}
+      <h3>${s.title.replace("اشتراک سالانه ", "")}</h3>
+      <div class="price">${fa(s.price)}</div>
+      <div class="per">تومان / سالانه</div>
+      <ul>${s.features.map(f => `<li>${f}</li>`).join("")}</ul>
+      <button class="btn ${s.highlight ? "btn-primary" : "btn-outline"} btn-block"
+              onclick="orderService('${s.code}')">انتخاب این اشتراک</button>
+    </div>`;
+}
+
+function renderPlans() {
+  const plans = AIO_SERVICES.filter(s => s.plan);
+  document.getElementById("plans-lab").innerHTML =
+    plans.filter(s => s.payer === "lab").map(planCardHTML).join("");
+  document.getElementById("plans-seeker").innerHTML =
+    plans.filter(s => s.payer === "seeker").map(planCardHTML).join("");
+}
+
+function renderTabs() {
+  const tabs = [{ id: "all", short: "همه", icon: "flask" }].concat(AIO_PAYERS);
+  document.getElementById("payer-tabs").innerHTML = tabs.map(p => {
+    const n = p.id === "all" ? AIO_SERVICES.length : servicesFor(p.id).length;
+    return `<button class="payer-tab ${p.id === activePayer ? "on" : ""}" onclick="setPayer('${p.id}')">
+      ${ICONS[p.icon] || ICONS.flask}<span>${p.short || p.name}</span><span class="cnt">(${fa(n)})</span>
+    </button>`;
+  }).join("");
+}
+
+function setPayer(id) { activePayer = id; renderTabs(); renderTables(); }
+
+/* جدول‌ها به تفکیک جریان درآمد */
+function renderTables() {
+  const groups = AIO_SERVICE_GROUPS.filter(g => activePayer === "all" || g.payer === activePayer);
+  document.getElementById("price-tables").innerHTML = groups.map(g => {
+    const list = servicesOf(g.id);
+    if (!list.length) return "";
+    const p = payerMeta(g.payer);
+    return `
+      <div class="svc-group" id="g-${g.id}">
+        <div class="svc-group-head">
+          <span class="gh-ic" style="background:${g.bg};color:${g.color}">${ICONS[g.icon] || ICONS.flask}</span>
+          <div>
+            <h2>${g.name} <span class="chip sm">${p ? p.name : ""}</span></h2>
+            <p>${g.desc}</p>
+          </div>
+        </div>
+        <div class="price-table-wrap">
+          <table class="price-table">
+            <thead><tr>
+              <th>کد</th><th>خدمت</th><th>مدل پرداخت</th><th>شرح قیمت‌گذاری</th><th class="ta-c">قیمت</th><th></th>
+            </tr></thead>
+            <tbody>${list.map(serviceRowHTML).join("")}</tbody>
+          </table>
+        </div>
+      </div>`;
+  }).join("");
+}
+</script>
+</body>
+</html>

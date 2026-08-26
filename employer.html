@@ -38,6 +38,11 @@
       <a href="#applicants" data-sec="applicants"></a>
       <a href="#resumes" data-sec="resumes"></a>
       <a href="#exambuilder" data-sec="exambuilder"></a>
+      <a href="#matching" data-sec="matching"></a>
+      <a href="#branding" data-sec="branding"></a>
+      <a href="#hiring" data-sec="hiring"></a>
+      <a href="#reports" data-sec="reports"></a>
+      <a href="#orders" data-sec="orders"></a>
       <a href="#pricing" data-sec="pricing"></a>
       <button class="danger" onclick="Auth.logout()"></button>
     </nav>
@@ -281,6 +286,54 @@
     </section>
 
     <!-- ===== Pricing ===== -->
+    <!-- ===== تطبیق هوشمند (R5, R6) ===== -->
+    <section id="sec-matching">
+      <h1 class="dash-title">تطبیق هوشمند</h1>
+      <div class="panel" style="margin-bottom:18px">
+        <p>موتور تطبیق آیولب نیازمندی‌های آگهی شما را با رزومه کارجویان می‌سنجد و منطبق‌ترین گزینه‌ها را
+           همراه با درصد تطبیق و رزومه کامل به شما نشان می‌دهد.</p>
+      </div>
+      <div class="svc-grid" id="emp-matching"></div>
+    </section>
+
+    <!-- ===== برند کارفرمایی (R7, R8) ===== -->
+    <section id="sec-branding">
+      <h1 class="dash-title">برند کارفرمایی</h1>
+      <div class="panel" style="margin-bottom:18px">
+        <p>صفحه اختصاصی آزمایشگاه شما با فرهنگ سازمانی، مزایا، تصاویر و ویدئو — تا کارجو پیش از ارسال رزومه،
+           مجموعه شما را بشناسد و انگیزه بیشتری برای همکاری داشته باشد.</p>
+      </div>
+      <div class="svc-grid" id="emp-branding"></div>
+    </section>
+
+    <!-- ===== خدمات استخدام کامل (R9, R10, R11) ===== -->
+    <section id="sec-hiring">
+      <h1 class="dash-title">خدمات استخدام کامل</h1>
+      <div class="panel" style="margin-bottom:18px">
+        <p>غربالگری تخصصی، مصاحبه اولیه و معرفی نیروی نهایی را به آیولب بسپارید.
+           <b>پرداخت فقط در صورت استخدام موفق</b> انجام می‌شود.</p>
+      </div>
+      <div class="svc-grid" id="emp-hiring"></div>
+    </section>
+
+    <!-- ===== گزارش بازار کار (R25, R26) ===== -->
+    <section id="sec-reports">
+      <h1 class="dash-title">گزارش تحلیلی بازار کار</h1>
+      <div class="panel" style="margin-bottom:18px">
+        <p>حقوق پیشنهادی خود را با بازار بسنجید و از عرضه و تقاضای هر تخصص باخبر باشید.
+           <a href="reports.html">مشاهده جزئیات گزارش‌ها ←</a></p>
+      </div>
+      <div class="svc-grid" id="emp-reports"></div>
+    </section>
+
+    <!-- ===== سفارش‌های من ===== -->
+    <section id="sec-orders">
+      <h1 class="dash-title">سفارش‌های من</h1>
+      <div class="panel">
+        <div id="emp-orders"></div>
+      </div>
+    </section>
+
     <section id="sec-pricing">
       <h1 class="dash-title">تعرفه‌ها و اشتراک</h1>
       <div class="pricing-grid">
@@ -344,6 +397,11 @@ const NAV_ITEMS = [
   ["applicants", "متقاضیان", "users"],
   ["resumes", "بانک رزومه", "search"],
   ["exambuilder", "طراحی آزمون و گواهی", "grad"],
+  ["matching", "تطبیق هوشمند", "path"],
+  ["branding", "برند کارفرمایی", "shield"],
+  ["hiring", "خدمات استخدام کامل", "users"],
+  ["reports", "گزارش بازار کار", "doc"],
+  ["orders", "سفارش‌های من", "bookmark"],
   ["pricing", "تعرفه و اشتراک", "chart"]
 ];
 
@@ -371,6 +429,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initAddLab();
   initResumeBank();
   initExamBuilder();
+  initEmployerServices();
 
   // my jobs
   document.getElementById("jobs-body").innerHTML = AIO_EMPLOYER_JOBS.map(j => `
@@ -420,6 +479,38 @@ document.addEventListener("DOMContentLoaded", () => {
       <td><button class="btn btn-sm btn-outline" onclick="toast('مشاهده رزومه کامل — از اعتبار پلن شما کسر می‌شود (دمو)')">مشاهده رزومه</button></td>
     </tr>`).join("");
 });
+
+/* ---------- خدمات کارفرما (از مدل درآمدی) ---------- */
+function initEmployerServices() {
+  document.getElementById("emp-matching").innerHTML =
+    servicesOf("matching").map(x => serviceCardHTML(x)).join("");
+  document.getElementById("emp-branding").innerHTML =
+    servicesOf("branding").map(x => serviceCardHTML(x)).join("");
+  document.getElementById("emp-hiring").innerHTML =
+    servicesOf("hiring").map(x => serviceCardHTML(x)).join("");
+  document.getElementById("emp-reports").innerHTML =
+    servicesOf("report").map(x => serviceCardHTML(x, { cta: "دریافت گزارش" })).join("");
+  renderEmployerOrders();
+}
+
+function renderEmployerOrders() {
+  const box = document.getElementById("emp-orders");
+  if (!box) return;
+  const list = MyOrders.all();
+  box.innerHTML = list.length ? list.map((o, i) => `
+    <div class="order-item">
+      <span class="oi-code">${o.code}</span>
+      <div class="oi-body"><b>${o.title}</b><small>${o.unit} · ثبت: ${o.date}</small></div>
+      <span class="oi-price">${o.price === 0 ? "رایگان" : fa(o.price) + " تومان"}</span>
+      <button class="btn btn-sm btn-ghost" onclick="cancelOrder(${i})">حذف</button>
+    </div>`).join("")
+    : `<p class="muted">هنوز سفارشی ثبت نکرده‌اید. از بخش‌های
+       <a href="#matching" onclick="showSec('matching')">تطبیق هوشمند</a>،
+       <a href="#branding" onclick="showSec('branding')">برند کارفرمایی</a> یا
+       <a href="#hiring" onclick="showSec('hiring')">استخدام کامل</a> شروع کنید.</p>`;
+}
+
+function cancelOrder(i) { MyOrders.remove(i); renderEmployerOrders(); toast("سفارش حذف شد"); }
 
 function showSec(sec) {
   document.querySelectorAll(".dash-main > section").forEach(s => s.classList.remove("active"));

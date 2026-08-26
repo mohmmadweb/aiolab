@@ -65,6 +65,17 @@
   </div>
 </section>
 
+<!-- تعرفه دوره و مشاوره شغلی (R18، R19، R20) -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2>دوره‌ها و مشاوره شغلی</h2>
+      <p>دوره تخصصی با گواهی مشترک دانشگاهی، و مشاوره مسیر شغلی توسط دستیار هوشمند یا کارشناس</p>
+    </div>
+    <div class="svc-grid" id="course-services"></div>
+  </div>
+</section>
+
 <footer id="site-footer" class="site-footer"></footer>
 
 <script src="assets/js/geo.js"></script>
@@ -73,6 +84,9 @@
 <script src="assets/js/app.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("course-services").innerHTML =
+    servicesOf("course").concat(servicesOf("advice")).map(x => serviceCardHTML(x)).join("");
+
   document.getElementById("courses").innerHTML = AIO_COURSES.map(c => `
     <a class="content-card" href="#" onclick="toast('ثبت‌نام دوره در نسخه بعدی فعال می‌شود (دمو)');return false">
       <div class="thumb" style="background:${c.bg};color:${c.color}">${ICONS.grad}</div>

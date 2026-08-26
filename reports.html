@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>گزارش تحلیلی بازار کار آزمایشگاه | آیولب</title>
+<meta name="description" content="گزارش‌های دوره‌ای آیولب از حقوق، عرضه و تقاضای تخصص‌ها و نرخ استخدام در آزمایشگاه‌ها و دانشگاه‌های ایران. خرید تکی یا اشتراک سالانه چهار گزارش فصلی.">
+<meta name="theme-color" content="#f59e0b">
+<link rel="canonical" href="https://aiolab.ir/reports.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="گزارش تحلیلی بازار کار آزمایشگاه | آیولب">
+<meta property="og:description" content="تحلیل حقوق، عرضه و تقاضای تخصص‌ها و نرخ استخدام در آزمایشگاه‌های ایران — گزارش تکی یا اشتراک سالانه.">
+<meta property="og:url" content="https://aiolab.ir/reports.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3Cpath d='M20 12v8.5L13.5 32a4 4 0 0 0 3.5 6h14a4 4 0 0 0 3.5-6L28 20.5V12' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="reports.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / گزارش بازار کار</div>
+    <h1>گزارش تحلیلی بازار کار آزمایشگاه</h1>
+    <p>داده واقعی حقوق، عرضه و تقاضای تخصص‌ها و نرخ استخدام — برای تصمیم‌گیری آگاهانه کارجو، آزمایشگاه و سرمایه‌گذار.</p>
+  </div>
+</div>
+
+<!-- ============ محتوای گزارش ============ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2>در هر گزارش چه می‌خوانید؟</h2>
+      <p>گزارش‌ها بر پایه داده آگهی‌ها، رزومه‌ها و نظرسنجی مراکز عضو آیولب تهیه می‌شوند</p>
+    </div>
+    <div class="steps-grid four" id="rep-topics"></div>
+  </div>
+</section>
+
+<!-- ============ نمونه داده ============ -->
+<section class="section alt">
+  <div class="container">
+    <div class="section-head">
+      <h2>نمونه‌ای از داده‌های گزارش</h2>
+      <p>میانگین حقوق مراکز عضو، بر اساس داده‌های ثبت‌شده در آیولب</p>
+    </div>
+    <div class="price-table-wrap">
+      <table class="price-table">
+        <thead><tr>
+          <th>مرکز</th><th>شهر</th><th>نوع مرکز</th>
+          <th class="ta-c">میانگین حقوق (میلیون تومان)</th><th class="ta-c">امتیاز کارکنان</th><th class="ta-c">آخرین به‌روزرسانی</th>
+        </tr></thead>
+        <tbody id="rep-sample"></tbody>
+      </table>
+    </div>
+    <p class="svc-note" style="margin-top:14px">
+      این جدول نمونه‌ای کوچک از داده‌های موجود در آیولب است؛ گزارش کامل شامل تفکیک تخصص، سابقه، شیفت و نوع قرارداد نیز می‌شود.
+    </p>
+  </div>
+</section>
+
+<!-- ============ خرید گزارش ============ -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <h2>دریافت گزارش</h2>
+      <p>گزارش تکی بخرید یا با اشتراک سالانه، هر چهار گزارش فصلی را دریافت کنید</p>
+    </div>
+    <div class="svc-grid" id="rep-plans"></div>
+  </div>
+</section>
+
+<!-- ============ مخاطب گزارش ============ -->
+<section class="section alt">
+  <div class="container">
+    <div class="section-head">
+      <h2>این گزارش به چه کسانی کمک می‌کند؟</h2>
+    </div>
+    <div class="report-grid" id="rep-audience"></div>
+  </div>
+</section>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // سرفصل‌ها
+  const topics = [
+    { t: "حقوق و دستمزد", d: "میانگین، کمینه و بیشینه حقوق به تفکیک تخصص، سابقه، شیفت و استان." },
+    { t: "عرضه و تقاضا",  d: "نسبت تعداد کارجو به فرصت شغلی در هر تخصص؛ کدام رشته اشباع است و کدام کمبود نیرو دارد." },
+    { t: "نرخ استخدام",   d: "میانگین زمان پرشدن هر آگهی و نرخ موفقیت جذب در آزمایشگاه‌ها و دانشگاه‌ها." },
+    { t: "روند مهارت‌ها", d: "مهارت‌ها و دستگاه‌هایی که تقاضا برایشان در حال رشد یا افول است." }
+  ];
+  document.getElementById("rep-topics").innerHTML = topics.map((x, i) => `
+    <div class="step-card">
+      <div class="num">${fa(i + 1)}</div>
+      <h3>${x.t}</h3>
+      <p>${x.d}</p>
+    </div>`).join("");
+
+  // نمونه داده — از داده واقعی مراکز
+  const rows = [...AIO_LABS].filter(l => l.avgSalary).sort((a, b) => b.avgSalary - a.avgSalary).slice(0, 8);
+  document.getElementById("rep-sample").innerHTML = rows.map(l => `
+    <tr>
+      <td><b>${l.name}</b></td>
+      <td>${l.city}</td>
+      <td>${l.type}</td>
+      <td class="ta-c"><b>${fa(l.avgSalary)}</b></td>
+      <td class="ta-c">${starsHTML(l.rating, "sm")} ${fa(l.rating)}</td>
+      <td class="ta-c">${l.avgSalaryUpdated || "—"}</td>
+    </tr>`).join("");
+
+  // گزارش‌ها — R25، R26
+  document.getElementById("rep-plans").innerHTML =
+    servicesOf("report").map(s => serviceCardHTML(s, { cta: "دریافت گزارش" })).join("");
+
+  // مخاطبان
+  const aud = [
+    { ic: "users",     t: "کارجویان",      d: "پیش از انتخاب رشته، تخصص یا مذاکره حقوق بدانید بازار واقعاً چه می‌گوید." },
+    { ic: "building",  t: "آزمایشگاه‌ها",  d: "حقوق پیشنهادی خود را با بازار بسنجید و برای جذب نیرو رقابتی بمانید." },
+    { ic: "grad",      t: "دانشگاه‌ها",    d: "ظرفیت پذیرش و سرفصل‌ها را با تقاضای واقعی بازار کار هماهنگ کنید." },
+    { ic: "machine",   t: "تأمین‌کنندگان", d: "رشد و افول هر تخصص را ببینید و بازار هدف محصولات خود را دقیق‌تر بشناسید." }
+  ];
+  document.getElementById("rep-audience").innerHTML = aud.map(a => `
+    <div class="report-card">
+      <div class="rc-ic">${ICONS[a.ic]}</div>
+      <h3>${a.t}</h3>
+      <p>${a.d}</p>
+    </div>`).join("");
+});
+</script>
+</body>
+</html>

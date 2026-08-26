@@ -31,9 +31,10 @@
         🧪 <b>حالت دمو:</b> این نسخه پروتوتایپ است و به سرور متصل نیست. با هر ایمیل و رمزی می‌توانید وارد شوید.
       </div>
 
-      <div class="role-switch">
-        <button type="button" id="rb-seeker" class="active" onclick="setRole('seeker')">👤 کارجو هستم</button>
-        <button type="button" id="rb-employer" onclick="setRole('employer')">🏥 کارفرما هستم</button>
+      <div class="role-switch three">
+        <button type="button" id="rb-seeker" class="active" onclick="setRole('seeker')">👤 کارجو</button>
+        <button type="button" id="rb-employer" onclick="setRole('employer')">🏥 کارفرما</button>
+        <button type="button" id="rb-supplier" onclick="setRole('supplier')">🔬 تأمین‌کننده</button>
       </div>
 
       <div class="form-field">
@@ -84,20 +85,26 @@
 <script>
 let role = "seeker";
 document.addEventListener("DOMContentLoaded", () => {
-  if (qs("role") === "employer") setRole("employer");
+  const r = qs("role");
+  if (r === "employer" || r === "supplier") setRole(r);
 });
 function setRole(r) {
   role = r;
-  document.getElementById("rb-seeker").classList.toggle("active", r === "seeker");
-  document.getElementById("rb-employer").classList.toggle("active", r === "employer");
-  document.getElementById("reg-link").href = "register.html" + (r === "employer" ? "?role=employer" : "");
+  ["seeker", "employer", "supplier"].forEach(x =>
+    document.getElementById("rb-" + x).classList.toggle("active", x === r));
+  document.getElementById("reg-link").href = "register.html" + (r === "seeker" ? "" : "?role=" + r);
 }
 function doLogin(e) {
   e.preventDefault();
   const email = document.getElementById("email").value.trim();
-  const name = role === "employer" ? "آزمایشگاه نور" : (email.split("@")[0] || "کاربر آیولب");
-  Auth.login(role === "employer" ? name : "علی رضایی", role === "employer" ? "employer" : "seeker");
-  location.href = role === "employer" ? "employer.html" : "dashboard.html";
+  const DEMO = {
+    employer: { name: "آزمایشگاه نور",       role: "employer", to: "employer.html" },
+    supplier: { name: "شرکت زیست‌تجهیز",     role: "supplier", to: "advertise.html" },
+    seeker:   { name: "علی رضایی",           role: "seeker",   to: "dashboard.html" }
+  };
+  const d = DEMO[role] || DEMO.seeker;
+  Auth.login(role === "seeker" ? d.name : (email.split("@")[0] || d.name), d.role);
+  location.href = d.to;
 }
 </script>
 </body>

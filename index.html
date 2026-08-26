@@ -331,6 +331,29 @@
   </div>
 </section>
 
+<!-- ================= SERVICES ================= -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>خدمات آیولب</h2>
+        <p>آیولب فقط تابلوی آگهی نیست؛ از رزومه تا استخدام و برندسازی، در هر گام کنار شماست</p>
+      </div>
+      <a class="more" href="services.html">همه خدمات ←</a>
+    </div>
+    <div class="cat-grid" id="home-services"></div>
+
+    <div class="ad-slot" style="margin-top:26px">
+      <span class="ad-tag">تأمین‌کننده</span>
+      <div class="ad-body">
+        <b>تجهیزات یا مواد مصرفی آزمایشگاهی عرضه می‌کنید؟</b>
+        <span>محصول خود را مستقیم به جامعه تخصصی آزمایشگاه‌های ایران معرفی کنید.</span>
+      </div>
+      <a href="advertise.html" class="btn btn-outline btn-sm">پکیج‌های تبلیغاتی</a>
+    </div>
+  </div>
+</section>
+
 <!-- ================= MAGAZINE ================= -->
 <section class="section">
   <div class="container">
@@ -448,6 +471,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // labs
   document.getElementById("home-labs").innerHTML = AIO_LABS.slice(0, 6).map(labCardHTML).join("");
+
+  // services — یک کارت برای هر جریان درآمد، به تفکیک مخاطب
+  document.getElementById("home-services").innerHTML = AIO_SERVICE_GROUPS.map(g => {
+    const n = servicesOf(g.id).length;
+    const p = payerMeta(g.payer);
+    return `<a class="cat-card" href="services.html#${g.id}">
+      <div class="ic" style="background:${g.bg};color:${g.color}">${ICONS[g.icon] || ICONS.flask}</div>
+      <b>${g.name}</b>
+      <span>${p ? p.short : ""} · ${fa(n)} خدمت</span>
+    </a>`;
+  }).join("");
 
   // articles
   document.getElementById("home-articles").innerHTML = AIO_ARTICLES.slice(0, 3).map(a => `
