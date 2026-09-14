@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دوره آموزشی | آکادمی آیولب</title>
+<meta name="description" content="جزئیات کامل دوره: دستاوردها، مهارت‌ها، سرفصل ماژولی، مدرس، ارائه‌دهنده، نظرات فراگیران و ثبت‌نام.">
+<meta name="theme-color" content="#0d9488">
+<link rel="canonical" href="https://aiolab.ir/course.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="دوره آموزشی | آکادمی آیولب">
+<meta property="og:description" content="جزئیات کامل دوره: دستاوردها، مهارت‌ها، سرفصل ماژولی، مدرس، ارائه‌دهنده، نظرات فراگیران و ثبت‌نام.">
+<meta property="og:url" content="https://aiolab.ir/course.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="courses.html">
+
+<header id="site-header" class="site-header"></header>
+
+<!-- ===== هیرو دوره ===== -->
+<div class="crs-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / <a href="courses.html">آکادمی</a> / <a id="bc-cat" href="courses.html">…</a> / <span id="bc-title">…</span></div>
+    <div id="c-prov"></div>
+    <h1 id="c-title">…</h1>
+    <p class="crs-sub" id="c-sub"></p>
+    <div class="crs-by" id="c-by"></div>
+    <div class="crs-stats" id="c-stats"></div>
+  </div>
+</div>
+
+<div class="container detail-layout">
+  <main>
+    <nav class="crs-tabs">
+      <a href="#about" class="on">درباره دوره</a><a href="#outcomes">دستاوردها</a><a href="#syllabus">سرفصل</a>
+      <a href="#instructors">مدرسان</a><a href="#reviews">نظرات</a><a href="#faq">سؤالات</a>
+    </nav>
+
+    <div class="panel" id="outcomes">
+      <h2>در این دوره چه چیزی یاد می‌گیرید؟</h2>
+      <ul class="outcomes" id="c-outcomes"></ul>
+      <h3>مهارت‌هایی که کسب می‌کنید</h3>
+      <div class="skill-chips" id="c-skills"></div>
+    </div>
+
+    <div class="panel" id="about">
+      <h2>جزئیات دوره</h2>
+      <div class="details-grid" id="c-details"></div>
+      <h3>این دوره برای چه کسانی است؟</h3>
+      <ul class="bullets" id="c-audience"></ul>
+      <h3>پیش‌نیازها</h3>
+      <ul class="bullets" id="c-prereq"></ul>
+    </div>
+
+    <div class="panel" id="syllabus">
+      <div class="syllabus-head">
+        <div><h2 id="c-syl-title">سرفصل دوره</h2><p id="c-syl-sub"></p></div>
+        <button class="btn btn-sm btn-ghost" onclick="toggleAllMods()">باز / بسته کردن همه</button>
+      </div>
+      <div id="c-syllabus"></div>
+    </div>
+
+    <div class="panel" id="instructors">
+      <h2>مدرسان</h2>
+      <div id="c-instructors"></div>
+      <h3>ارائه‌دهنده</h3>
+      <div id="c-provider"></div>
+    </div>
+
+    <div class="panel" id="reviews">
+      <h2>نظرات فراگیران</h2>
+      <div class="rev-summary" id="c-rev-summary"></div>
+      <div id="c-reviews"></div>
+    </div>
+
+    <div class="panel" id="faq">
+      <h2>سؤالات پرتکرار این دوره</h2>
+      <div id="c-faq"></div>
+    </div>
+
+    <div class="panel" id="related">
+      <h2>دوره‌های مرتبط</h2>
+      <div class="course-grid" id="c-related"></div>
+    </div>
+  </main>
+
+  <aside>
+    <div class="enroll-card" id="enroll-card"></div>
+  </aside>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+let C;
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>';
+
+document.addEventListener("DOMContentLoaded", () => {
+  C = course(qs("id")) || AIO_COURSES[0];
+  const cat = courseCat(C.cat), pv = provider(C.providerId);
+  document.title = C.title + " | آکادمی آیولب";
+
+  document.getElementById("bc-cat").textContent = cat.name;
+  document.getElementById("bc-cat").href = "courses.html?cat=" + C.cat;
+  document.getElementById("bc-title").textContent = C.title;
+  document.getElementById("c-prov").innerHTML = providerBadgeHTML(pv) + (C.type === "guided" ? ' <span class="chip sky">پروژه راهنما</span>' : "");
+  document.getElementById("c-title").textContent = C.title;
+  document.getElementById("c-sub").textContent = C.subtitle;
+  document.getElementById("c-by").innerHTML = "مدرس: " + C.instructorIds.map(id => {
+    const i = instructor(id);
+    return `<span class="av" style="background:${i.color}">${i.name.replace("دکتر ", "").replace("مهندس ", "").charAt(0)}</span><b>${i.name}</b>`;
+  }).join("<span>،</span>");
+
+  const lessons = courseLessons(C);
+  document.getElementById("c-stats").innerHTML = `
+    <div><b>${fa(C.syllabus.length)} ماژول</b><span>${fa(lessons.length)} درس · ${fa(courseCount(C, "quiz"))} آزمون</span></div>
+    <div><b>★ ${fa(C.rating)}</b><span>${fa(C.ratingCount)} نظر</span></div>
+    <div><b>سطح ${C.level}</b><span>${C.prereq.length ? "با پیش‌نیاز" : "بدون پیش‌نیاز"}</span></div>
+    <div><b>${fa(C.hours)} ساعت</b><span>حدود ${fa(C.weeks)} هفته با ${fa(Math.max(1, Math.round(C.hours / C.weeks)))} ساعت در هفته</span></div>
+    <div><b>${courseFormat(C.format).name}</b><span>${courseFormat(C.format).desc}</span></div>`;
+
+  document.getElementById("c-outcomes").innerHTML = C.outcomes.map(o => `<li>${o}</li>`).join("");
+  document.getElementById("c-skills").innerHTML = C.skills.map(s => `<span>${s}</span>`).join("");
+  document.getElementById("c-details").innerHTML = [
+    ["shield", C.cert ? C.certType : "بدون گواهی", C.cert ? "قابل افزودن به رزومه و استعلام کارفرما" : "دوره‌ی آزاد"],
+    ["doc", fa(courseCount(C, "quiz")) + " آزمون + " + fa(courseCount(C, "lab") + courseCount(C, "project")) + " تمرین/پروژه", "ارزیابی در طول دوره"],
+    ["comment", C.lang, "زبان تدریس"],
+    ["clock", C.nextStart ? "شروع: " + C.nextStart : "دسترسی دائمی", C.nextStart ? (C.seats ? "ظرفیت " + fa(C.seats) + " نفر" : "ثبت‌نام باز") : "هر زمان شروع کنید"],
+    ["users", fa(C.students) + " فراگیر", "تا کنون ثبت‌نام کرده‌اند"],
+    ["chart", "به‌روزرسانی " + C.updated, "محتوا مطابق آخرین استانداردها"]
+  ].map(([ic, b, s]) => `<div><span class="dg-ic">${ICONS[ic]}</span><div><b>${b}</b><span>${s}</span></div></div>`).join("");
+  document.getElementById("c-audience").innerHTML = C.audience.map(a => `<li>${a}</li>`).join("") || "<li>همه علاقه‌مندان</li>";
+  document.getElementById("c-prereq").innerHTML = C.prereq.map(a => `<li>${a}</li>`).join("") || "<li>این دوره پیش‌نیاز ندارد.</li>";
+
+  renderSyllabus();
+
+  document.getElementById("c-instructors").innerHTML = C.instructorIds.map(id => {
+    const i = instructor(id);
+    return `<div class="instr-row">
+      <div class="avatar" style="background:${i.color}">${i.name.replace("دکتر ", "").replace("مهندس ", "").charAt(0)}</div>
+      <div><b>${i.name}</b><span>${i.title} · ${i.org}</span><p>${i.bio}</p>
+        <div class="im"><span>★ ${fa(i.rating)} امتیاز مدرس</span><span>${fa(i.students)} فراگیر</span><span>${fa(i.courses)} دوره</span></div></div>
+    </div>`;
+  }).join("");
+  document.getElementById("c-provider").innerHTML = `
+    <div class="prov-box">
+      <span class="pl" style="background:${pv.color}">${pv.name.replace("آزمایشگاه ", "").replace("دانشگاه ", "").charAt(0)}</span>
+      <div><b>${pv.name} <span class="chip sm">${pv.kind}</span></b><p>${pv.about}</p>
+        ${pv.labId ? `<a href="lab.html?id=${pv.labId}" class="btn btn-sm btn-outline" style="margin-top:8px">پروفایل مرکز</a>` : ""}</div>
+    </div>`;
+
+  renderReviews();
+
+  document.getElementById("c-faq").innerHTML = (C.faq && C.faq.length ? C.faq : [
+    { q: "بعد از ثبت‌نام چطور به دوره دسترسی دارم؟", a: "از داشبورد → «دوره‌های من» یا همین صفحه، دکمه «ادامه یادگیری» شما را به محیط یادگیری می‌برد و پیشرفت‌تان ذخیره می‌شود." },
+    { q: "گواهی چه زمانی صادر می‌شود؟", a: C.cert ? "به‌محض تکمیل ۱۰۰٪ درس‌ها و آزمون‌ها، گواهی با کد رهگیری صادر و به رزومه شما اضافه می‌شود." : "این دوره گواهی ندارد و برای یادگیری آزاد طراحی شده است." }
+  ]).map((f, i) => `<details class="faq-item" ${i === 0 ? "open" : ""}><summary>${f.q}</summary><div class="fa-body">${f.a}</div></details>`).join("");
+
+  const related = AIO_COURSES.filter(x => x.id !== C.id && (x.cat === C.cat || x.providerId === C.providerId)).slice(0, 3);
+  document.getElementById("c-related").innerHTML = related.map(x => courseCardHTML(x, { compact: true })).join("");
+
+  renderEnroll();
+
+  document.querySelectorAll(".crs-tabs a").forEach(a => a.onclick = e => {
+    e.preventDefault(); document.querySelectorAll(".crs-tabs a").forEach(x => x.classList.remove("on")); a.classList.add("on");
+    document.querySelector(a.getAttribute("href")).scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+});
+
+function renderSyllabus() {
+  const pr = courseProgress(C), e = MyCourses.get(C.id);
+  const lessons = courseLessons(C);
+  document.getElementById("c-syl-title").textContent = `این دوره ${fa(C.syllabus.length)} ماژول دارد`;
+  document.getElementById("c-syl-sub").textContent = `${fa(lessons.length)} درس · ${fa(C.hours)} ساعت · ${fa(courseCount(C, "video"))} ویدئو، ${fa(courseCount(C, "reading"))} مطالعه، ${fa(courseCount(C, "lab") + courseCount(C, "project"))} تمرین و پروژه، ${fa(courseCount(C, "quiz"))} آزمون`;
+  document.getElementById("c-syllabus").innerHTML = C.syllabus.map((m, mi) => `
+    <details class="mod" ${mi === 0 ? "open" : ""}>
+      <summary>
+        <span class="mn">${fa(mi + 1)}</span>
+        <span class="mt"><b>${m.title}</b><small>${fa(m.lessons.length)} درس · ${fa(m.hours)} ساعت</small></span>
+        <span class="caret">▾</span>
+      </summary>
+      ${m.lessons.map((l, li) => {
+        const key = mi + ":" + li, done = e && e.done.includes(key), lt = AIO_LESSON_TYPES[l.type];
+        return `<div class="lesson ${done ? "done" : ""}">
+          <span class="li">${done ? "✓" : lt.icon}</span>
+          <span class="lt">${l.t}</span>
+          <span class="ld">${lt.name} · ${fa(l.min)} دقیقه</span>
+        </div>`;
+      }).join("")}
+    </details>`).join("");
+}
+function toggleAllMods() {
+  const mods = [...document.querySelectorAll("#c-syllabus .mod")];
+  const anyClosed = mods.some(m => !m.open);
+  mods.forEach(m => m.open = anyClosed);
+}
+
+function renderReviews() {
+  const revs = C.reviews || [];
+  const dist = [5, 4, 3, 2, 1].map(s => {
+    const base = { 5: .72, 4: .2, 3: .05, 2: .02, 1: .01 }[s];
+    const shift = (C.rating - 4.7) * .6;
+    return { s, p: Math.max(0, Math.round((base + (s === 5 ? shift : s === 4 ? -shift / 2 : 0)) * 100)) };
+  });
+  document.getElementById("c-rev-summary").innerHTML = `
+    <div class="big"><b>${fa(C.rating)}</b>${starsHTML(C.rating, "lg")}<span>از ${fa(C.ratingCount)} نظر</span></div>
+    <div class="rev-bars">${dist.map(d => `<div><span>${fa(d.s)} ستاره</span><i><b style="width:${d.p}%"></b></i><span>${fa(d.p)}٪</span></div>`).join("")}</div>`;
+  document.getElementById("c-reviews").innerHTML = revs.length ? revs.map(r => `
+    <div class="review">
+      <div class="rv-head"><div><b>${r.name}</b><span>${r.role} · ${r.date}</span></div>${starsHTML(r.stars)}</div>
+      <p>${r.text}</p>
+    </div>`).join("")
+    : `<div class="empty-inline">اولین نفری باشید که بعد از گذراندن دوره نظر می‌دهد.</div>`;
+}
+
+function renderEnroll() {
+  const pr = courseProgress(C), wl = MyWishlist.has(C.id);
+  const off = C.oldPrice ? Math.round((1 - C.price / C.oldPrice) * 100) : 0;
+  const paths = pathsOfCourse(C.id);
+  document.getElementById("enroll-card").innerHTML = `
+    <div class="ec-price"><b class="${!C.price ? "free" : ""}">${coursePrice(C)}</b>${C.oldPrice ? `<s>${fa(C.oldPrice)}</s><span class="ec-off">${fa(off)}٪ تخفیف</span>` : ""}</div>
+    <div class="ec-note">${C.price ? "دارندگان اشتراک سالانه کارجو تا ۴۰٪ تخفیف می‌گیرند · پرداخت امن" : "بدون هزینه؛ فقط ثبت‌نام کنید و شروع کنید"}</div>
+    ${C.seats ? `<div class="ec-seats">⏳ شروع ${C.nextStart} · ظرفیت محدود ${fa(C.seats)} نفر</div>` : ""}
+    ${pr.enrolled ? `
+      <div class="ec-progress"><div class="bar"><i style="width:${pr.pct}%"></i></div><small>${fa(pr.done)} از ${fa(pr.total)} درس · ${fa(pr.pct)}٪</small></div>
+      <a class="btn btn-primary btn-block btn-lg" href="learn.html?id=${C.id}">${pr.pct === 100 ? "مرور دوره" : pr.pct ? "ادامه یادگیری" : "شروع یادگیری"}</a>`
+    : `<button class="btn btn-primary btn-block btn-lg" onclick="enrollCourse(${C.id})">${C.price ? "ثبت‌نام در دوره" : "ثبت‌نام رایگان"}</button>`}
+    <button class="btn btn-outline btn-block" onclick="wish()">${wl ? "💚 در علاقه‌مندی‌ها" : "🤍 افزودن به علاقه‌مندی‌ها"}</button>
+    <ul class="ec-list">
+      <li>${CHECK} ${fa(C.hours)} ساعت محتوا · ${fa(courseLessons(C).length)} درس</li>
+      <li>${CHECK} ${fa(courseCount(C, "lab") + courseCount(C, "project"))} تمرین عملی و پروژه</li>
+      <li>${CHECK} ${fa(courseCount(C, "quiz"))} آزمون ماژول</li>
+      <li>${CHECK} ${C.cert ? C.certType + " با کد رهگیری" : "بدون گواهی"}</li>
+      <li>${CHECK} ${C.format === "self" ? "دسترسی دائمی و یادگیری با سرعت خودتان" : courseFormat(C.format).desc}</li>
+      <li>${CHECK} دسترسی از موبایل و دسکتاپ</li>
+    </ul>
+    ${paths.length ? `<div class="ec-path">این دوره بخشی از ${paths.map(p => `<a href="path.html?id=${p.id}">${p.title}</a>`).join(" و ")} است.</div>` : ""}
+    ${C.relatedExamId ? `<div class="ec-path">🎖️ آزمون مرتبط: <a href="exam.html?id=${C.relatedExamId}">${AIO_EXAMS.find(e => e.id === C.relatedExamId).title}</a></div>` : ""}
+    <button class="btn btn-ghost btn-block btn-sm" style="margin-top:10px" onclick="navigator.clipboard&&navigator.clipboard.writeText(location.href);toast('لینک دوره کپی شد ✓')">🔗 اشتراک‌گذاری</button>`;
+}
+function wish() { const on = MyWishlist.toggle(C.id); toast(on ? "به علاقه‌مندی‌ها اضافه شد ✓" : "از علاقه‌مندی‌ها حذف شد"); renderEnroll(); }
+</script>
+</body>
+</html>

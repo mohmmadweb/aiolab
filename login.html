@@ -104,6 +104,8 @@ function doLogin(e) {
   };
   const d = DEMO[role] || DEMO.seeker;
   Auth.login(role === "seeker" ? d.name : (email.split("@")[0] || d.name), d.role);
+  const back = Store.get("after_login", null);
+  if (back && role === "seeker") { Store.set("after_login", null); location.href = back; return; }
   location.href = d.to;
 }
 </script>

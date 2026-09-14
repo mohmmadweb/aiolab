@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>آموزش و رشد حرفه‌ای | آیولب</title>
-<meta name="description" content="دوره‌های آموزشی و مهارتی ویژه پرسنل آزمایشگاه: نمونه‌گیری، کنترل کیفیت، هماتولوژی، مولکولی و ایمنی، همراه با گواهی.">
+<title>آکادمی آیولب | دوره‌های تخصصی آزمایشگاه، پروژه راهنما و مسیرهای یادگیری</title>
+<meta name="description" content="آکادمی آیولب: دوره‌های تخصصی آزمایشگاه از دانشگاه‌ها و مراکز معتبر — هماتولوژی، کنترل کیفیت، مولکولی، نمونه‌گیری، ایمنی، مدیریت آزمایشگاه؛ با سرفصل ماژولی، مدرس مشخص، گواهی و مسیر یادگیری تا نقش شغلی.">
 <meta name="theme-color" content="#0d9488">
 <link rel="canonical" href="https://aiolab.ir/courses.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="آیولب">
 <meta property="og:locale" content="fa_IR">
-<meta property="og:title" content="آموزش و رشد حرفه‌ای | آیولب">
-<meta property="og:description" content="دوره‌های آموزشی و مهارتی ویژه پرسنل آزمایشگاه: نمونه‌گیری، کنترل کیفیت، هماتولوژی، مولکولی و ایمنی، همراه با گواهی.">
+<meta property="og:title" content="آکادمی آیولب | دوره‌های تخصصی آزمایشگاه">
+<meta property="og:description" content="دوره‌های تخصصی آزمایشگاه با سرفصل ماژولی، مدرس مشخص، گواهی معتبر و مسیرهای یادگیری تا نقش شغلی.">
 <meta property="og:url" content="https://aiolab.ir/courses.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
@@ -21,26 +21,168 @@
 
 <header id="site-header" class="site-header"></header>
 
-<div class="page-head">
+<!-- ================= HERO ================= -->
+<section class="academy-hero">
   <div class="container">
-    <div class="breadcrumb"><a href="index.html">خانه</a> / آموزش و رشد حرفه‌ای</div>
-    <h1>آموزش و رشد حرفه‌ای 🎓</h1>
-    <p>دوره‌های تخصصی، آزمون‌های مهارت و گواهی‌هایی که رزومه‌ات را متمایز می‌کنند</p>
-  </div>
-</div>
-
-<section class="section" style="padding-top:36px">
-  <div class="container">
-    <div class="section-head">
-      <div>
-        <h2>دوره‌های آموزشی</h2>
-        <p>با گذراندن دوره و دریافت گواهی، شانس استخدامت را چند برابر کن</p>
-      </div>
-    </div>
-    <div class="content-grid" id="courses"></div>
+    <span class="ah-kicker">🎓 آکادمی آیولب</span>
+    <h1>مهارت‌های آزمایشگاهی را از بهترین مراکز و دانشگاه‌ها یاد بگیرید</h1>
+    <p class="lead">دوره‌های تخصصی با سرفصل ماژولی، مدرس مشخص، تمرین عملی و گواهی معتبر — و مسیرهای یادگیری که شما را تا یک نقش شغلی مشخص می‌رسانند.</p>
+    <form class="academy-search" onsubmit="heroSearch(event)">
+      <input type="text" id="hq" placeholder="چه چیزی می‌خواهید یاد بگیرید؟ مثلاً: وستگارد، Sysmex، PCR…" aria-label="جستجوی دوره">
+      <button class="btn btn-primary" type="submit">جستجو</button>
+    </form>
+    <div class="academy-trend"><span>پرجستجو:</span><span id="trend-skills"></span></div>
+    <div class="stats-strip flat" id="acad-stats"></div>
   </div>
 </section>
 
+<!-- ================= دسته‌ها ================= -->
+<div class="container">
+  <div class="cat-chips" id="cat-chips"></div>
+</div>
+
+<!-- ================= مسیرهای یادگیری ================= -->
+<section class="section" id="paths" style="padding-top:36px">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>مسیرهای یادگیری و گواهی حرفه‌ای</h2>
+        <p>چند دوره‌ی زنجیره‌ای که شما را تا یک نقش شغلی مشخص می‌رسانند — با یک گواهی نهایی</p>
+      </div>
+      <span class="chip teal" id="paths-count"></span>
+    </div>
+    <div class="path-grid" id="path-grid"></div>
+  </div>
+</section>
+
+<!-- ================= کاتالوگ ================= -->
+<section class="section alt" id="catalog">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>همه دوره‌ها و پروژه‌های راهنما</h2>
+        <p>فیلتر بر اساس دسته، سطح، شیوه برگزاری، مدت، قیمت، زبان، گواهی و ارائه‌دهنده</p>
+      </div>
+    </div>
+
+    <div class="catalog-layout">
+      <!-- فیلترها -->
+      <aside class="filters crs-filters" id="filters">
+        <h3 onclick="if(event.target.tagName!=='BUTTON')this.parentElement.classList.toggle('open')">
+          <span>فیلترها</span>
+          <span class="f-toggle">نمایش / بستن</span>
+          <button onclick="resetFilters()">حذف همه</button>
+        </h3>
+        <div class="f-body">
+          <div class="filter-group">
+            <label>جستجو</label>
+            <input type="text" id="f-q" placeholder="عنوان، مهارت، مدرس یا ارائه‌دهنده…">
+          </div>
+          <div class="filter-group">
+            <label>دسته</label>
+            <select id="f-cat"><option value="">همه دسته‌ها</option></select>
+          </div>
+          <details class="filter-group acc" open><summary>نوع محصول آموزشی</summary><div id="f-type"></div></details>
+          <details class="filter-group acc" open><summary>سطح</summary><div id="f-level"></div></details>
+          <details class="filter-group acc"><summary>شیوه برگزاری</summary><div id="f-format"></div></details>
+          <details class="filter-group acc"><summary>مدت</summary><div id="f-duration"></div></details>
+          <details class="filter-group acc" open><summary>قیمت</summary>
+            <div>
+              <label class="check-item"><input type="radio" name="price" value="" checked> همه</label>
+              <label class="check-item"><input type="radio" name="price" value="free"> رایگان</label>
+              <label class="check-item"><input type="radio" name="price" value="paid"> پولی</label>
+            </div>
+          </details>
+          <details class="filter-group acc"><summary>امتیاز</summary>
+            <div class="rating-pick">
+              <label><input type="radio" name="rating" value="" checked> همه</label>
+              <label><input type="radio" name="rating" value="4.8"> ۴٫۸ و بالاتر</label>
+              <label><input type="radio" name="rating" value="4.5"> ۴٫۵ و بالاتر</label>
+              <label><input type="radio" name="rating" value="4"> ۴ و بالاتر</label>
+            </div>
+          </details>
+          <details class="filter-group acc"><summary>زبان</summary><div id="f-lang"></div></details>
+          <details class="filter-group acc"><summary>ارائه‌دهنده</summary><div id="f-prov" class="scroll-box"></div></details>
+          <div class="filter-group">
+            <label class="check-item"><input type="checkbox" id="f-cert"> فقط دوره‌های گواهی‌دار 🎖️</label>
+          </div>
+        </div>
+      </aside>
+
+      <!-- نتایج -->
+      <main class="listing-main">
+        <div class="crs-toolbar">
+          <span class="count"><b id="count">۰</b> نتیجه</span>
+          <select id="f-sort" aria-label="مرتب‌سازی">
+            <option value="popular">محبوب‌ترین</option>
+            <option value="rating">بالاترین امتیاز</option>
+            <option value="new">جدیدترین</option>
+            <option value="cheap">ارزان‌ترین</option>
+            <option value="short">کوتاه‌ترین</option>
+          </select>
+        </div>
+        <div class="active-chips" id="chips"></div>
+        <div class="course-grid" id="course-grid"></div>
+        <div class="empty-state" id="empty" style="display:none">
+          <b>دوره‌ای با این فیلترها پیدا نشد</b>
+          فیلترها را تغییر دهید یا عبارت دیگری جستجو کنید.
+        </div>
+      </main>
+    </div>
+  </div>
+</section>
+
+<!-- ================= مدرسان ================= -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>مدرسان آکادمی</h2>
+        <p>متخصصان شاغل در آزمایشگاه‌ها، دانشگاه‌ها و شرکت‌های تجهیزات — نه فقط مدرس</p>
+      </div>
+    </div>
+    <div class="instr-grid" id="instr-grid"></div>
+  </div>
+</section>
+
+<!-- ================= چرا آکادمی ================= -->
+<section class="section alt">
+  <div class="container">
+    <div class="section-head" style="justify-content:center;text-align:center">
+      <div>
+        <h2>چرا یادگیری در آیولب؟</h2>
+        <p>هر دوره مستقیم به رزومه، آزمون و فرصت‌های شغلی شما وصل است</p>
+      </div>
+    </div>
+    <div class="steps-grid four">
+      <div class="step-card"><div class="num">۱</div><h3>سرفصل ماژولی و شفاف</h3><p>قبل از ثبت‌نام، همه‌ی درس‌ها، مدت و نوع هر جلسه (ویدئو، تمرین، آزمون) را می‌بینید.</p></div>
+      <div class="step-card"><div class="num">۲</div><h3>گواهی روی رزومه</h3><p>گواهی پایان دوره با کد رهگیری، خودکار به پروفایل شما اضافه و برای کارفرمایان قابل استعلام است.</p></div>
+      <div class="step-card"><div class="num">۳</div><h3>اتصال به آزمون و شغل</h3><p>هر دوره به آزمون مهارت مرتبط و آگهی‌های شغلی همان تخصص لینک شده است.</p></div>
+      <div class="step-card"><div class="num">۴</div><h3>مسیر تا نقش شغلی</h3><p>مسیرهای یادگیری، دوره‌ها را زنجیره می‌کنند تا به یک عنوان شغلی مشخص برسید.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= سازمان‌ها ================= -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="biz-band">
+      <div>
+        <h2>آیولب برای آزمایشگاه‌ها و سازمان‌ها</h2>
+        <p>آموزش سازمانی پرسنل با گزارش پیشرفت، گواهی داخلی و تخفیف گروهی. دارندگان اشتراک سالانه ویژه آزمایشگاه، روی ۳ دوره ۳۰٪ تخفیف دارند.</p>
+        <a href="pricing.html" class="btn btn-primary">مشاهده اشتراک آزمایشگاه</a>
+      </div>
+      <ul>
+        <li>داشبورد پیشرفت هر کارمند برای سوپروایزر</li>
+        <li>دوره‌های اختصاصی هم‌راستا با الزامات آزمایشگاه مرجع سلامت</li>
+        <li>برگزاری کارگاه حضوری در محل مرکز شما</li>
+        <li>پرداخت سازمانی و صدور فاکتور رسمی</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= (حفظ‌شده از نسخه قبل) آزمون‌های مهارت ================= -->
 <section class="section alt">
   <div class="container">
     <div class="section-head">
@@ -48,6 +190,7 @@
         <h2>آزمون‌های مهارت و نشان تخصصی</h2>
         <p>در آزمون شرکت کن، نشان بگیر و به کارفرما ثابت کن که بلدی</p>
       </div>
+      <a class="more" href="exams.html">همه آزمون‌ها ←</a>
     </div>
     <div class="cat-grid" id="exams"></div>
   </div>
@@ -58,15 +201,15 @@
     <div class="cta-band">
       <div>
         <h2>مسیر ارتقاء شغلی خودت را بساز</h2>
-        <p>شغل هدفت را انتخاب کن تا سیستم فاصله مهارتی‌ات را تحلیل کند و دوره‌ها و گواهی‌های لازم را پیشنهاد دهد. (نسخه ۳ پلتفرم)</p>
+        <p>شغل هدفت را انتخاب کن تا سیستم فاصله مهارتی‌ات را تحلیل کند و دوره‌ها و گواهی‌های لازم را پیشنهاد دهد.</p>
       </div>
-      <a href="dashboard.html" class="btn btn-lg">تعیین شغل هدف</a>
+      <a href="assessment.html" class="btn btn-lg">تعیین شغل هدف</a>
     </div>
   </div>
 </section>
 
 <!-- تعرفه دوره و مشاوره شغلی (R18، R19، R20) -->
-<section class="section">
+<section class="section alt">
   <div class="container">
     <div class="section-head">
       <div>
@@ -78,6 +221,19 @@
   </div>
 </section>
 
+<!-- ================= FAQ ================= -->
+<section class="section">
+  <div class="container">
+    <div class="section-head"><div><h2>سؤالات پرتکرار آکادمی</h2></div></div>
+    <div class="faq-home">
+      <details class="faq-item" open><summary>گواهی دوره‌ها چه اعتباری دارد؟</summary><div class="fa-body">گواهی هر دوره توسط ارائه‌دهنده (دانشگاه، مرکز یا شرکت) و آیولب به‌صورت مشترک با کد رهگیری صادر می‌شود، خودکار روی رزومه شما قرار می‌گیرد و کارفرمایان عضو می‌توانند آن را استعلام کنند.</div></details>
+      <details class="faq-item"><summary>تفاوت دوره، پروژه راهنما و مسیر تخصصی چیست؟</summary><div class="fa-body">«دوره» آموزش ساختاریافته با چند ماژول و آزمون است. «پروژه راهنما» یک کار عملی ۱ تا ۳ ساعته‌ی گام‌به‌گام است. «مسیر تخصصی» چند دوره‌ی زنجیره‌ای است که با یک گواهی نهایی به یک نقش شغلی مشخص می‌رسد.</div></details>
+      <details class="faq-item"><summary>دوره‌های حضوری کجا برگزار می‌شوند؟</summary><div class="fa-body">در محل مرکز ارائه‌دهنده (مثلاً آزمایشگاه مرجع البرز در کرج یا دانشگاه علوم پزشکی شیراز). تاریخ شروع و ظرفیت هر دوره در صفحه‌ی آن مشخص است.</div></details>
+      <details class="faq-item"><summary>با اشتراک کارجو چه تخفیفی می‌گیرم؟</summary><div class="fa-body">اشتراک سالانه عادی کارجو ۲۰٪ و اشتراک ویژه ۴۰٪ تخفیف روی همه دوره‌های آکادمی می‌دهد. جزئیات در <a href="pricing.html">صفحه تعرفه‌ها</a>.</div></details>
+    </div>
+  </div>
+</section>
+
 <footer id="site-footer" class="site-footer"></footer>
 
 <script src="assets/js/geo.js"></script>
@@ -85,40 +241,139 @@
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
 <script>
+function checks(containerId, name, values, labels) {
+  document.getElementById(containerId).innerHTML = values.map((v, i) =>
+    `<label class="check-item"><input type="checkbox" name="${name}" value="${v}"> ${labels ? labels[i] : v}</label>`).join("");
+}
+const getChecked = name => [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(i => i.value);
+const getRadio = name => (document.querySelector(`input[name="${name}"]:checked`) || {}).value || "";
+
 document.addEventListener("DOMContentLoaded", () => {
+  /* آمار هیرو */
+  const totalStudents = AIO_COURSES.reduce((s, c) => s + c.students, 0);
+  const stats = [
+    ["grad", fa(AIO_COURSES.length), "دوره و پروژه راهنما"],
+    ["path", fa(AIO_LEARNING_PATHS.length), "مسیر یادگیری و گواهی حرفه‌ای"],
+    ["users", "+" + fa(Math.round(totalStudents / 100) * 100), "فراگیر"],
+    ["building", fa(AIO_PROVIDERS.length), "دانشگاه، مرکز و شرکت ارائه‌دهنده"]
+  ];
+  document.getElementById("acad-stats").innerHTML = stats.map(([ic, n, t]) => `
+    <div class="stat-card"><div class="ic">${ICONS[ic]}</div><div><b>${n}</b><span>${t}</span></div></div>`).join("");
+  document.getElementById("trend-skills").innerHTML = AIO_TRENDING_SKILLS.map(s =>
+    `<a href="courses.html?q=${encodeURIComponent(s)}" onclick="event.preventDefault();setQ('${s}')">${s}</a>`).join("");
+
+  /* دسته‌ها */
+  document.getElementById("cat-chips").innerHTML =
+    `<button class="cat-chip on" data-cat="" onclick="setCat('')">همه</button>` +
+    AIO_COURSE_CATS.map(c => `<button class="cat-chip" data-cat="${c.id}" onclick="setCat('${c.id}')">${ICONS[c.icon] || ""} ${c.name} <small>(${fa(AIO_COURSES.filter(x => x.cat === c.id).length)})</small></button>`).join("");
+  document.getElementById("f-cat").insertAdjacentHTML("beforeend",
+    AIO_COURSE_CATS.map(c => `<option value="${c.id}">${c.name}</option>`).join(""));
+
+  /* مسیرها */
+  document.getElementById("path-grid").innerHTML = AIO_LEARNING_PATHS.map(pathCardHTML).join("");
+  document.getElementById("paths-count").textContent = fa(AIO_LEARNING_PATHS.length) + " مسیر";
+
+  /* فیلترها */
+  checks("f-type",     "type",     ["course", "guided"], ["دوره", "پروژه راهنما"]);
+  checks("f-level",    "level",    AIO_COURSE_LEVELS);
+  checks("f-format",   "format",   AIO_COURSE_FORMATS.map(f => f.id), AIO_COURSE_FORMATS.map(f => f.name));
+  checks("f-duration", "duration", AIO_COURSE_DURATIONS.map(d => d.id), AIO_COURSE_DURATIONS.map(d => d.name));
+  checks("f-lang",     "lang",     AIO_COURSE_LANGS);
+  checks("f-prov",     "prov",     AIO_PROVIDERS.map(p => p.id), AIO_PROVIDERS.map(p => p.name));
+
+  /* پارامترهای URL: ?cat= ?q= ?level= ?free=1 ?skill= */
+  if (qs("cat")) document.getElementById("f-cat").value = qs("cat");
+  if (qs("q")) document.getElementById("f-q").value = qs("q");
+  if (qs("skill")) document.getElementById("f-q").value = qs("skill");
+  if (qs("level")) { const cb = document.querySelector(`input[name="level"][value="${qs("level")}"]`); if (cb) cb.checked = true; }
+  if (qs("free")) document.querySelector('input[name="price"][value="free"]').checked = true;
+  if (qs("type")) { const cb = document.querySelector(`input[name="type"][value="${qs("type")}"]`); if (cb) cb.checked = true; }
+
+  document.querySelectorAll(".crs-filters input, .crs-filters select, #f-sort").forEach(el => el.addEventListener("input", render));
+  render();
+  if (qs("cat") || qs("q") || qs("skill") || qs("free") || qs("level") || qs("type")) setTimeout(() => document.getElementById("catalog").scrollIntoView({ behavior: "smooth" }), 150);
+
+  /* مدرسان */
+  document.getElementById("instr-grid").innerHTML = AIO_INSTRUCTORS.map(i => `
+    <div class="instr-card">
+      <div class="avatar" style="background:${i.color}">${i.name.replace("دکتر ", "").replace("مهندس ", "").charAt(0)}</div>
+      <b>${i.name}</b><span>${i.title}</span><span>${i.org}</span>
+      <div class="im"><span>★ ${fa(i.rating)}</span><span>${fa(i.students)} فراگیر</span><span>${fa(i.courses)} دوره</span></div>
+    </div>`).join("");
+
+  /* بخش‌های حفظ‌شده از نسخه قبل */
   document.getElementById("course-services").innerHTML =
     servicesOf("course").concat(servicesOf("advice")).map(x => serviceCardHTML(x)).join("");
-
-  document.getElementById("courses").innerHTML = AIO_COURSES.map(c => `
-    <a class="content-card" href="#" onclick="toast('ثبت‌نام دوره در نسخه بعدی فعال می‌شود (دمو)');return false">
-      <div class="thumb" style="background:${c.bg};color:${c.color}">${ICONS.grad}</div>
-      <div class="body">
-        <span class="cat">${c.cat} ${c.cert ? "· دارای گواهی" : ""}</span>
-        <h3>${c.title}</h3>
-        <div class="meta">
-          <span>${c.hours.toLocaleString("fa-IR")} ساعت · ${c.students.toLocaleString("fa-IR")} فراگیر</span>
-          <span class="price">${c.price}</span>
-        </div>
-      </div>
-    </a>`).join("");
-
   const exams = [
-    ["نمونه‌گیری و فلبوتومی", "syringe", "#f59e0b", "#fef3c7"],
-    ["هماتولوژی", "drop", "#f43f5e", "#ffe4e6"],
-    ["بیوشیمی بالینی", "flask", "#0d9488", "#ccfbf1"],
-    ["میکروب‌شناسی", "microbe", "#8b5cf6", "#ede9fe"],
-    ["کنترل کیفیت", "shield", "#059669", "#d1fae5"],
-    ["ایمنی آزمایشگاه", "shield", "#0ea5e9", "#e0f2fe"],
-    ["کار با LIS", "machine", "#6366f1", "#e0e7ff"],
-    ["تفسیر نتایج", "doc", "#115e59", "#ccfbf1"]
+    ["نمونه‌گیری و فلبوتومی", "syringe", "#f59e0b", "#fef3c7", "sampling"],
+    ["هماتولوژی", "drop", "#f43f5e", "#ffe4e6", "hematology"],
+    ["بیوشیمی بالینی", "flask", "#0d9488", "#ccfbf1", "biochemistry"],
+    ["میکروب‌شناسی", "microbe", "#8b5cf6", "#ede9fe", "microbiology"],
+    ["کنترل کیفیت", "shield", "#059669", "#d1fae5", "qc"],
+    ["ایمنی آزمایشگاه", "shield", "#0ea5e9", "#e0f2fe", "safety"],
+    ["کار با LIS", "machine", "#6366f1", "#e0e7ff", "lis"],
+    ["تفسیر نتایج", "doc", "#115e59", "#ccfbf1", "hematology"]
   ];
-  document.getElementById("exams").innerHTML = exams.map(([name, icon, color, bg]) => `
-    <a class="cat-card" href="#" onclick="toast('آزمون‌های مهارت در نسخه بعدی (دمو)');return false">
+  document.getElementById("exams").innerHTML = exams.map(([name, icon, color, bg, cat]) => {
+    const ex = AIO_EXAMS.find(e => e.dept === cat);
+    const href = ex ? `exam.html?id=${ex.id}` : `courses.html?cat=${cat}`;
+    return `<a class="cat-card" href="${href}">
       <div class="ic" style="background:${bg};color:${color}">${ICONS[icon]}</div>
       <b>آزمون ${name}</b>
-      <span>نشان تخصصی + گواهی</span>
-    </a>`).join("");
+      <span>${ex ? "آزمون فعال + گواهی" : "به‌زودی · دوره‌های مرتبط"}</span>
+    </a>`;
+  }).join("");
 });
+
+function currentFilters() {
+  return {
+    q: document.getElementById("f-q").value.trim(),
+    cat: document.getElementById("f-cat").value,
+    type: getChecked("type"), level: getChecked("level"), format: getChecked("format"),
+    duration: getChecked("duration"), lang: getChecked("lang"), provider: getChecked("prov"),
+    price: getRadio("price"), rating: parseFloat(getRadio("rating")) || 0,
+    cert: document.getElementById("f-cert").checked
+  };
+}
+
+function render() {
+  const f = currentFilters();
+  const list = sortCourses(filterCourses(f), document.getElementById("f-sort").value);
+  document.getElementById("count").textContent = fa(list.length);
+  document.getElementById("course-grid").innerHTML = list.map(c => courseCardHTML(c)).join("");
+  document.getElementById("empty").style.display = list.length ? "none" : "block";
+  document.querySelectorAll(".cat-chip").forEach(b => b.classList.toggle("on", b.dataset.cat === f.cat));
+  renderChips(f);
+}
+
+function renderChips(f) {
+  const chips = [];
+  const add = (label, clear) => chips.push(`<button class="a-chip" onclick="${clear}">${label} ✕</button>`);
+  if (f.q) add(`«${f.q}»`, `document.getElementById('f-q').value='';render()`);
+  if (f.cat) add(courseCat(f.cat).name, `setCat('')`);
+  f.type.forEach(v => add(v === "guided" ? "پروژه راهنما" : "دوره", `uncheck('type','${v}')`));
+  f.level.forEach(v => add(v, `uncheck('level','${v}')`));
+  f.format.forEach(v => add(courseFormat(v).name, `uncheck('format','${v}')`));
+  f.duration.forEach(v => add(AIO_COURSE_DURATIONS.find(d => d.id === v).name, `uncheck('duration','${v}')`));
+  f.lang.forEach(v => add(v, `uncheck('lang','${v}')`));
+  f.provider.forEach(v => add(provider(v).name, `uncheck('prov','${v}')`));
+  if (f.price) add(f.price === "free" ? "رایگان" : "پولی", `document.querySelector('input[name=price][value=""]').checked=true;render()`);
+  if (f.rating) add(`امتیاز ${fa(f.rating)}+`, `document.querySelector('input[name=rating][value=""]').checked=true;render()`);
+  if (f.cert) add("گواهی‌دار", `document.getElementById('f-cert').checked=false;render()`);
+  document.getElementById("chips").innerHTML = chips.length
+    ? chips.join("") + `<button class="a-chip clear" onclick="resetFilters()">حذف همه فیلترها</button>` : "";
+}
+
+function uncheck(name, value) { const cb = document.querySelector(`input[name="${name}"][value="${value}"]`); if (cb) cb.checked = false; render(); }
+function setCat(id) { document.getElementById("f-cat").value = id; render(); document.getElementById("catalog").scrollIntoView({ behavior: "smooth" }); }
+function setQ(q) { document.getElementById("f-q").value = q; render(); document.getElementById("catalog").scrollIntoView({ behavior: "smooth" }); }
+function heroSearch(e) { e.preventDefault(); setQ(document.getElementById("hq").value.trim()); }
+function resetFilters() {
+  document.querySelectorAll(".crs-filters input[type=checkbox]").forEach(i => i.checked = false);
+  document.querySelectorAll('input[name="price"], input[name="rating"]').forEach(i => i.checked = i.value === "");
+  document.getElementById("f-q").value = ""; document.getElementById("f-cat").value = "";
+  render();
+}
 </script>
 </body>
 </html>

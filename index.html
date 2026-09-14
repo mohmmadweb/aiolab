@@ -354,6 +354,21 @@
   </div>
 </section>
 
+<!-- ================= ACADEMY ================= -->
+<section class="section alt">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>آکادمی آیولب — دوره‌های پرمخاطب</h2>
+        <p>دوره‌های تخصصی از دانشگاه‌ها و مراکز معتبر، با سرفصل ماژولی و گواهی روی رزومه</p>
+      </div>
+      <a class="more" href="courses.html">همه دوره‌ها ←</a>
+    </div>
+    <div class="course-grid four" id="home-courses"></div>
+    <div class="path-grid" id="home-paths" style="margin-top:18px"></div>
+  </div>
+</section>
+
 <!-- ================= MAGAZINE ================= -->
 <section class="section">
   <div class="container">
@@ -482,6 +497,10 @@ document.addEventListener("DOMContentLoaded", () => {
       <span>${p ? p.short : ""} · ${fa(n)} خدمت</span>
     </a>`;
   }).join("");
+
+  // academy — پرمخاطب‌ترین دوره‌ها و دو مسیر یادگیری
+  document.getElementById("home-courses").innerHTML = sortCourses(AIO_COURSES, "popular").slice(0, 4).map(c => courseCardHTML(c, { compact: true })).join("");
+  document.getElementById("home-paths").innerHTML = AIO_LEARNING_PATHS.slice(0, 3).map(pathCardHTML).join("");
 
   // articles
   document.getElementById("home-articles").innerHTML = AIO_ARTICLES.slice(0, 3).map(a => `

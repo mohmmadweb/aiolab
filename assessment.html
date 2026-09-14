@@ -211,7 +211,7 @@ function showResult(res) {
     <div class="panel">
       <h2>قدم‌های پیشنهادی</h2>
       <div class="next-steps">
-        <a class="ns" href="courses.html"><b>۱. دوره آموزشی مرتبط</b><span>دوره‌های حوزه «${weak[0].name}» را ببینید</span></a>
+        <a class="ns" href="courses.html?cat=${({ qc: "qc", safety: "safety", soft: "soft", digital: "lis", growth: "soft", tech: "hematology" })[weak[0].id]}"><b>۱. دوره آموزشی مرتبط</b><span>دوره‌های حوزه «${weak[0].name}» را ببینید</span></a>
         <a class="ns" href="exams.html"><b>۲. آزمون مهارتی بدهید</b><span>گواهی تأییدشده روی رزومه، شانس دعوت به مصاحبه را بالا می‌برد</span></a>
         <a class="ns" href="jobs.html"><b>۳. آگهی‌های متناسب سطح فعلی</b><span>فرصت‌هایی که همین حالا برای شما مناسب‌اند</span></a>
         <a class="ns" href="dashboard.html#career"><b>۴. مسیر ارتقاء شغلی</b><span>نقشه راه شما تا «${res.target}»</span></a>

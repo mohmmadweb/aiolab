@@ -36,6 +36,7 @@
       <a href="#resume" data-sec="resume"></a>
       <a href="#applications" data-sec="applications"></a>
       <a href="#alerts" data-sec="alerts"></a>
+      <a href="#courses" data-sec="courses"></a>
       <a href="#certs" data-sec="certs"></a>
       <a href="#saved" data-sec="saved"></a>
       <a href="#career" data-sec="career"></a>
@@ -166,6 +167,25 @@
       </div>
     </section>
 
+    <!-- ===== My courses (آکادمی) ===== -->
+    <section id="sec-courses">
+      <h1 class="dash-title">دوره‌های من</h1>
+      <p class="dash-sub">پیشرفت شما در دوره‌های آکادمی آیولب ذخیره می‌شود؛ با تکمیل ۱۰۰٪، گواهی دوره خودکار به رزومه اضافه می‌شود.</p>
+      <div class="panel">
+        <h2>در حال یادگیری</h2>
+        <div id="my-courses"></div>
+      </div>
+      <div class="panel">
+        <h2>علاقه‌مندی‌ها</h2>
+        <div class="course-grid" id="my-wishlist"></div>
+      </div>
+      <div class="panel">
+        <h2>پیشنهاد آکادمی برای شما <span class="chip teal">بر اساس پروفایل و خودارزیابی</span></h2>
+        <div class="course-grid" id="rec-courses"></div>
+        <a class="btn btn-outline" href="courses.html" style="margin-top:14px">مشاهده همه دوره‌ها</a>
+      </div>
+    </section>
+
     <!-- ===== Certificates & tests ===== -->
     <section id="sec-certs">
       <h1 class="dash-title">آزمون‌ها، گواهی‌ها و خودارزیابی</h1>
@@ -207,12 +227,12 @@
           <div style="display:flex;gap:12px;align-items:center;background:var(--amber-100);border-radius:10px;padding:14px 16px">
             <span style="font-size:20px">📘</span>
             <div style="flex:1"><b style="font-size:14px">دوره «مدیریت آزمایشگاه» — پیشنهادی</b><div style="font-size:12.5px;color:var(--navy-500)">۱۶ ساعت · دارای گواهی</div></div>
-            <a href="courses.html" class="btn btn-sm btn-outline">مشاهده دوره</a>
+            <a href="course.html?id=8" class="btn btn-sm btn-outline">مشاهده دوره</a>
           </div>
           <div style="display:flex;gap:12px;align-items:center;background:var(--sky-100);border-radius:10px;padding:14px 16px">
             <span style="font-size:20px">🏅</span>
             <div style="flex:1"><b style="font-size:14px">آزمون مهارت QC — پیشنهادی</b><div style="font-size:12.5px;color:var(--navy-500)">دریافت نشان تخصصی برای پروفایل</div></div>
-            <a href="courses.html" class="btn btn-sm btn-outline">شرکت در آزمون</a>
+            <a href="exam.html?id=2" class="btn btn-sm btn-outline">شرکت در آزمون</a>
           </div>
           <div style="display:flex;gap:12px;align-items:center;background:var(--violet-100);border-radius:10px;padding:14px 16px">
             <span style="font-size:20px">⏳</span>
@@ -273,7 +293,8 @@ const NAV_ITEMS = [
   ["resume", "رزومه حرفه‌ای من", "doc"],
   ["applications", "درخواست‌های من", "send"],
   ["alerts", "هشدارهای شغلی", "bell"],
-  ["certs", "گواهی و خودارزیابی", "grad"],
+  ["courses", "دوره‌های من", "grad"],
+  ["certs", "گواهی و خودارزیابی", "shield"],
   ["saved", "آگهی‌های ذخیره‌شده", "bookmark"],
   ["career", "مسیر ارتقاء شغلی", "path"],
   ["services", "خدمات ویژه من", "briefcase"],
@@ -314,6 +335,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initAlerts();
   initCerts();
   initSeekerServices();
+  renderMyCourses();
 
   document.getElementById("notifs").innerHTML = [
     ["🎉", "شما به مصاحبه «کارشناس هماتولوژی» در آزمایشگاه نور دعوت شدید.", "۲ ساعت پیش"],
@@ -327,6 +349,41 @@ document.addEventListener("DOMContentLoaded", () => {
       <div style="flex:1"><div style="font-size:14px;color:var(--navy-800)">${txt}</div><div style="font-size:12px;color:var(--navy-400);margin-top:3px">${t}</div></div>
     </div>`).join("");
 });
+
+/* ---------- دوره‌های من (آکادمی) ---------- */
+function renderMyCourses() {
+  const box = document.getElementById("my-courses");
+  if (!box) return;
+  const list = MyCourses.all().map(e => course(e.id)).filter(Boolean);
+  box.innerHTML = list.length ? list.map(c => {
+    const pr = courseProgress(c), cat = courseCat(c.cat);
+    return `<div class="my-course">
+      <div class="mc-ic" style="background:${cat.bg};color:${cat.color}">${ICONS[cat.icon] || ICONS.grad}</div>
+      <div>
+        <b>${c.title}</b>
+        <small>${provider(c.providerId).name} · ${fa(pr.done)} از ${fa(pr.total)} درس · ${pr.pct === 100 ? "تکمیل شده 🎓" : "در حال یادگیری"}</small>
+        <div class="cc-progress"><i style="width:${pr.pct}%"></i></div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <a class="btn btn-sm btn-primary" href="learn.html?id=${c.id}">${pr.pct === 100 ? "مرور" : pr.pct ? "ادامه" : "شروع"}</a>
+        <button class="btn btn-sm btn-ghost" onclick="MyCourses.remove(${c.id});renderMyCourses();toast('دوره از فهرست شما حذف شد')">حذف</button>
+      </div>
+    </div>`;
+  }).join("")
+  : `<div class="empty-inline">هنوز در دوره‌ای ثبت‌نام نکرده‌اید. <a href="courses.html">آکادمی آیولب</a> را ببینید — سه دوره رایگان دارد.</div>`;
+
+  const wl = MyWishlist.all().map(course).filter(Boolean);
+  document.getElementById("my-wishlist").innerHTML = wl.length ? wl.map(c => courseCardHTML(c, { compact: true })).join("")
+    : `<div class="empty-inline" style="grid-column:1/-1">دوره‌ای را نشان نکرده‌اید.</div>`;
+
+  /* پیشنهاد: حوزه‌های ضعیف خودارزیابی → دسته دوره؛ در غیر این صورت هماتولوژی (تخصص پروفایل دمو) */
+  const map = { qc: "qc", safety: "safety", soft: "soft", digital: "lis", growth: "soft", tech: "hematology" };
+  const a = MyAssess.get();
+  const cats = a ? [...a.groups].sort((x, y) => x.pct - y.pct).slice(0, 2).map(g => map[g.id]) : ["hematology", "qc"];
+  const enrolled = new Set(MyCourses.all().map(e => e.id));
+  const rec = sortCourses(AIO_COURSES.filter(c => cats.includes(c.cat) && !enrolled.has(c.id)), "rating").slice(0, 3);
+  document.getElementById("rec-courses").innerHTML = rec.map(c => courseCardHTML(c, { compact: true })).join("");
+}
 
 /* ---------- خدمات کارجو (از مدل درآمدی) ---------- */
 function initSeekerServices() {

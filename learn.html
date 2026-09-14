@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محیط یادگیری | آکادمی آیولب</title>
+<meta name="description" content="محیط یادگیری آکادمی آیولب: درس‌ها، تمرین‌ها و آزمون‌های ماژول با ذخیره پیشرفت و صدور گواهی.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0f172a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>body{background:var(--navy-50)}</style>
+</head>
+<body data-page="courses.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="learn-top">
+  <div class="container">
+    <a class="btn btn-sm" id="back-link" href="courses.html">← صفحه دوره</a>
+    <div class="lt-title" id="lt-title">…<small></small></div>
+    <div class="lt-prog"><span id="lt-pct">۰٪</span><div class="bar"><i id="lt-bar" style="width:0"></i></div></div>
+    <a class="btn btn-sm" href="dashboard.html#courses">دوره‌های من</a>
+  </div>
+</div>
+
+<div class="container learn-layout">
+  <aside class="learn-side">
+    <div class="ls-head" id="ls-head">سرفصل</div>
+    <div id="ls-mods"></div>
+  </aside>
+
+  <main class="learn-main">
+    <div id="done-strip"></div>
+    <div class="lesson-head">
+      <div><small id="l-mod"></small><h1 id="l-title">…</h1></div>
+      <span class="chip" id="l-type"></span>
+    </div>
+    <div id="l-content"></div>
+    <div class="learn-actions">
+      <button class="btn btn-outline" onclick="move(-1)">← درس قبلی</button>
+      <button class="btn btn-primary grow" id="btn-done" onclick="markCurrent()">علامت‌گذاری به‌عنوان تکمیل‌شده ✓</button>
+      <button class="btn btn-outline" onclick="move(1)">درس بعدی →</button>
+    </div>
+  </main>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+let C, L = [], idx = 0;
+
+document.addEventListener("DOMContentLoaded", () => {
+  C = course(qs("id"));
+  if (!C) { location.href = "courses.html"; return; }
+  if (!Auth.user) { Store.set("after_login", "learn.html?id=" + C.id); location.href = "login.html"; return; }
+  if (!MyCourses.isEnrolled(C.id)) { location.href = "course.html?id=" + C.id; return; }
+
+  L = courseLessons(C);
+  document.title = C.title + " | محیط یادگیری";
+  document.getElementById("back-link").href = "course.html?id=" + C.id;
+  document.getElementById("lt-title").innerHTML = `${C.title}<small>${provider(C.providerId).name} · ${C.instructorIds.map(i => instructor(i).name).join("، ")}</small>`;
+  document.getElementById("ls-head").textContent = `${fa(C.syllabus.length)} ماژول · ${fa(L.length)} درس`;
+
+  const e = MyCourses.get(C.id);
+  const start = qs("lesson") || (e.last ? nextAfter(e.last) : L[0].key);
+  idx = Math.max(0, L.findIndex(l => l.key === start));
+  render();
+});
+
+function nextAfter(key) {
+  const i = L.findIndex(l => l.key === key);
+  const e = MyCourses.get(C.id);
+  const next = L.slice(i + 1).find(l => !e.done.includes(l.key)) || L.slice(0, i + 1).find(l => !e.done.includes(l.key));
+  return next ? next.key : key;
+}
+
+function render() {
+  const e = MyCourses.get(C.id), pr = courseProgress(C), l = L[idx];
+  document.getElementById("lt-pct").textContent = fa(pr.pct) + "٪";
+  document.getElementById("lt-bar").style.width = pr.pct + "%";
+
+  document.getElementById("ls-mods").innerHTML = C.syllabus.map((m, mi) => `
+    <details class="mod" ${mi === l.mi ? "open" : ""}>
+      <summary><span class="mn">${fa(mi + 1)}</span><span class="mt"><b>${m.title}</b><small>${fa(m.lessons.filter((_, li) => e.done.includes(mi + ":" + li)).length)} از ${fa(m.lessons.length)} تکمیل</small></span><span class="caret">▾</span></summary>
+      ${m.lessons.map((x, li) => {
+        const key = mi + ":" + li, done = e.done.includes(key), cur = key === l.key, lt = AIO_LESSON_TYPES[x.type];
+        return `<div class="lesson ${done ? "done" : ""} ${cur ? "cur" : ""}" onclick="goTo('${key}')">
+          <span class="li">${done ? "✓" : lt.icon}</span><span class="lt">${x.t}</span><span class="ld">${fa(x.min)}′</span></div>`;
+      }).join("")}
+    </details>`).join("");
+
+  const lt = AIO_LESSON_TYPES[l.type];
+  document.getElementById("l-mod").textContent = `ماژول ${fa(l.mi + 1)}: ${l.module} · درس ${fa(idx + 1)} از ${fa(L.length)}`;
+  document.getElementById("l-title").textContent = l.t;
+  document.getElementById("l-type").textContent = `${lt.icon} ${lt.name} · ${fa(l.min)} دقیقه`;
+  document.getElementById("l-content").innerHTML = contentHTML(l);
+
+  const done = e.done.includes(l.key);
+  const btn = document.getElementById("btn-done");
+  btn.textContent = done ? "تکمیل شده ✓ (برای لغو کلیک کنید)" : "علامت‌گذاری به‌عنوان تکمیل‌شده ✓";
+  btn.className = "btn grow " + (done ? "btn-outline" : "btn-primary");
+  btn.style.display = (l.type === "quiz" && !done) ? "none" : "";
+
+  renderDone(pr);
+}
+
+function contentHTML(l) {
+  if (l.type === "video") return `
+    <div class="video-box" onclick="this.querySelector('span').textContent='در حال پخش… (پخش‌کننده ویدئو در نسخه متصل به سرور)'">
+      <div class="play">▶</div><span>${fa(l.min)} دقیقه · ${C.instructorIds.map(i => instructor(i).name).join("، ")}</span>
+    </div>
+    <div class="reading-box"><h3>خلاصه این درس</h3><p>${l.t} — بخشی از ماژول «${l.module}» دوره «${C.title}». پس از تماشا، نکات را در دفترچه یادداشت خود بنویسید و در صورت نیاز، متن پیوست را مرور کنید.</p>
+      <h3>مهارت‌های مرتبط</h3><p>${C.skills.slice(0, 3).join("، ")}</p></div>`;
+  if (l.type === "reading") return `
+    <div class="reading-box">
+      <p>این متن، منبع مطالعه‌ی درس «${l.t}» است و مطالعه‌ی آن حدود ${fa(l.min)} دقیقه زمان می‌برد. مطالب مطابق آخرین ویرایش استانداردها به‌روزرسانی شده است (${C.updated}).</p>
+      <h3>نکات کلیدی</h3>
+      <ul class="bullets">${C.outcomes.map(o => `<li>${o}</li>`).join("")}</ul>
+      <h3>واژگان این درس</h3>
+      <p>${C.skills.join(" · ")}</p>
+      <p style="margin-top:10px;font-size:12.5px;color:var(--navy-400)">متن کامل و منابع PDF در نسخه متصل به سرور بارگذاری می‌شود (دمو).</p>
+    </div>`;
+  if (l.type === "quiz") return quizHTML(l);
+  /* lab / project */
+  const steps = l.type === "project"
+    ? ["مطالعه شرح پروژه و معیارهای ارزیابی", "انجام پروژه مطابق قالب ارائه‌شده", "بارگذاری فایل یا گزارش نهایی", "خودارزیابی با چک‌لیست"]
+    : ["مطالعه دستورالعمل تمرین", "انجام مراحل عملی", "ثبت نتیجه در برگه تمرین", "مقایسه با پاسخ نمونه"];
+  return `
+    <div class="lab-box">
+      <h3>${l.type === "project" ? "🎯 پروژه" : "🧪 تمرین عملی"}: ${l.t}</h3>
+      <p>${l.type === "project" ? "پروژه پایانی، جمع‌بندی مهارت‌های این دوره است و توسط مدرس بازبینی می‌شود." : "این تمرین را با داده یا ابزار واقعی انجام دهید و مراحل را تیک بزنید."} زمان تقریبی: ${fa(l.min)} دقیقه.</p>
+      <div class="lab-steps">${steps.map((s, i) => `<label><input type="checkbox" onchange="labCheck()"> ${fa(i + 1)}. ${s}</label>`).join("")}</div>
+      <p id="lab-hint" style="margin-top:10px;font-size:12.5px;color:var(--navy-400)">همه مراحل را تیک بزنید تا دکمه تکمیل فعال شود.</p>
+    </div>`;
+}
+
+/* آزمون ماژول — سؤالات از سرفصل همان ماژول ساخته می‌شوند (دمو) */
+function quizHTML(l) {
+  const mine = C.syllabus[l.mi].lessons.filter(x => x.type !== "quiz").map(x => x.t);
+  const others = L.filter(x => x.mi !== l.mi && x.type !== "quiz").map(x => x.t);
+  const pick = (arr, n, seed) => [...arr].sort((a, b) => hash(a + seed) - hash(b + seed)).slice(0, n);
+  const qs3 = pick(mine, Math.min(3, mine.length), l.key).map((ans, i) => {
+    const opts = pick([ans, ...pick(others, 3, ans)], 4, i + l.key);
+    return { q: `کدام مورد جزو مباحث ماژول «${l.module}» است؟`, opts, ans };
+  });
+  window._quiz = qs3;
+  return `
+    <div class="quiz-box">
+      <h3>✔ آزمون ماژول ${fa(l.mi + 1)}</h3>
+      <p>${fa(qs3.length)} سؤال · حد نصاب قبولی ${fa(Math.ceil(qs3.length * 0.66))} پاسخ درست · قابل تکرار</p>
+      ${qs3.map((q, i) => `<div class="qz-q"><b>${fa(i + 1)}. ${q.q}</b>${q.opts.map(o => `<label><input type="radio" name="qz${i}" value="${o.replace(/"/g, "&quot;")}"> ${o}</label>`).join("")}</div>`).join("")}
+      <div id="qz-result"></div>
+      <button class="btn btn-primary" style="margin-top:14px" onclick="submitQuiz()">ثبت پاسخ‌ها</button>
+    </div>`;
+}
+function hash(s) { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
+function submitQuiz() {
+  const q = window._quiz;
+  const correct = q.filter((x, i) => (document.querySelector(`input[name="qz${i}"]:checked`) || {}).value === x.ans).length;
+  const pass = correct >= Math.ceil(q.length * 0.66);
+  document.getElementById("qz-result").innerHTML = `<div class="qz-result ${pass ? "ok" : "no"}">${pass ? `قبول شدید ✓ ${fa(correct)} از ${fa(q.length)} درست` : `${fa(correct)} از ${fa(q.length)} درست — دوباره تلاش کنید`}</div>`;
+  if (pass) { MyCourses.markDone(C.id, L[idx].key); toast("آزمون ماژول ثبت شد ✓"); setTimeout(render, 900); }
+}
+function labCheck() {
+  const all = [...document.querySelectorAll(".lab-steps input")].every(i => i.checked);
+  document.getElementById("lab-hint").textContent = all ? "عالی! حالا دکمه تکمیل را بزنید." : "همه مراحل را تیک بزنید تا دکمه تکمیل فعال شود.";
+}
+
+function markCurrent() {
+  const l = L[idx], e = MyCourses.get(C.id);
+  if ((l.type === "lab" || l.type === "project") && !e.done.includes(l.key)) {
+    const all = [...document.querySelectorAll(".lab-steps input")].every(i => i.checked);
+    if (!all) { toast("ابتدا همه مراحل تمرین را تیک بزنید"); return; }
+  }
+  MyCourses.markDone(C.id, l.key, !e.done.includes(l.key));
+  const pr = courseProgress(C);
+  if (pr.pct === 100) issueCert();
+  else if (!e.done.includes(l.key) && idx < L.length - 1) { idx++; }
+  render();
+}
+function move(d) { idx = Math.max(0, Math.min(L.length - 1, idx + d)); render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+function goTo(key) { idx = L.findIndex(l => l.key === key); render(); }
+
+function issueCert() {
+  if (!C.cert) return;
+  if (MyCerts.all().some(c => c.courseId === C.id)) return;
+  const code = "AIO-C" + C.id + "-" + String(hash(Auth.user.name + C.id)).slice(0, 6);
+  MyCerts.add({ type: "course", courseId: C.id, title: "گواهی دوره: " + C.title, badge: "🎓", score: 100, code, date: "۱۴۰۵/۰۴/۰۵", issuer: provider(C.providerId).name + " + آیولب" });
+  toast("🎓 گواهی دوره صادر و به رزومه شما اضافه شد");
+}
+function renderDone(pr) {
+  const box = document.getElementById("done-strip");
+  if (pr.pct < 100) { box.innerHTML = ""; return; }
+  const cert = MyCerts.all().find(c => c.courseId === C.id);
+  box.innerHTML = `<div class="learn-done">
+    <b>🎉 دوره را کامل کردید!</b>
+    <p>${cert ? `گواهی «${C.title}» با کد رهگیری <b>${cert.code}</b> صادر شد و روی رزومه شما قرار گرفت.` : "این دوره گواهی ندارد، اما پیشرفت شما ذخیره شد."}</p>
+    <a class="btn btn-primary btn-sm" href="dashboard.html#certs">مشاهده گواهی‌ها</a>
+    ${C.relatedExamId ? `<a class="btn btn-outline btn-sm" href="exam.html?id=${C.relatedExamId}">شرکت در آزمون مهارت مرتبط</a>` : ""}
+    <a class="btn btn-outline btn-sm" href="courses.html?cat=${C.cat}">دوره بعدی</a>
+  </div>`;
+}
+</script>
+</body>
+</html>

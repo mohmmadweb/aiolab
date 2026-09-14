@@ -182,7 +182,7 @@ function finishExam(auto) {
       <h1>این بار نشد</h1>
       <p>نمره شما <b>${fa(score)}٪</b> — حد نصاب قبولی <b>${fa(EX.passScore)}٪</b> است.</p>
       <p class="rh-note">این نمره در پروفایل عمومی شما نمایش داده نمی‌شود. می‌توانید پس از ۷ روز دوباره شرکت کنید. دوره پیشنهادی برای آمادگی در بخش «آموزش و رشد حرفه‌ای» موجود است.</p>
-      <a class="btn btn-outline" href="courses.html">دوره‌های آمادگی</a>
+      <a class="btn btn-outline" href="courses.html?cat=${EX.dept === "management" ? "safety" : EX.dept}">دوره‌های آمادگی</a>
     </div>`;
 
   document.getElementById("res-breakdown").innerHTML = `

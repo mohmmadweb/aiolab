@@ -81,7 +81,8 @@ const AIO_NAV = [
       { href: "exams.html",     label: "آزمون و گواهینامه", desc: "نشان مهارت تأییدشده روی رزومه", icon: "shield" },
       { href: "assessment.html",label: "خودارزیابی مهارت",  desc: "۶ حوزه، نمودار مهارت و تحلیل شکاف", icon: "chart" },
       { href: "mbti.html",      label: "تست شخصیت‌شناسی MBTI", desc: "تیپ شخصیتی و مشاغل متناسب", icon: "path" },
-      { href: "courses.html",   label: "آموزش و دوره‌ها",   desc: "دوره‌های تخصصی و مهارتی", icon: "grad" }
+      { href: "courses.html",   label: "آکادمی آیولب",     desc: "دوره‌های تخصصی، پروژه راهنما و گواهی", icon: "grad" },
+      { href: "courses.html#paths", label: "مسیرهای یادگیری", desc: "زنجیره دوره‌ها تا یک نقش شغلی مشخص", icon: "path" }
   ]},
   { key: "nav.content", label: "جامعه و محتوا", children: [
       { href: "magazine.html",  label: "در آزمایشگاه چه می‌گذرد؟", desc: "مجله تخصصی آیولب", icon: "doc" },
@@ -232,7 +233,8 @@ function renderFooter() {
           <ul>
             <li><a href="jobs.html">جستجوی فرصت شغلی</a></li>
             <li><a href="dashboard.html">رزومه‌ساز حرفه‌ای</a></li>
-            <li><a href="courses.html">دوره‌های آموزشی</a></li>
+            <li><a href="courses.html">آکادمی و دوره‌های آموزشی</a></li>
+            <li><a href="courses.html#paths">مسیرهای یادگیری تخصصی</a></li>
             <li><a href="exams.html">آزمون و گواهینامه</a></li>
             <li><a href="services.html#interview">مصاحبه تخصصی و توصیه‌نامه</a></li>
             <li><a href="services.html#advice">مشاوره شغلی</a></li>
@@ -559,6 +561,177 @@ function orderService(code) {
   // اگر صفحه فهرست سفارش‌ها را نشان می‌دهد، بلافاصله تازه شود
   if (typeof renderEmployerOrders === "function") renderEmployerOrders();
   if (typeof renderSeekerOrders   === "function") renderSeekerOrders();
+}
+
+
+/* ==========================================
+   آکادمی آیولب — توابع مشترک دوره‌ها و مسیرهای یادگیری
+   داده در assets/js/data.js (AIO_COURSES / AIO_LEARNING_PATHS / …)
+   ========================================== */
+const course      = id  => AIO_COURSES.find(c => c.id === Number(id));
+const learningPath= id  => AIO_LEARNING_PATHS.find(p => p.id === id);
+const courseCat   = id  => AIO_COURSE_CATS.find(c => c.id === id) || {};
+const provider    = id  => AIO_PROVIDERS.find(p => p.id === id) || {};
+const instructor  = id  => AIO_INSTRUCTORS.find(i => i.id === id) || {};
+const courseFormat= id  => AIO_COURSE_FORMATS.find(f => f.id === id) || {};
+const coursesOfPath = p => p.courseIds.map(course).filter(Boolean);
+const pathsOfCourse = id => AIO_LEARNING_PATHS.filter(p => p.courseIds.includes(Number(id)));
+
+const courseLessons = c => c.syllabus.flatMap((m, mi) => m.lessons.map((l, li) => ({ ...l, key: mi + ":" + li, module: m.title, mi, li })));
+const courseCount   = (c, type) => courseLessons(c).filter(l => l.type === type).length;
+
+function coursePrice(c) {
+  if (!c.price) return "رایگان";
+  return fa(c.price) + " تومان";
+}
+function ratingHTML(rating, count, size) {
+  return `<span class="crs-rating">${starsHTML(rating, size || "sm")}<b>${fa(rating)}</b>${count != null ? `<small>(${fa(count)})</small>` : ""}</span>`;
+}
+function providerBadgeHTML(pv) {
+  return `<span class="crs-prov"><i style="background:${pv.color}">${(pv.name || "").replace("آزمایشگاه ", "").replace("دانشگاه ", "").charAt(0)}</i>${pv.name}</span>`;
+}
+function courseTypeName(c) { return c.type === "guided" ? "پروژه راهنما" : "دوره"; }
+
+/* ثبت‌نام و پیشرفت — دمو در localStorage */
+const MyCourses = {
+  all: () => Store.get("courses", []),
+  get: id => MyCourses.all().find(e => e.id === Number(id)),
+  isEnrolled: id => !!MyCourses.get(id),
+  enroll(id) {
+    if (MyCourses.isEnrolled(id)) return MyCourses.get(id);
+    const e = { id: Number(id), date: "امروز", done: [], last: null };
+    Store.push("courses", e); return e;
+  },
+  update(id, patch) {
+    const a = MyCourses.all(); const i = a.findIndex(e => e.id === Number(id));
+    if (i < 0) return; a[i] = { ...a[i], ...patch }; Store.set("courses", a);
+  },
+  markDone(id, key, done) {
+    const e = MyCourses.get(id); if (!e) return;
+    const set = new Set(e.done); done === false ? set.delete(key) : set.add(key);
+    MyCourses.update(id, { done: [...set], last: key });
+  },
+  remove(id) { Store.set("courses", MyCourses.all().filter(e => e.id !== Number(id))); }
+};
+const MyWishlist = {
+  all: () => Store.get("wishlist", []),
+  has: id => MyWishlist.all().includes(Number(id)),
+  toggle(id) {
+    const a = MyWishlist.all(); const i = a.indexOf(Number(id));
+    i < 0 ? a.push(Number(id)) : a.splice(i, 1); Store.set("wishlist", a); return i < 0;
+  }
+};
+
+function courseProgress(c) {
+  const e = MyCourses.get(c.id);
+  const total = courseLessons(c).length;
+  const done = e ? e.done.filter(k => courseLessons(c).some(l => l.key === k)).length : 0;
+  return { enrolled: !!e, done, total, pct: total ? Math.round(done / total * 100) : 0, last: e ? e.last : null };
+}
+
+function pathProgress(p) {
+  const list = coursesOfPath(p);
+  const pcts = list.map(c => courseProgress(c).pct);
+  return { pct: Math.round(pcts.reduce((a, b) => a + b, 0) / Math.max(1, list.length)), started: list.some(c => MyCourses.isEnrolled(c.id)) };
+}
+
+/* ثبت‌نام در دوره؛ اگر کاربر وارد نشده باشد به ورود هدایت می‌شود */
+function enrollCourse(id, goLearn) {
+  const c = course(id); if (!c) return;
+  if (!Auth.user) {
+    toast("برای ثبت‌نام در دوره ابتدا وارد شوید");
+    Store.set("after_login", "course.html?id=" + c.id);
+    setTimeout(() => location.href = "login.html", 1100); return;
+  }
+  const was = MyCourses.isEnrolled(c.id);
+  MyCourses.enroll(c.id);
+  if (!was) {
+    if (c.price) MyOrders.add({ code: "C" + c.id, title: "دوره: " + c.title, price: c.price, unit: "هر دوره", date: "امروز", status: "pending" });
+    toast(c.price ? `در «${c.title}» ثبت‌نام شدید ✓ (پرداخت در نسخه متصل به درگاه)` : `در «${c.title}» ثبت‌نام شدید ✓`);
+  }
+  if (goLearn !== false) setTimeout(() => location.href = "learn.html?id=" + c.id, was ? 0 : 900);
+  if (typeof renderMyCourses === "function") renderMyCourses();
+}
+
+/* کارت دوره — الگوی کارت Coursera: ارائه‌دهنده، عنوان، مهارت‌ها، امتیاز، سطح · نوع · مدت */
+function courseCardHTML(c, opts) {
+  opts = opts || {};
+  const cat = courseCat(c.cat), pv = provider(c.providerId), pr = courseProgress(c);
+  const tag = c.bestseller ? '<span class="crs-tag hot">پرفروش</span>'
+            : c.isNew ? '<span class="crs-tag new">جدید</span>'
+            : c.featured ? '<span class="crs-tag">پیشنهاد آیولب</span>' : "";
+  return `
+    <a class="course-card ${c.type === "guided" ? "guided" : ""}" href="course.html?id=${c.id}">
+      <div class="cc-thumb" style="background:linear-gradient(135deg,${cat.bg},#fff 70%);color:${cat.color}">
+        ${ICONS[cat.icon] || ICONS.grad}
+        ${tag}
+        ${!c.price ? '<span class="crs-free">رایگان</span>' : ""}
+      </div>
+      <div class="cc-body">
+        ${providerBadgeHTML(pv)}
+        <h3>${c.title}</h3>
+        ${opts.compact ? "" : `<p class="cc-skills"><b>مهارت‌ها:</b> ${c.skills.slice(0, 4).join("، ")}</p>`}
+        <div class="cc-rating">${ratingHTML(c.rating, c.ratingCount)}<span>${fa(c.students)} فراگیر</span></div>
+        <div class="cc-meta">${c.level} · ${courseTypeName(c)} · ${fa(c.hours)} ساعت · ${courseFormat(c.format).short}</div>
+        ${pr.enrolled ? `<div class="cc-progress"><i style="width:${pr.pct}%"></i></div><small class="cc-pct">${fa(pr.pct)}٪ تکمیل شده</small>`
+                      : `<div class="cc-price ${!c.price ? "free" : ""}">${coursePrice(c)}${c.oldPrice ? `<s>${fa(c.oldPrice)}</s>` : ""}</div>`}
+      </div>
+    </a>`;
+}
+
+/* کارت مسیر یادگیری (Specialization / گواهی حرفه‌ای) */
+function pathCardHTML(p) {
+  const list = coursesOfPath(p), hours = list.reduce((s, c) => s + c.hours, 0), pr = pathProgress(p);
+  const kind = p.kind === "professional" ? "گواهی حرفه‌ای" : "مسیر تخصصی";
+  return `
+    <a class="path-card" href="path.html?id=${p.id}" style="--pc:${p.color};--pbg:${p.bg}">
+      <div class="pc-head">
+        <span class="pc-ic">${ICONS[p.icon] || ICONS.path}</span>
+        <span class="pc-kind">${kind}</span>
+      </div>
+      <h3>${p.title}</h3>
+      <p>${p.desc}</p>
+      <div class="pc-courses">${list.map((c, i) => `<span><b>${fa(i + 1)}</b>${c.title}</span>`).join("")}</div>
+      <div class="pc-meta">
+        <span>${fa(list.length)} دوره</span><span>${fa(hours)} ساعت</span><span>${p.level}</span>
+        ${ratingHTML(p.rating, null)}
+      </div>
+      ${pr.started ? `<div class="cc-progress"><i style="width:${pr.pct}%"></i></div><small class="cc-pct">${fa(pr.pct)}٪ مسیر طی شده</small>` : `<span class="pc-role">🎯 ${p.role}</span>`}
+    </a>`;
+}
+
+/* فیلتر مشترک کاتالوگ — f = {q, cat, level[], format[], duration[], price, lang[], cert, rating, provider[], type[]} */
+function filterCourses(f) {
+  f = f || {};
+  return AIO_COURSES.filter(c => {
+    if (f.q) {
+      const hay = [c.title, c.subtitle, c.skills.join(" "), courseCat(c.cat).name, provider(c.providerId).name,
+                   c.instructorIds.map(i => instructor(i).name).join(" ")].join(" ");
+      if (!hay.includes(f.q)) return false;
+    }
+    if (f.cat && c.cat !== f.cat) return false;
+    if (f.type && f.type.length && !f.type.includes(c.type)) return false;
+    if (f.level && f.level.length && !f.level.includes(c.level)) return false;
+    if (f.format && f.format.length && !f.format.includes(c.format)) return false;
+    if (f.lang && f.lang.length && !f.lang.includes(c.lang)) return false;
+    if (f.provider && f.provider.length && !f.provider.includes(c.providerId)) return false;
+    if (f.duration && f.duration.length && !f.duration.some(id => { const d = AIO_COURSE_DURATIONS.find(x => x.id === id); return d && c.hours >= d.min && c.hours < d.max; })) return false;
+    if (f.price === "free" && c.price) return false;
+    if (f.price === "paid" && !c.price) return false;
+    if (f.cert && !c.cert) return false;
+    if (f.rating && c.rating < f.rating) return false;
+    if (f.skill && !c.skills.some(s => s.includes(f.skill)) && !c.title.includes(f.skill)) return false;
+    return true;
+  });
+}
+function sortCourses(list, sort) {
+  const a = [...list];
+  if (sort === "popular") a.sort((x, y) => y.students - x.students);
+  if (sort === "rating")  a.sort((x, y) => y.rating - x.rating || y.ratingCount - x.ratingCount);
+  if (sort === "new")     a.sort((x, y) => y.updated.localeCompare(x.updated, "fa") || y.id - x.id);
+  if (sort === "cheap")   a.sort((x, y) => x.price - y.price);
+  if (sort === "short")   a.sort((x, y) => x.hours - y.hours);
+  return a;
 }
 
 /* ---------- Page bootstrap ---------- */

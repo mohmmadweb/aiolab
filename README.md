@@ -27,7 +27,10 @@
 | **سیستم خودارزیابی مهارت** | `assessment.html` |
 | **سؤالات پرتکرار (FAQ)** | `faq.html` |
 | مجله آیولب | `magazine.html` |
-| آموزش و آزمون مهارت | `courses.html` |
+| **آکادمی آیولب** (کاتالوگ دوره با فیلتر/مرتب‌سازی، مسیرهای یادگیری، مدرسان) | `courses.html` |
+| **صفحه دوره** (دستاوردها، مهارت‌ها، سرفصل ماژولی، مدرس، ارائه‌دهنده، نظرات، ثبت‌نام) | `course.html?id=` |
+| **محیط یادگیری** (درس‌ها، تمرین، آزمون ماژول، پیشرفت و صدور گواهی) | `learn.html?id=` |
+| **مسیر یادگیری / گواهی حرفه‌ای** (زنجیره دوره‌ها تا نقش شغلی) | `path.html?id=` |
 | جامعه آزمایشگاهی | `community.html` |
 | ورود / ثبت‌نام (کارجو، **داوطلب**، کارفرما، **تأمین‌کننده**) | `login.html` / `register.html` |
 | داشبورد کارجو (رزومه، درخواست‌ها، **هشدار شغلی**، **گواهی‌ها**) | `dashboard.html` |
@@ -42,10 +45,26 @@
 | فایل | نقش |
 |---|---|
 | `assets/js/geo.js` | ۳۱ استان + ۳۱۰ شهر ایران با مختصات مرکز استان |
-| `assets/js/data.js` | مراکز، آگهی‌ها، آزمون‌ها، MBTI، خودارزیابی، FAQ، نظرات |
+| `assets/js/data.js` | مراکز، آگهی‌ها، آزمون‌ها، MBTI، خودارزیابی، FAQ، نظرات، **آکادمی** (`AIO_COURSES`، `AIO_LEARNING_PATHS`، `AIO_INSTRUCTORS`، `AIO_PROVIDERS`، `AIO_COURSE_CATS`) |
 | `assets/js/i18n.js` | سیستم چندزبانه (فارسی / English / العربية) |
 | `assets/js/map.js` | ماژول نقشه (Leaflet + پشتیبانی نشان) |
 | `assets/js/app.js` | هدر/فوتر، فیلتر مشترک، امتیازدهی، ذخیره‌سازی محلی، **کارت/ردیف خدمات و ثبت سفارش** |
+
+## آکادمی (دوره و آموزش)
+
+مدل داده الهام‌گرفته از Coursera؛ همه چیز در `assets/js/data.js`:
+
+| ثابت | نقش |
+|---|---|
+| `AIO_COURSES` | ۱۸ دوره/پروژه راهنما با `cat`، `level`، `format`، `lang`، `providerId`، `instructorIds`، قیمت، ساعت، هفته، گواهی، امتیاز، مهارت‌ها، دستاوردها، پیش‌نیاز، مخاطب، سرفصل ماژولی (`syllabus[].lessons[]` با نوع video/reading/quiz/lab/project)، FAQ و نظرات |
+| `AIO_LEARNING_PATHS` | ۵ مسیر یادگیری (specialization / professional) با ترتیب دوره‌ها و نقش شغلی هدف |
+| `AIO_INSTRUCTORS` / `AIO_PROVIDERS` | مدرسان و ارائه‌دهندگان (دانشگاه، مرکز، شرکت؛ با `labId` اختیاری) |
+| `AIO_COURSE_CATS` / `AIO_COURSE_LEVELS` / `AIO_COURSE_FORMATS` / `AIO_COURSE_DURATIONS` | پارامترهای فیلتر کاتالوگ |
+
+توابع مشترک در `app.js`: `courseCardHTML()`، `pathCardHTML()`، `filterCourses()`، `sortCourses()`، `courseProgress()`، `enrollCourse()`
+و ذخیره‌سازی محلی `MyCourses` (ثبت‌نام + پیشرفت درس‌ها) و `MyWishlist`. تکمیل ۱۰۰٪ دوره‌ی گواهی‌دار، گواهی را به `MyCerts` اضافه می‌کند.
+
+پارامترهای URL کاتالوگ: `?cat=` `?q=` `?level=` `?type=course|guided` `?free=1`.
 
 ## مدل درآمدی و خدمات
 

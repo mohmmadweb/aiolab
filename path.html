@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مسیر یادگیری | آکادمی آیولب</title>
+<meta name="description" content="مسیر یادگیری تخصصی آیولب: زنجیره‌ای از دوره‌ها که شما را تا یک نقش شغلی مشخص می‌رساند، با گواهی نهایی.">
+<meta name="theme-color" content="#0d9488">
+<link rel="canonical" href="https://aiolab.ir/path.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="مسیر یادگیری | آکادمی آیولب">
+<meta property="og:description" content="زنجیره‌ای از دوره‌ها که شما را تا یک نقش شغلی مشخص می‌رساند، با گواهی نهایی.">
+<meta property="og:url" content="https://aiolab.ir/path.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="courses.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="path-hero" id="p-hero">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / <a href="courses.html">آکادمی</a> / <a href="courses.html#paths">مسیرهای یادگیری</a></div>
+    <span class="pc-kind" id="p-kind"></span>
+    <h1 id="p-title">…</h1>
+    <p id="p-desc"></p>
+    <div class="crs-stats" id="p-stats"></div>
+  </div>
+</div>
+
+<div class="container detail-layout">
+  <main>
+    <div class="panel">
+      <h2>در پایان این مسیر</h2>
+      <ul class="outcomes" id="p-outcomes"></ul>
+      <h3>نقش شغلی هدف</h3>
+      <p id="p-role"></p>
+    </div>
+
+    <div class="panel">
+      <div class="syllabus-head"><div><h2 id="p-steps-title">دوره‌های این مسیر</h2><p>دوره‌ها به ترتیب پیشنهادی چیده شده‌اند؛ می‌توانید از هر کدام شروع کنید</p></div></div>
+      <div class="path-steps" id="p-steps"></div>
+    </div>
+
+    <div class="panel">
+      <h2>مدرسان این مسیر</h2>
+      <div id="p-instructors"></div>
+    </div>
+
+    <div class="panel">
+      <h2>مسیرهای دیگر</h2>
+      <div class="path-grid" id="p-others"></div>
+    </div>
+  </main>
+
+  <aside>
+    <div class="enroll-card" id="enroll-card"></div>
+  </aside>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+let P, PC = [];
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>';
+
+document.addEventListener("DOMContentLoaded", () => {
+  P = learningPath(qs("id")) || AIO_LEARNING_PATHS[0];
+  PC = coursesOfPath(P);
+  const hours = PC.reduce((s, c) => s + c.hours, 0), weeks = PC.reduce((s, c) => s + c.weeks, 0);
+  const kind = P.kind === "professional" ? "گواهی حرفه‌ای" : "مسیر تخصصی";
+  document.title = P.title + " | آکادمی آیولب";
+  document.getElementById("p-hero").style.setProperty("--pbg", P.bg);
+  document.getElementById("p-hero").style.setProperty("--pc", P.color);
+  document.getElementById("p-kind").textContent = kind;
+  document.getElementById("p-kind").style.cssText = `color:${P.color};background:${P.bg}`;
+  document.getElementById("p-title").textContent = P.title;
+  document.getElementById("p-desc").textContent = P.desc;
+  document.getElementById("p-stats").innerHTML = `
+    <div><b>${fa(PC.length)} دوره</b><span>${fa(PC.reduce((s, c) => s + courseLessons(c).length, 0))} درس</span></div>
+    <div><b>★ ${fa(P.rating)}</b><span>${fa(P.students)} فراگیر</span></div>
+    <div><b>${P.level}</b><span>سطح مسیر</span></div>
+    <div><b>${fa(hours)} ساعت</b><span>حدود ${fa(weeks)} هفته</span></div>
+    <div><b>${P.cert}</b><span>پس از تکمیل همه دوره‌ها</span></div>`;
+  document.getElementById("p-outcomes").innerHTML = P.outcomes.map(o => `<li>${o}</li>`).join("");
+  document.getElementById("p-role").innerHTML = `🎯 <b>${P.role}</b> — <a href="jobs.html?q=${encodeURIComponent(P.role.split(" ")[0])}">آگهی‌های مرتبط را ببینید ←</a>`;
+  document.getElementById("p-steps-title").textContent = `${fa(PC.length)} دوره در این مسیر`;
+
+  renderSteps();
+
+  const ins = [...new Set(PC.flatMap(c => c.instructorIds))].map(instructor);
+  document.getElementById("p-instructors").innerHTML = ins.map(i => `
+    <div class="instr-row">
+      <div class="avatar" style="background:${i.color}">${i.name.replace("دکتر ", "").replace("مهندس ", "").charAt(0)}</div>
+      <div><b>${i.name}</b><span>${i.title} · ${i.org}</span><p>${i.bio}</p></div>
+    </div>`).join("");
+  document.getElementById("p-others").innerHTML = AIO_LEARNING_PATHS.filter(x => x.id !== P.id).slice(0, 2).map(pathCardHTML).join("");
+  renderEnroll();
+});
+
+function renderSteps() {
+  document.getElementById("p-steps").innerHTML = PC.map((c, i) => {
+    const pr = courseProgress(c), pv = provider(c.providerId);
+    return `<div class="path-step" style="--pc:${P.color}">
+      <div class="ps-num ${pr.pct === 100 ? "done" : ""}">${pr.pct === 100 ? "✓" : fa(i + 1)}</div>
+      <div class="ps-card">
+        <div><h3><a href="course.html?id=${c.id}">${c.title}</a></h3><p>${c.subtitle}</p></div>
+        ${pr.enrolled ? `<a class="btn btn-sm btn-primary" href="learn.html?id=${c.id}">${pr.pct === 100 ? "مرور" : pr.pct ? "ادامه (" + fa(pr.pct) + "٪)" : "شروع"}</a>`
+                      : `<button class="btn btn-sm btn-outline" onclick="enrollCourse(${c.id}, false);renderSteps();renderEnroll()">ثبت‌نام</button>`}
+        <div class="ps-meta">${providerBadgeHTML(pv)}<span>${c.level}</span><span>${fa(c.hours)} ساعت</span><span>${courseFormat(c.format).short}</span>${ratingHTML(c.rating, c.ratingCount)}<span><b>${coursePrice(c)}</b></span></div>
+        ${pr.enrolled ? `<div class="cc-progress" style="grid-column:1/-1"><i style="width:${pr.pct}%"></i></div>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderEnroll() {
+  const total = PC.reduce((s, c) => s + c.price, 0);
+  const enrolledAll = PC.every(c => MyCourses.isEnrolled(c.id));
+  const pr = pathProgress(P);
+  const first = PC.find(c => courseProgress(c).pct < 100) || PC[0];
+  document.getElementById("enroll-card").innerHTML = `
+    <div class="ec-price"><b class="${!total ? "free" : ""}">${total ? fa(total) + " تومان" : "رایگان"}</b></div>
+    <div class="ec-note">${total ? "مجموع " + fa(PC.length) + " دوره · با اشتراک سالانه کارجو تا ۴۰٪ کمتر" : "همه دوره‌های این مسیر رایگان است"}</div>
+    ${pr.started ? `<div class="ec-progress"><div class="bar"><i style="width:${pr.pct}%"></i></div><small>${fa(pr.pct)}٪ مسیر طی شده</small></div>` : ""}
+    ${enrolledAll
+      ? `<a class="btn btn-primary btn-block btn-lg" href="learn.html?id=${first.id}">${pr.pct === 100 ? "مرور مسیر" : "ادامه مسیر"}</a>`
+      : `<button class="btn btn-primary btn-block btn-lg" onclick="enrollPath()">ثبت‌نام در کل مسیر</button>
+         <a class="btn btn-outline btn-block" href="course.html?id=${first.id}">فقط دوره اول را ببینم</a>`}
+    <ul class="ec-list">
+      <li>${CHECK} ${fa(PC.length)} دوره زنجیره‌ای · ${fa(PC.reduce((s, c) => s + c.hours, 0))} ساعت</li>
+      <li>${CHECK} ${P.cert}</li>
+      <li>${CHECK} گواهی هر دوره جداگانه هم صادر می‌شود</li>
+      <li>${CHECK} یادگیری با سرعت خودتان، از هر دوره</li>
+      ${P.relatedExamId ? `<li>${CHECK} آماده‌سازی برای <a href="exam.html?id=${P.relatedExamId}">آزمون مهارت مرتبط</a></li>` : ""}
+    </ul>`;
+}
+function enrollPath() {
+  if (!Auth.user) { toast("برای ثبت‌نام ابتدا وارد شوید"); Store.set("after_login", "path.html?id=" + P.id); setTimeout(() => location.href = "login.html", 1100); return; }
+  PC.forEach(c => { if (!MyCourses.isEnrolled(c.id)) { MyCourses.enroll(c.id); if (c.price) MyOrders.add({ code: "C" + c.id, title: "دوره: " + c.title, price: c.price, unit: "هر دوره", date: "امروز", status: "pending" }); } });
+  toast(`در همه ${fa(PC.length)} دوره مسیر ثبت‌نام شدید ✓`);
+  renderSteps(); renderEnroll();
+}
+</script>
+</body>
+</html>
