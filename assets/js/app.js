@@ -661,7 +661,7 @@ function courseCardHTML(c, opts) {
             : c.isNew ? '<span class="crs-tag new">جدید</span>'
             : c.featured ? '<span class="crs-tag">پیشنهاد آیولب</span>' : "";
   return `
-    <a class="course-card ${c.type === "guided" ? "guided" : ""}" href="course.html?id=${c.id}">
+    <a class="course-card ${c.type === "guided" ? "guided" : ""}" href="${opts.href || "course.html?id=" + c.id}">
       <div class="cc-thumb" style="background:linear-gradient(135deg,${cat.bg},#fff 70%);color:${cat.color}">
         ${ICONS[cat.icon] || ICONS.grad}
         ${tag}
@@ -734,6 +734,44 @@ function sortCourses(list, sort) {
   return a;
 }
 
+
+/* ---------- دوره‌های ساخته‌شده توسط کاربر (سازنده دوره) — دمو در localStorage ----------
+   هر آیتم همان ساختار AIO_COURSES را دارد + id رشته‌ای «d…»، status (draft|pending|published)، ownerName، providerName */
+const MyCreated = {
+  all: () => Store.get("created_courses", []),
+  get: id => MyCreated.all().find(c => c.id === id),
+  save(c) {
+    const a = MyCreated.all(); const i = a.findIndex(x => x.id === c.id);
+    c.updatedAt = new Date().toISOString();
+    i < 0 ? a.unshift(c) : (a[i] = c); Store.set("created_courses", a); return c;
+  },
+  remove(id) { Store.set("created_courses", MyCreated.all().filter(c => c.id !== id)); }
+};
+/* پیش‌نویس را به شکل قابل نمایش برای courseCardHTML / course.html درمی‌آورد
+   (ارائه‌دهنده و مدرسان سفارشی به‌صورت موقت به فهرست‌های سراسری اضافه می‌شوند) */
+function draftAsCourse(d) {
+  if (!d) return null;
+  if (d.providerId === "mine" && !AIO_PROVIDERS.some(p => p.id === "mine"))
+    AIO_PROVIDERS.push({ id: "mine", name: d.providerName || "مرکز من", kind: "مرکز عضو", color: "#0d9488", labId: null, about: "ارائه‌دهنده‌ی این دوره؛ عضو آیولب." });
+  else if (d.providerId === "mine") AIO_PROVIDERS.find(p => p.id === "mine").name = d.providerName || "مرکز من";
+  (d.newInstructors || []).forEach((n, i) => {
+    const id = "n" + i, ex = AIO_INSTRUCTORS.find(x => x.id === id);
+    const obj = { id, name: n.name || "مدرس", title: n.title || "", org: d.providerName || "", color: "#0f766e", students: 0, rating: 5, courses: 1, bio: n.bio || "" };
+    ex ? Object.assign(ex, obj) : AIO_INSTRUCTORS.push(obj);
+  });
+  const lessons = (d.syllabus || []).flatMap(m => m.lessons || []);
+  const mins = lessons.reduce((s, l) => s + (Number(l.min) || 0), 0);
+  return Object.assign({
+    type: "course", level: "مقدماتی", format: "self", lang: "فارسی", cat: "soft", providerId: "aiolab",
+    instructorIds: [], price: 0, weeks: 1, cert: true, certType: "گواهی مهارت آیولب", rating: 5, ratingCount: 0, students: 0,
+    updated: "۱۴۰۵/۰۶", skills: [], outcomes: [], prereq: [], audience: [], syllabus: [], faq: [], reviews: []
+  }, d, {
+    hours: d.hours || +(mins / 60).toFixed(1),
+    instructorIds: [...(d.instructorIds || []), ...(d.newInstructors || []).map((_, i) => "n" + i)],
+    syllabus: (d.syllabus || []).map(m => ({ ...m, hours: m.hours || +((m.lessons || []).reduce((s, l) => s + (Number(l.min) || 0), 0) / 60).toFixed(1) }))
+  });
+}
+
 /* ---------- Page bootstrap ---------- */
 document.addEventListener("DOMContentLoaded", () => {
   const page = document.body.dataset.page || "";
@@ -742,10 +780,17 @@ document.addEventListener("DOMContentLoaded", () => {
   if (typeof I18N !== "undefined") I18N.apply();
   document.addEventListener("click", e => {
     document.querySelectorAll(".user-menu.open, .msg-menu.open, .lang-menu.open, .nav-group.open").forEach(m => {
-      if (!m.contains(e.target) && !m.parentElement.contains(e.target)) m.classList.remove("open");
+      if (!m.contains(e.target) && !m.parentElement.contains(e.target)) {
+        m.classList.remove("open");
+        const b = m.querySelector(":scope > .nav-link"); if (b) b.setAttribute("aria-expanded", "false");
+      }
     });
   });
   document.addEventListener("keydown", e => {
-    if (e.key === "Escape") document.querySelectorAll(".open").forEach(m => m.classList.remove("open"));
+    if (e.key === "Escape") document.querySelectorAll(".user-menu.open, .msg-menu.open, .lang-menu.open, .nav-group.open, .main-nav.open").forEach(m => m.classList.remove("open"));
   });
+  /* وقتی پوینتر از کل گروه بیرون رفت، حالت open کلیکی هم بسته شود تا منو معلق نماند */
+  document.querySelectorAll(".nav-group").forEach(g => g.addEventListener("mouseleave", () => {
+    if (window.innerWidth > 1080) { g.classList.remove("open"); g.querySelector(".nav-link").setAttribute("aria-expanded", "false"); }
+  }));
 });

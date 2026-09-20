@@ -104,7 +104,14 @@ let C;
 const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>';
 
 document.addEventListener("DOMContentLoaded", () => {
-  C = course(qs("id")) || AIO_COURSES[0];
+  const draft = qs("draft") ? MyCreated.get(qs("draft")) : null;
+  C = draft ? draftAsCourse(draft) : (course(qs("id")) || AIO_COURSES[0]);
+  if (draft) {
+    C.subtitle = C.subtitle || "—";
+    document.querySelector(".crs-hero .container").insertAdjacentHTML("afterbegin",
+      `<div class="draft-banner">👁 <b>پیش‌نمایش دوره منتشرنشده</b> — وضعیت: ${{ draft: "پیش‌نویس", pending: "در انتظار بازبینی", published: "منتشرشده" }[draft.status]} ·
+       <a href="course-builder.html?id=${draft.id}">بازگشت به ویرایش</a></div>`);
+  }
   const cat = courseCat(C.cat), pv = provider(C.providerId);
   document.title = C.title + " | آکادمی آیولب";
 
@@ -222,6 +229,14 @@ function renderReviews() {
 }
 
 function renderEnroll() {
+  if (typeof C.id === "string") {
+    document.getElementById("enroll-card").innerHTML = `
+      <div class="ec-price"><b class="${!C.price ? "free" : ""}">${coursePrice(C)}</b>${C.oldPrice ? `<s>${fa(C.oldPrice)}</s>` : ""}</div>
+      <div class="ec-note">این دوره هنوز منتشر نشده و ثبت‌نام آن پس از بازبینی فعال می‌شود.</div>
+      <a class="btn btn-primary btn-block" href="course-builder.html?id=${C.id}">ویرایش دوره</a>
+      <ul class="ec-list"><li>${CHECK} ${fa(C.hours)} ساعت محتوا · ${fa(courseLessons(C).length)} درس</li><li>${CHECK} ${C.cert ? C.certType : "بدون گواهی"}</li></ul>`;
+    return;
+  }
   const pr = courseProgress(C), wl = MyWishlist.has(C.id);
   const off = C.oldPrice ? Math.round((1 - C.price / C.oldPrice) * 100) : 0;
   const paths = pathsOfCourse(C.id);

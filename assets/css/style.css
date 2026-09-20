@@ -1137,15 +1137,19 @@ html, body { max-width: 100%; overflow-x: hidden; }
 .ng-caret { width: 13px; height: 13px; transition: transform .2s; opacity: .6; }
 .nav-group.open .ng-caret { transform: rotate(180deg); }
 .nav-menu {
-  position: absolute; top: calc(100% + 9px); inset-inline-start: 50%; transform: translateX(-50%) translateY(-6px);
+  /* left فیزیکی (نه inset-inline-start): در RTL ترکیب right:50% با translateX(-50%) منو را یک نیم‌عرض از زیر دکمه دور می‌کرد
+     و مسیر موس از دکمه تا منو از فضای خالی می‌گذشت و منو بسته می‌شد */
+  position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%) translateY(-6px);
   background: #fff; border: 1px solid var(--navy-200); border-radius: 13px; box-shadow: var(--shadow-lg);
   padding: 8px; min-width: 300px; z-index: 90;
   opacity: 0; visibility: hidden; transition: opacity .16s, transform .16s, visibility .16s;
 }
-.nav-group:hover .nav-menu, .nav-group.open .nav-menu {
+.nav-group:hover .nav-menu, .nav-group.open .nav-menu, .nav-group:focus-within .nav-menu {
   opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0);
 }
-.nav-menu::before { content: ""; position: absolute; top: -9px; inset-inline: 0; height: 9px; }
+/* پل نامرئی روی فاصله‌ی بین دکمه و منو تا هاور قطع نشود */
+.nav-menu::before { content: ""; position: absolute; top: -12px; left: 0; right: 0; height: 12px; }
+.nav-group.open > .nav-link .ng-caret, .nav-group:hover > .nav-link .ng-caret { transform: rotate(180deg); opacity: 1; }
 .nav-menu a { display: flex; gap: 11px; align-items: flex-start; padding: 10px 12px; border-radius: 9px; transition: .14s; }
 .nav-menu a:hover { background: var(--teal-50); }
 .nav-menu a.on { background: var(--teal-50); }
@@ -1224,7 +1228,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
   }
   .nav-group.open .nav-menu { display: block; transform: none; }
   .nav-group:hover .nav-menu { opacity: 1; }
-  .nav-group:not(.open):hover .nav-menu { display: none; }
+  .nav-group:not(.open):hover .nav-menu, .nav-group:not(.open):focus-within .nav-menu { display: none; }
   .header-inner { height: 60px; }
 }
 @media (max-width: 900px) {
@@ -1822,3 +1826,81 @@ select:disabled { background: var(--navy-50); color: var(--navy-400); cursor: no
   .my-course .mc-ic { display: none; }
   .learn-top .lt-prog .bar { width: 100px; }
 }
+
+/* ===============================================
+   لایه ۶ — سازنده دوره (course-builder.html)
+   =============================================== */
+.builder-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; padding: 28px 0 60px; align-items: start; }
+.builder-layout > * { min-width: 0; }
+.stepper { display: flex; gap: 6px; background: #fff; border: 1px solid var(--navy-200); border-radius: var(--radius); padding: 8px; margin-bottom: 18px; overflow-x: auto; scrollbar-width: none; }
+.stepper button { flex: 1; min-width: 130px; display: flex; align-items: center; gap: 9px; background: none; border: none; font: inherit; font-size: 13px; color: var(--navy-500); padding: 9px 12px; border-radius: 9px; cursor: pointer; white-space: nowrap; transition: .15s; }
+.stepper button i { width: 26px; height: 26px; border-radius: 50%; background: var(--navy-100); color: var(--navy-600); font-style: normal; font-weight: 800; font-size: 12px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.stepper button.on { background: var(--teal-50); color: var(--teal-800); font-weight: 700; }
+.stepper button.on i { background: var(--teal-600); color: #fff; }
+.stepper button.done i { background: #d1fae5; color: #047857; }
+.b-step { display: none; }
+.b-step.active { display: block; }
+.b-actions { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.b-actions .grow { flex: 1; }
+.list-edit { display: flex; flex-direction: column; gap: 8px; }
+.list-edit .le-row { display: flex; gap: 8px; align-items: center; }
+.list-edit .le-row input { flex: 1; padding: 9px 12px; border: 1.5px solid var(--navy-200); border-radius: 8px; font: inherit; font-size: 13.5px; outline: none; min-width: 0; }
+.list-edit .le-row input:focus { border-color: var(--teal-500); }
+.list-edit .le-row button { background: var(--navy-100); border: none; width: 30px; height: 30px; border-radius: 8px; color: var(--rose-500); font-size: 15px; cursor: pointer; flex-shrink: 0; }
+.list-edit .le-add { align-self: flex-start; }
+.chip-input { display: flex; flex-wrap: wrap; gap: 6px; border: 1.5px solid var(--navy-200); border-radius: var(--radius-sm); padding: 7px 9px; background: #fff; }
+.chip-input span { background: var(--teal-50); color: var(--teal-800); border: 1px solid var(--teal-100); border-radius: 99px; padding: 3px 10px; font-size: 12.5px; display: inline-flex; gap: 6px; align-items: center; }
+.chip-input span button { background: none; border: none; color: var(--rose-500); cursor: pointer; font-size: 13px; line-height: 1; padding: 0; }
+.chip-input input { flex: 1; min-width: 140px; border: none; outline: none; font: inherit; font-size: 13.5px; padding: 4px; }
+.instr-pick { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.instr-pick label { display: flex; gap: 10px; align-items: center; border: 1.5px solid var(--navy-200); border-radius: var(--radius-sm); padding: 9px 11px; cursor: pointer; font-size: 13px; color: var(--navy-700); transition: .14s; }
+.instr-pick label:has(input:checked) { border-color: var(--teal-600); background: var(--teal-50); }
+.instr-pick label input { accent-color: var(--teal-600); }
+.instr-pick .av { width: 30px; height: 30px; border-radius: 50%; color: #fff; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.instr-pick small { display: block; font-size: 11.5px; color: var(--navy-400); }
+/* ویرایشگر سرفصل */
+.b-mod { border: 1.5px solid var(--navy-200); border-radius: var(--radius); background: var(--navy-50); padding: 14px; margin-bottom: 12px; }
+.b-mod-head { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.b-mod-head .mn { width: 30px; height: 30px; border-radius: 50%; background: var(--teal-600); color: #fff; font-weight: 800; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.b-mod-head input { flex: 1; padding: 9px 12px; border: 1.5px solid var(--navy-200); border-radius: 8px; font: inherit; font-size: 14px; font-weight: 700; outline: none; min-width: 0; background: #fff; }
+.b-mod-head .mh { font-size: 12px; color: var(--navy-500); white-space: nowrap; }
+.b-lesson { display: grid; grid-template-columns: 26px 1fr 130px 80px 30px; gap: 7px; align-items: center; margin-bottom: 7px; }
+.b-lesson .li { width: 26px; height: 26px; border-radius: 7px; background: #fff; border: 1px solid var(--navy-200); font-size: 12px; display: inline-flex; align-items: center; justify-content: center; color: var(--navy-600); }
+.b-lesson input, .b-lesson select { padding: 8px 10px; border: 1.5px solid var(--navy-200); border-radius: 8px; font: inherit; font-size: 13px; outline: none; background: #fff; min-width: 0; }
+.b-lesson input:focus, .b-lesson select:focus { border-color: var(--teal-500); }
+.b-lesson button { background: none; border: none; color: var(--rose-500); font-size: 15px; cursor: pointer; }
+.b-mod-foot { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.b-mod-foot .btn-danger { margin-inline-start: auto; }
+/* پیش‌نمایش */
+.b-preview { position: sticky; top: 88px; }
+.b-preview .panel { padding: 18px; }
+.b-preview h2 { font-size: 15px; }
+.b-preview .course-card { pointer-events: none; }
+.b-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.b-stats div { background: var(--navy-50); border-radius: 9px; padding: 9px 11px; }
+.b-stats b { display: block; font-size: 15px; color: var(--navy-900); }
+.b-stats span { font-size: 11.5px; color: var(--navy-500); }
+.b-check { margin-top: 12px; }
+.b-check li { display: flex; gap: 8px; align-items: center; font-size: 12.5px; padding: 4px 0; color: var(--navy-600); }
+.b-check li.ok { color: #047857; }
+.b-check li.no { color: #be123c; }
+.b-check li::before { content: "•"; }
+.b-check li.ok::before { content: "✓"; font-weight: 800; }
+.b-check li.no::before { content: "✕"; font-weight: 800; }
+.status-pill { font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 99px; }
+.status-pill.draft { background: var(--navy-100); color: var(--navy-600); }
+.status-pill.pending { background: var(--amber-100); color: #92400e; }
+.status-pill.published { background: var(--teal-100); color: var(--teal-800); }
+.created-row { display: grid; grid-template-columns: 1fr auto; gap: 10px 16px; align-items: center; padding: 13px 0; border-bottom: 1px dashed var(--navy-100); }
+.created-row:last-child { border-bottom: none; }
+.created-row b { font-size: 14.5px; color: var(--navy-900); display: block; }
+.created-row small { font-size: 12px; color: var(--navy-500); }
+.created-row .cr-act { display: flex; gap: 6px; flex-wrap: wrap; }
+.create-cta { display: flex; align-items: center; gap: 14px; background: linear-gradient(120deg, var(--teal-50), #fff); border: 1.5px dashed var(--teal-500); border-radius: var(--radius); padding: 16px 18px; margin-top: 18px; flex-wrap: wrap; }
+.create-cta .cc-txt { flex: 1; min-width: 220px; }
+.create-cta b { display: block; font-size: 14.5px; color: var(--navy-900); }
+.create-cta span { font-size: 12.5px; color: var(--navy-500); }
+.draft-banner { background: var(--amber-100); color: #92400e; border-radius: var(--radius-sm); padding: 11px 14px; font-size: 13px; margin-bottom: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.draft-banner a { color: #92400e; font-weight: 700; text-decoration: underline; }
+@media (max-width: 980px) { .builder-layout { grid-template-columns: 1fr; } .b-preview { position: static; } }
+@media (max-width: 720px) { .b-lesson { grid-template-columns: 26px 1fr 30px; } .b-lesson select, .b-lesson input[type=number] { grid-column: 2; } .instr-pick { grid-template-columns: 1fr; } }

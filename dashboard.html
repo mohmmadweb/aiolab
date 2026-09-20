@@ -180,6 +180,11 @@
         <div class="course-grid" id="my-wishlist"></div>
       </div>
       <div class="panel">
+        <div class="syllabus-head"><div><h2>دوره‌های ساخته‌شده من</h2><p>مدرس هستید؟ دوره‌تان را در آکادمی منتشر کنید</p></div>
+          <a class="btn btn-sm btn-outline" href="course-builder.html">+ ساخت دوره جدید</a></div>
+        <div id="my-created"></div>
+      </div>
+      <div class="panel">
         <h2>پیشنهاد آکادمی برای شما <span class="chip teal">بر اساس پروفایل و خودارزیابی</span></h2>
         <div class="course-grid" id="rec-courses"></div>
         <a class="btn btn-outline" href="courses.html" style="margin-top:14px">مشاهده همه دوره‌ها</a>
@@ -371,6 +376,12 @@ function renderMyCourses() {
     </div>`;
   }).join("")
   : `<div class="empty-inline">هنوز در دوره‌ای ثبت‌نام نکرده‌اید. <a href="courses.html">آکادمی آیولب</a> را ببینید — سه دوره رایگان دارد.</div>`;
+
+  const created = MyCreated.all(), st = { draft: "پیش‌نویس", pending: "در انتظار بازبینی", published: "منتشرشده" };
+  document.getElementById("my-created").innerHTML = created.length ? created.map(c => `
+    <div class="created-row"><div><b>${c.title || "بدون عنوان"} <span class="status-pill ${c.status}">${st[c.status]}</span></b><small>${courseCat(c.cat).name} · ${fa((c.syllabus || []).length)} ماژول</small></div>
+      <div class="cr-act"><a class="btn btn-sm btn-outline" href="course.html?draft=${c.id}">پیش‌نمایش</a><a class="btn btn-sm btn-primary" href="course-builder.html?id=${c.id}">ویرایش</a></div></div>`).join("")
+    : `<div class="empty-inline">هنوز دوره‌ای نساخته‌اید.</div>`;
 
   const wl = MyWishlist.all().map(course).filter(Boolean);
   document.getElementById("my-wishlist").innerHTML = wl.length ? wl.map(c => courseCardHTML(c, { compact: true })).join("")

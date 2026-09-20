@@ -38,6 +38,7 @@
       <a href="#applicants" data-sec="applicants"></a>
       <a href="#resumes" data-sec="resumes"></a>
       <a href="#exambuilder" data-sec="exambuilder"></a>
+      <a href="#training" data-sec="training"></a>
       <a href="#matching" data-sec="matching"></a>
       <a href="#branding" data-sec="branding"></a>
       <a href="#hiring" data-sec="hiring"></a>
@@ -285,6 +286,24 @@
       </div>
     </section>
 
+    <!-- ===== دوره‌های آموزشی من (آکادمی) ===== -->
+    <section id="sec-training">
+      <h1 class="dash-title">دوره‌های آموزشی من</h1>
+      <p class="dash-sub">به‌عنوان ارائه‌دهنده، دوره‌های خود را در آکادمی آیولب منتشر کنید. فراگیران گواهی مشترک شما و آیولب را روی رزومه می‌گیرند و سهم شما (۷۰ تا ۹۰٪ مبلغ دوره) ماهانه تسویه می‌شود.</p>
+      <div class="dash-cards" id="training-stats"></div>
+      <div class="panel">
+        <div class="syllabus-head"><div><h2>دوره‌های ساخته‌شده</h2><p>پیش‌نویس‌ها، در انتظار بازبینی و منتشرشده</p></div>
+          <a class="btn btn-primary" href="course-builder.html">+ ساخت دوره جدید</a></div>
+        <div id="my-created"></div>
+      </div>
+      <div class="panel">
+        <h2>آموزش پرسنل مرکز</h2>
+        <p>پرسنل خود را در دوره‌های آکادمی ثبت‌نام کنید و پیشرفت‌شان را ببینید. دارندگان اشتراک سالانه ویژه، ۳۰٪ تخفیف روی ۳ دوره دارند.</p>
+        <div class="course-grid" id="training-rec" style="margin-top:14px"></div>
+        <a class="btn btn-outline" href="courses.html" style="margin-top:14px">مشاهده همه دوره‌ها</a>
+      </div>
+    </section>
+
     <!-- ===== Pricing ===== -->
     <!-- ===== تطبیق هوشمند (R5, R6) ===== -->
     <section id="sec-matching">
@@ -396,7 +415,8 @@ const NAV_ITEMS = [
   ["jobs", "آگهی‌های من", "briefcase"],
   ["applicants", "متقاضیان", "users"],
   ["resumes", "بانک رزومه", "search"],
-  ["exambuilder", "طراحی آزمون و گواهی", "grad"],
+  ["exambuilder", "طراحی آزمون و گواهی", "shield"],
+  ["training", "دوره‌های آموزشی من", "grad"],
   ["matching", "تطبیق هوشمند", "path"],
   ["branding", "برند کارفرمایی", "shield"],
   ["hiring", "خدمات استخدام کامل", "users"],
@@ -430,6 +450,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initResumeBank();
   initExamBuilder();
   initEmployerServices();
+  renderTraining();
 
   // my jobs
   document.getElementById("jobs-body").innerHTML = AIO_EMPLOYER_JOBS.map(j => `
@@ -479,6 +500,30 @@ document.addEventListener("DOMContentLoaded", () => {
       <td><button class="btn btn-sm btn-outline" onclick="toast('مشاهده رزومه کامل — از اعتبار پلن شما کسر می‌شود (دمو)')">مشاهده رزومه</button></td>
     </tr>`).join("");
 });
+
+/* ---------- دوره‌های آموزشی من (سازنده دوره) ---------- */
+function renderTraining() {
+  const list = MyCreated.all();
+  const st = { draft: "پیش‌نویس", pending: "در انتظار بازبینی", published: "منتشرشده" };
+  const n = k => list.filter(c => c.status === k).length;
+  document.getElementById("training-stats").innerHTML = `
+    <div class="dash-stat"><b>${fa(list.length)}</b><span>دوره ساخته‌شده</span></div>
+    <div class="dash-stat"><b>${fa(n("pending"))}</b><span>در انتظار بازبینی</span></div>
+    <div class="dash-stat"><b>${fa(n("published"))}</b><span>منتشرشده</span></div>
+    <div class="dash-stat"><b>${fa(n("draft"))}</b><span>پیش‌نویس</span></div>`;
+  document.getElementById("my-created").innerHTML = list.length ? list.map(c => {
+    const d = draftAsCourse(JSON.parse(JSON.stringify(c))), lessons = d.syllabus.flatMap(m => m.lessons);
+    return `<div class="created-row">
+      <div><b>${c.title || "بدون عنوان"} <span class="status-pill ${c.status}">${st[c.status]}</span></b>
+        <small>${courseCat(d.cat).name} · ${d.level} · ${fa(d.syllabus.length)} ماژول · ${fa(lessons.length)} درس · ${fa(d.hours)} ساعت · ${coursePrice(d)}</small></div>
+      <div class="cr-act">
+        <a class="btn btn-sm btn-outline" href="course.html?draft=${c.id}">پیش‌نمایش</a>
+        <a class="btn btn-sm btn-primary" href="course-builder.html?id=${c.id}">ویرایش</a>
+        <button class="btn btn-sm btn-ghost" onclick="if(confirm('حذف شود؟')){MyCreated.remove('${c.id}');renderTraining();toast('حذف شد')}">حذف</button>
+      </div></div>`;
+  }).join("") : `<div class="empty-inline">هنوز دوره‌ای نساخته‌اید. با «ساخت دوره جدید» در پنج گام دوره‌تان را بسازید.</div>`;
+  document.getElementById("training-rec").innerHTML = sortCourses(AIO_COURSES.filter(c => ["qc", "safety", "management"].includes(c.cat)), "rating").slice(0, 3).map(c => courseCardHTML(c, { compact: true })).join("");
+}
 
 /* ---------- خدمات کارفرما (از مدل درآمدی) ---------- */
 function initEmployerServices() {
