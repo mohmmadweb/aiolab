@@ -82,6 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("p-kind").textContent = kind;
   document.getElementById("p-kind").style.cssText = `color:${P.color};background:${P.bg}`;
   document.getElementById("p-title").textContent = P.title;
+  injectBreadcrumbLD(P.title);
   document.getElementById("p-desc").textContent = P.desc;
   document.getElementById("p-stats").innerHTML = `
     <div><b>${fa(PC.length)} دوره</b><span>${fa(PC.reduce((s, c) => s + courseLessons(c).length, 0))} درس</span></div>

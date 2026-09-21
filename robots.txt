@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /learn.html
+Disallow: /course-builder.html
+Disallow: /dashboard.html
+Disallow: /employer.html
+Sitemap: https://aiolab.ir/sitemap.xml

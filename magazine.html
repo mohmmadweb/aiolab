@@ -72,7 +72,7 @@ function setCat(c) { activeCat = c;
 function render() {
   const list = AIO_ARTICLES.filter(a => !activeCat || a.cat === activeCat);
   document.getElementById("articles").innerHTML = list.map(a => `
-    <a class="content-card" href="#" onclick="toast('صفحه مقاله در نسخه بعدی (دمو)');return false">
+    <a class="content-card" href="magazine.html?article=${a.id}" onclick="toast('صفحه مقاله در نسخه بعدی (دمو)');return false">
       <div class="thumb" style="background:${a.bg};color:${a.color}">${ICONS[a.icon] || ICONS.doc}</div>
       <div class="body">
         <span class="cat">${a.cat}</span>

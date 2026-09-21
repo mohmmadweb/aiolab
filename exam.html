@@ -24,6 +24,8 @@
 
 <div class="container exam-wrap">
 
+  <div class="breadcrumb"><a href="index.html">خانه</a> / <a href="exams.html">آزمون و گواهینامه</a> / <span id="bc-exam">…</span></div>
+
   <!-- ===== Intro ===== -->
   <div id="intro" class="exam-panel">
     <div class="ep-head">
@@ -98,6 +100,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const l = lab(EX.authorLabId);
   document.getElementById("i-badge").textContent = EX.badge;
   document.getElementById("i-title").textContent = EX.title;
+  document.getElementById("bc-exam").textContent = EX.title;
+  injectBreadcrumbLD(EX.title);
   document.getElementById("i-by").textContent = "طراح آزمون: " + l.name + (l.verified ? " ✔️" : "");
   document.getElementById("i-desc").textContent = EX.desc;
   document.getElementById("i-meta").innerHTML = `

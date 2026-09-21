@@ -51,7 +51,7 @@
       </div>
       <p id="l-about"></p>
       <div class="job-meta" id="l-perks" style="margin-top:14px"></div>
-      <a id="l-link" href="#" class="btn btn-outline btn-sm" style="margin-top:16px">مشاهده پروفایل آزمایشگاه</a>
+      <a id="l-link" href="labs.html" class="btn btn-outline btn-sm" style="margin-top:16px">مشاهده پروفایل آزمایشگاه</a>
     </div>
 
     <div class="panel">
@@ -97,6 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.title = J.title + " | آیولب";
   document.getElementById("bc-title").textContent = J.title;
+  injectBreadcrumbLD(J.title);
   document.getElementById("j-title").textContent = J.title;
   document.getElementById("j-sub").innerHTML = `${L.name} · ${J.city} · <span class="chip" style="background:${D.bg};color:${D.color}">${D.name}</span>`;
   document.getElementById("j-desc").textContent = J.desc;

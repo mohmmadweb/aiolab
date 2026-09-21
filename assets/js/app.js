@@ -67,6 +67,83 @@ const MyMBTI    = { get: () => Store.get("mbti", null),  set: r => Store.set("mb
 const MyAssess  = { get: () => Store.get("assess", null), set: r => Store.set("assess", r) };
 const MyLabs    = { all: () => Store.get("mylabs", []),  add: l => Store.push("mylabs", l) };
 
+
+/* ==========================================
+   نقشه سایت — منبع حقیقت واحد برای لینک‌دهی داخلی
+   هر صفحه: path، عنوان، والد (برای بردکرامب و JSON-LD)، گروه فوتر، و
+   قرارداد پارامترهای URL. فوتر، بردکرامب ساخت‌یافته و 404 از همین‌جا می‌خوانند.
+   قرارداد deep-link (سند کامل: Docs/LINK-STRUCTURE.md):
+     job.html?id=        lab.html?id=        exam.html?id=      course.html?id= | ?draft=
+     learn.html?id=[&lesson=m:l]   path.html?id=   course-builder.html[?id=][&step=]
+     jobs.html?q=&prov=&city=&dept=&type=&shift=&benefit=&remote=1&urgent=1
+     courses.html?cat=&q=&skill=&level=&type=course|guided&free=1   services.html#<groupId>
+     dashboard.html#<section>   employer.html#<section>   login.html?role=   register.html?role=
+   ========================================== */
+const AIO_SITEMAP = [
+  { path: "index.html",          title: "خانه",                         parent: null },
+  { path: "jobs.html",           title: "فرصت‌های شغلی",                parent: "index.html",      group: "seeker" },
+  { path: "job.html",            title: "جزئیات آگهی",                  parent: "jobs.html",       dynamic: true },
+  { path: "labs.html",           title: "آزمایشگاه‌ها روی نقشه",        parent: "index.html",      group: "company" },
+  { path: "lab.html",            title: "پروفایل مرکز",                 parent: "labs.html",       dynamic: true },
+  { path: "ranking.html",        title: "رتبه‌بندی مراکز",              parent: "labs.html",       group: "company" },
+  { path: "dashboard.html",      title: "داشبورد کارجو",                parent: "index.html",      auth: "seeker" },
+  { path: "employer.html",       title: "پنل کارفرما",                  parent: "index.html",      auth: "employer" },
+  { path: "exams.html",          title: "آزمون و گواهینامه",            parent: "index.html",      group: "seeker" },
+  { path: "exam.html",           title: "آزمون",                        parent: "exams.html",      dynamic: true },
+  { path: "assessment.html",     title: "خودارزیابی مهارت",             parent: "index.html",      group: "seeker" },
+  { path: "mbti.html",           title: "تست شخصیت‌شناسی MBTI",         parent: "assessment.html" },
+  { path: "courses.html",        title: "آکادمی آیولب",                 parent: "index.html",      group: "seeker" },
+  { path: "course.html",         title: "دوره",                         parent: "courses.html",    dynamic: true },
+  { path: "learn.html",          title: "محیط یادگیری",                 parent: "course.html",     dynamic: true, auth: "any" },
+  { path: "path.html",           title: "مسیر یادگیری",                 parent: "courses.html#paths", dynamic: true },
+  { path: "course-builder.html", title: "ساخت دوره",                    parent: "courses.html",    auth: "any" },
+  { path: "magazine.html",       title: "مجله آیولب",                   parent: "index.html",      group: "company" },
+  { path: "community.html",      title: "جامعه آزمایشگاهی",             parent: "index.html",      group: "company" },
+  { path: "faq.html",            title: "سؤالات پرتکرار",               parent: "index.html",      group: "company" },
+  { path: "services.html",       title: "خدمات آیولب",                  parent: "index.html",      group: "company" },
+  { path: "pricing.html",        title: "تعرفه‌ها و اشتراک‌ها",          parent: "services.html",   group: "company" },
+  { path: "reports.html",        title: "گزارش بازار کار",              parent: "services.html",   group: "company" },
+  { path: "advertise.html",      title: "تبلیغات و همکاری",             parent: "services.html",   group: "employer" },
+  { path: "about.html",          title: "درباره ما",                    parent: "index.html",      group: "company" },
+  { path: "contact.html",        title: "تماس با ما",                   parent: "index.html",      group: "company" },
+  { path: "login.html",          title: "ورود",                         parent: "index.html" },
+  { path: "register.html",       title: "ثبت‌نام",                      parent: "index.html" },
+  { path: "404.html",            title: "صفحه پیدا نشد",                parent: "index.html", noindex: true }
+];
+const route = path => AIO_SITEMAP.find(r => r.path === (path || "").split("#")[0].split("?")[0]);
+const currentPath = () => (location.pathname.split("/").pop() || "index.html");
+
+/* زنجیره‌ی والدها تا خانه — برای JSON-LD BreadcrumbList (نامرئی؛ فقط داده‌ی ساخت‌یافته) */
+function breadcrumbChain(path, leafTitle) {
+  const chain = []; let r = route(path); let guard = 0;
+  while (r && guard++ < 8) { chain.unshift({ path: r.path, title: r.path === path && leafTitle ? leafTitle : r.title }); r = r.parent ? route(r.parent) : null; }
+  return chain;
+}
+function injectBreadcrumbLD(leafTitle) {
+  const p = currentPath(); if (p === "index.html" || (route(p) || {}).noindex) return;
+  const items = breadcrumbChain(p, leafTitle || document.title.split("|")[0].trim());
+  const ld = { "@context": "https://schema.org", "@type": "BreadcrumbList",
+    itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, name: it.title, item: "https://aiolab.ir/" + it.path + (it.path === p ? location.search : "") })) };
+  let el = document.getElementById("ld-breadcrumb");
+  if (!el) { el = document.createElement("script"); el.type = "application/ld+json"; el.id = "ld-breadcrumb"; document.head.appendChild(el); }
+  el.textContent = JSON.stringify(ld);
+}
+/* لینک‌های فوتر — ستون‌ها ثابت (ظاهر بدون تغییر)، مقصدها از نقشه سایت */
+const AIO_FOOTER = [
+  { title: "کارجویان", links: [
+      ["jobs.html", "جستجوی فرصت شغلی"], ["dashboard.html#resume", "رزومه‌ساز حرفه‌ای"], ["courses.html", "آکادمی و دوره‌های آموزشی"],
+      ["courses.html#paths", "مسیرهای یادگیری تخصصی"], ["exams.html", "آزمون و گواهینامه"], ["services.html#interview", "مصاحبه تخصصی و توصیه‌نامه"],
+      ["services.html#advice", "مشاوره شغلی"], ["magazine.html", "راهنمای مسیر شغلی"] ] },
+  { title: "کارفرمایان", links: [
+      ["login.html?role=employer", "ثبت آگهی استخدام"], ["employer.html#resumes", "جستجوی بانک رزومه"], ["employer.html#pricing", "تعرفه‌ها و اشتراک"],
+      ["services.html#matching", "تطبیق هوشمند"], ["services.html#hiring", "خدمات استخدام کامل"], ["services.html#branding", "برند کارفرمایی"],
+      ["advertise.html", "تبلیغات و اسپانسری"] ] },
+  { title: "آیولب", links: [
+      ["faq.html", "سؤالات پرتکرار"], ["services.html", "خدمات آیولب"], ["pricing.html", "تعرفه‌ها و اشتراک"], ["reports.html", "گزارش بازار کار"],
+      ["ranking.html", "رتبه‌بندی مراکز"], ["magazine.html", "در آزمایشگاه چه می‌گذرد؟"], ["community.html", "جامعه آزمایشگاهی"],
+      ["about.html", "درباره ما"], ["contact.html", "تماس با ما"] ] }
+];
+
 /* ---------- ساختار منو ----------
    ده مقصد قبلی حفظ شده‌اند، فقط در ۵ گروه مرتب شده‌اند تا نوار بالا شلوغ نباشد. */
 const AIO_NAV = [
@@ -129,7 +206,7 @@ function renderHeader(active) {
         ${unread ? `<span class="badge-count">${unread.toLocaleString("fa-IR")}</span>` : ""}
       </button>
       <div class="msg-menu" id="msg-menu">
-        <div class="msg-head">پیام‌ها <a href="dashboard.html#notifications">مشاهده همه</a></div>
+        <div class="msg-head">پیام‌ها <a href="${(u && u.role === "employer") ? "employer.html#applicants" : "dashboard.html#notifications"}">مشاهده همه</a></div>
         ${(typeof AIO_MESSAGES !== "undefined" ? AIO_MESSAGES : []).map(m => `
           <div class="msg-item ${m.unread ? "unread" : ""}">
             <b>${m.from}</b>
@@ -156,7 +233,7 @@ function renderHeader(active) {
         <div class="user-menu">
           <a href="${dash}">${u.role === "employer" ? "پنل کارفرما"
                             : (u.role === "supplier" ? "پنل تأمین‌کننده" : "داشبورد من")}</a>
-          <a href="${dash}#notifications">اعلان‌ها</a>
+          <a href="${u.role === "employer" ? "employer.html#applicants" : (u.role === "supplier" ? "advertise.html" : "dashboard.html#notifications")}">${u.role === "employer" ? "متقاضیان جدید" : "اعلان‌ها"}</a>
           <button class="danger" onclick="Auth.logout()">خروج از حساب</button>
         </div>
       </div>`;
@@ -173,7 +250,7 @@ function renderHeader(active) {
       <div class="container">
         <span class="vb-label">خانواده آیو</span>
         ${AIO_VERTICALS.map(v => `
-          <a class="vb-item ${v.active ? "active" : "soon"}" href="${v.active ? "index.html" : "#"}"
+          <a class="vb-item ${v.active ? "active" : "soon"}" href="${v.active ? "index.html" : "about.html#verticals"}"
              title="${v.slug}${v.active ? "" : " — به‌زودی"}"
              ${v.active ? "" : 'onclick="toast(\'این بخش به‌زودی راه‌اندازی می‌شود\');return false"'}
              style="--vc:${v.color}">${v.name}</a>`).join("")}
@@ -228,59 +305,27 @@ function renderFooter() {
           <a href="index.html" class="logo">${LOGO_SVG}<span>آیو<b>لب</b></span></a>
           <p>آیولب، پلتفرم تخصصی کاریابی و توسعه شغلی پرسنل آزمایشگاه‌های تشخیص طبی و پژوهشی ایران. اتصال هوشمند کارجویان و آزمایشگاه‌ها.</p>
         </div>
+        ${AIO_FOOTER.map(col => `
         <div>
-          <h4>کارجویان</h4>
+          <h4>${col.title}</h4>
           <ul>
-            <li><a href="jobs.html">جستجوی فرصت شغلی</a></li>
-            <li><a href="dashboard.html">رزومه‌ساز حرفه‌ای</a></li>
-            <li><a href="courses.html">آکادمی و دوره‌های آموزشی</a></li>
-            <li><a href="courses.html#paths">مسیرهای یادگیری تخصصی</a></li>
-            <li><a href="exams.html">آزمون و گواهینامه</a></li>
-            <li><a href="services.html#interview">مصاحبه تخصصی و توصیه‌نامه</a></li>
-            <li><a href="services.html#advice">مشاوره شغلی</a></li>
-            <li><a href="magazine.html">راهنمای مسیر شغلی</a></li>
+            ${col.links.map(([href, label]) => `<li><a href="${href}">${label}</a></li>`).join("\n            ")}
           </ul>
-        </div>
-        <div>
-          <h4>کارفرمایان</h4>
-          <ul>
-            <li><a href="login.html?role=employer">ثبت آگهی استخدام</a></li>
-            <li><a href="employer.html">جستجوی بانک رزومه</a></li>
-            <li><a href="employer.html#pricing">تعرفه‌ها و اشتراک</a></li>
-            <li><a href="services.html#matching">تطبیق هوشمند</a></li>
-            <li><a href="services.html#hiring">خدمات استخدام کامل</a></li>
-            <li><a href="services.html#branding">برند کارفرمایی</a></li>
-            <li><a href="advertise.html">تبلیغات و اسپانسری</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4>آیولب</h4>
-          <ul>
-            <li><a href="faq.html">سؤالات پرتکرار</a></li>
-            <li><a href="services.html">خدمات آیولب</a></li>
-            <li><a href="pricing.html">تعرفه‌ها و اشتراک</a></li>
-            <li><a href="reports.html">گزارش بازار کار</a></li>
-            <li><a href="ranking.html">رتبه‌بندی مراکز</a></li>
-            <li><a href="magazine.html">در آزمایشگاه چه می‌گذرد؟</a></li>
-            <li><a href="community.html">جامعه آزمایشگاهی</a></li>
-            <li><a href="#">درباره ما</a></li>
-            <li><a href="#">تماس با ما</a></li>
-          </ul>
-        </div>
+        </div>`).join("")}
         <div class="footer-trust">
           <h4>اپلیکیشن و نمادها</h4>
           <div class="app-badges">
-            <a href="#" onclick="toast('لینک دانلود در نسخه نهایی فعال می‌شود');return false" class="app-badge">
+            <a href="contact.html" onclick="toast('لینک دانلود در نسخه نهایی فعال می‌شود');return false" class="app-badge">
               <span>📱</span><div><b>اپلیکیشن اندروید</b><small>دریافت از کافه‌بازار</small></div></a>
-            <a href="#" onclick="toast('لینک دانلود در نسخه نهایی فعال می‌شود');return false" class="app-badge">
+            <a href="contact.html" onclick="toast('لینک دانلود در نسخه نهایی فعال می‌شود');return false" class="app-badge">
               <span>🍏</span><div><b>نسخه iOS</b><small>نصب مستقیم (PWA)</small></div></a>
           </div>
           <div class="trust-badges">
-            <a href="#" class="enamad" onclick="toast('نماد اعتماد پس از تکمیل فرآیند ثبت، اینجا فعال می‌شود');return false" title="نماد اعتماد الکترونیکی">
+            <a href="about.html" class="enamad" onclick="toast('نماد اعتماد پس از تکمیل فرآیند ثبت، اینجا فعال می‌شود');return false" title="نماد اعتماد الکترونیکی">
               <span class="en-mark">e</span>
               <div><b>نماد اعتماد الکترونیکی</b><small>e-namad · در حال دریافت</small></div>
             </a>
-            <a href="#" class="enamad samandehi" onclick="toast('مجوز ساماندهی در حال دریافت است');return false" title="ساماندهی">
+            <a href="about.html" class="enamad samandehi" onclick="toast('مجوز ساماندهی در حال دریافت است');return false" title="ساماندهی">
               <span class="en-mark">✓</span>
               <div><b>ساماندهی رسانه‌های دیجیتال</b><small>در حال دریافت</small></div>
             </a>
@@ -455,9 +500,14 @@ function bindProvinceCity(provSelId, citySelId, onChange, opts) {
   return { fillCities };
 }
 
+/* هر صفحه‌ی نیازمند ورود، آدرس فعلی را ذخیره می‌کند تا بعد از ورود کاربر به همان‌جا برگردد */
 function requireLogin(role) {
   const u = Auth.user;
-  if (!u) { location.href = "login.html" + (role === "employer" ? "?role=employer" : ""); return null; }
+  if (!u) {
+    Store.set("after_login", currentPath() + location.search + location.hash);
+    location.href = "login.html" + (role === "employer" ? "?role=employer" : "");
+    return null;
+  }
   return u;
 }
 
@@ -778,6 +828,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("site-header")) renderHeader(page);
   if (document.getElementById("site-footer")) renderFooter();
   if (typeof I18N !== "undefined") I18N.apply();
+  injectBreadcrumbLD();
+  document.querySelectorAll('a[target="_blank"]:not([rel])').forEach(a => a.rel = "noopener");
   document.addEventListener("click", e => {
     document.querySelectorAll(".user-menu.open, .msg-menu.open, .lang-menu.open, .nav-group.open").forEach(m => {
       if (!m.contains(e.target) && !m.parentElement.contains(e.target)) {

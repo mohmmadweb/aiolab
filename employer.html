@@ -428,6 +428,7 @@ const NAV_ITEMS = [
 document.addEventListener("DOMContentLoaded", () => {
   const u = requireLogin("employer");
   if (!u) return;
+  if (u.role !== "employer") { toast("این بخش ویژه کارفرمایان است"); setTimeout(() => location.href = "dashboard.html", 1200); return; }
   document.getElementById("p-avatar").textContent = u.name.charAt(0);
   document.getElementById("p-name").textContent = u.name;
 

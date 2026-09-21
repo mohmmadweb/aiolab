@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<title>تماس با آیولب | پشتیبانی کارجو، آزمایشگاه و تأمین‌کننده</title>
+<meta name="description" content="راه‌های تماس با پشتیبانی آیولب برای کارجویان، آزمایشگاه‌ها و تأمین‌کنندگان؛ فرم درخواست، ایمیل و پاسخ به سؤالات پرتکرار.">
+<link rel="canonical" href="https://aiolab.ir/contact.html">
+<meta property="og:title" content="تماس با آیولب">
+<meta property="og:description" content="پشتیبانی کارجو، آزمایشگاه و تأمین‌کننده؛ فرم درخواست و پاسخ به سؤالات پرتکرار.">
+<meta property="og:url" content="https://aiolab.ir/contact.html">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0d9488">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="contact.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / تماس با ما</div>
+    <h1>تماس با ما</h1>
+    <p>قبل از تماس، شاید پاسخ‌تان در <a href="faq.html">سؤالات پرتکرار</a> باشد؛ اگر نبود، فرم زیر را پر کنید.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="detail-layout">
+      <main>
+        <form class="panel" onsubmit="sendContact(event)">
+          <h2>ارسال پیام</h2>
+          <div class="form-grid cols-2">
+            <div class="form-field"><label for="ct-name">نام و نام خانوادگی</label><input id="ct-name" required placeholder="نام شما"></div>
+            <div class="form-field"><label for="ct-email">ایمیل یا شماره تماس</label><input id="ct-email" required placeholder="name@mail.com یا 09xxxxxxxxx"></div>
+            <div class="form-field"><label for="ct-role">شما هستید</label>
+              <select id="ct-role"><option value="seeker">کارجو</option><option value="employer">آزمایشگاه / کارفرما</option><option value="supplier">تأمین‌کننده</option><option value="instructor">مدرس / ارائه‌دهنده دوره</option><option value="other">سایر</option></select></div>
+            <div class="form-field"><label for="ct-topic">موضوع</label>
+              <select id="ct-topic"><option>پشتیبانی حساب کاربری</option><option>آگهی و استخدام</option><option>آکادمی و دوره‌ها</option><option>آزمون و گواهی</option><option>تبلیغات و همکاری</option><option>گزارش مشکل فنی</option><option>پیشنهاد</option></select></div>
+          </div>
+          <div class="form-field"><label for="ct-msg">پیام</label><textarea id="ct-msg" rows="5" required placeholder="پیام خود را بنویسید…"></textarea></div>
+          <button class="btn btn-primary" type="submit">ارسال پیام</button>
+        </form>
+      </main>
+      <aside>
+        <div class="side-card">
+          <h2 style="font-size:16px;margin-bottom:10px">راه‌های دیگر</h2>
+          <div class="row"><span>ایمیل پشتیبانی</span><b><a href="mailto:support@aiolab.ir">support@aiolab.ir</a></b></div>
+          <div class="row"><span>همکاری و تبلیغات</span><b><a href="advertise.html">فرم درخواست همکاری</a></b></div>
+          <div class="row"><span>پرسش عمومی</span><b><a href="community.html">جامعه آزمایشگاهی</a></b></div>
+          <div class="row"><span>راهنما</span><b><a href="faq.html">سؤالات پرتکرار</a></b></div>
+          <p style="font-size:12.5px;color:var(--navy-500);margin-top:14px;line-height:1.9">پاسخ‌گویی شنبه تا چهارشنبه، ۹ تا ۱۷. درخواست‌های آزمایشگاه‌ها و تأمین‌کنندگان در اولویت پیگیری هستند.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+function sendContact(e) {
+  e.preventDefault();
+  Store.push("contact", { name: document.getElementById("ct-name").value.trim(), topic: document.getElementById("ct-topic").value, role: document.getElementById("ct-role").value, date: "امروز" });
+  toast("پیام شما ثبت شد ✓ کارشناسان پشتیبانی پاسخ می‌دهند (دمو)");
+  e.target.reset();
+}
+</script>
+</body>
+</html>

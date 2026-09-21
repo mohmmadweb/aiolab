@@ -78,6 +78,8 @@
   </div>
 </div>
 
+<footer id="site-footer" class="site-footer"></footer>
+
 <script src="assets/js/geo.js"></script>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/i18n.js"></script>
@@ -105,7 +107,7 @@ function doLogin(e) {
   const d = DEMO[role] || DEMO.seeker;
   Auth.login(role === "seeker" ? d.name : (email.split("@")[0] || d.name), d.role);
   const back = Store.get("after_login", null);
-  if (back && role === "seeker") { Store.set("after_login", null); location.href = back; return; }
+  if (back) { Store.set("after_login", null); location.href = back; return; }
   location.href = d.to;
 }
 </script>

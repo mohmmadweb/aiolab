@@ -28,7 +28,7 @@ jobs:
       - name: Build static output
         run: |
           mkdir dist
-          cp *.html CNAME dist/
+          cp *.html CNAME sitemap.xml robots.txt dist/
           cp -r assets dist/
           touch dist/.nojekyll
 

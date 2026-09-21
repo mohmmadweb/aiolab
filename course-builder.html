@@ -6,6 +6,7 @@
 <title>ساخت دوره جدید | آکادمی آیولب</title>
 <meta name="description" content="سازنده دوره آکادمی آیولب: اطلاعات پایه، دستاوردها و مهارت‌ها، سرفصل ماژولی، قیمت و گواهی، پرسش‌های پرتکرار و پیش‌نمایش زنده — ارسال برای بازبینی و انتشار.">
 <meta name="robots" content="noindex">
+<link rel="canonical" href="https://aiolab.ir/course-builder.html">
 <meta name="theme-color" content="#0d9488">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
@@ -152,7 +153,7 @@
       </div>
       <div class="b-actions">
         <button class="btn btn-outline" onclick="goStep(4)">← قبلی</button>
-        <a class="btn btn-outline" id="b-preview-link" href="#" target="_blank">👁 پیش‌نمایش صفحه دوره</a>
+        <a class="btn btn-outline" id="b-preview-link" href="course.html" target="_blank" rel="noopener">👁 پیش‌نمایش صفحه دوره</a>
         <button class="btn btn-primary btn-lg grow" onclick="submitCourse()">ارسال برای بازبینی و انتشار</button>
       </div>
     </section>
@@ -210,7 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
   D.instructorIds.forEach(id => { const cb = document.querySelector(`#b-instr input[value="${id}"]`); if (cb) cb.checked = true; });
 
   renderStepper(); renderLists(); renderSyllabus(); renderNewInstr(); renderFaq(); renderProviderName(); priceMode(); certMode(); renderPreview();
-  document.getElementById("b-skill-sugg").innerHTML = AIO_TRENDING_SKILLS.slice(0, 6).map(s => `<a href="#" onclick="addSkill('${s}');return false" style="color:var(--teal-700);margin-inline-end:8px">${s}</a>`).join("");
+  document.getElementById("b-skill-sugg").innerHTML = AIO_TRENDING_SKILLS.slice(0, 6).map(s => `<a href="courses.html?skill=${encodeURIComponent(s)}" onclick="addSkill('${s}');return false" style="color:var(--teal-700);margin-inline-end:8px">${s}</a>`).join("");
   document.getElementById("b-title").textContent = D.title ? "ویرایش: " + D.title : "ساخت دوره جدید";
   const hs = Number(qs("step")); if (hs) goStep(hs);
 });

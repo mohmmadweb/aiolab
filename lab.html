@@ -26,7 +26,7 @@
   <div class="container" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
     <div class="job-logo" id="l-logo" style="width:84px;height:84px;font-size:32px;border-radius:20px"></div>
     <div style="flex:1">
-      <div class="breadcrumb"><a href="index.html">خانه</a> / <a href="labs.html">آزمایشگاه‌ها</a></div>
+      <div class="breadcrumb"><a href="index.html">خانه</a> / <a href="labs.html">آزمایشگاه‌ها</a> / <span id="bc-lab">…</span></div>
       <h1 id="l-name">...</h1>
       <p id="l-sub"></p>
     </div>
@@ -118,6 +118,8 @@ document.addEventListener("DOMContentLoaded", () => {
   logo.style.background = L.color;
   logo.textContent = L.name.replace("آزمایشگاه ", "").replace("شرکت ", "").charAt(0);
   document.getElementById("l-name").textContent = L.name + (L.verified ? " ✔️" : "");
+  document.getElementById("bc-lab").textContent = L.name;
+  injectBreadcrumbLD(L.name);
   document.getElementById("l-sub").textContent = `${L.type} · ${L.city} · ${sectorName(L.sector)}`;
   document.getElementById("l-about").textContent = L.about;
   document.getElementById("l-perks").innerHTML = L.perks.map(p => `<span class="chip teal">${p}</span>`).join("");

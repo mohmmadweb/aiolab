@@ -118,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("bc-cat").textContent = cat.name;
   document.getElementById("bc-cat").href = "courses.html?cat=" + C.cat;
   document.getElementById("bc-title").textContent = C.title;
+  injectBreadcrumbLD(C.title);
   document.getElementById("c-prov").innerHTML = providerBadgeHTML(pv) + (C.type === "guided" ? ' <span class="chip sky">پروژه راهنما</span>' : "");
   document.getElementById("c-title").textContent = C.title;
   document.getElementById("c-sub").textContent = C.subtitle;

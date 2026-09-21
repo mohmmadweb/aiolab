@@ -86,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const prev = MyMBTI.get();
   if (prev) document.getElementById("prev-result").innerHTML =
     `<div class="prev-note">نتیجه قبلی شما: <b>${prev.type}</b> — ${AIO_MBTI_TYPES[prev.type].name}
-     <a href="#" onclick="showResult(MyMBTI.get());return false">مشاهده دوباره</a></div>`;
+     <a href="mbti.html#m-res" onclick="showResult(MyMBTI.get());return false">مشاهده دوباره</a></div>`;
 });
 
 function start() {
