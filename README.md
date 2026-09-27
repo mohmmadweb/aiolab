@@ -2,7 +2,9 @@
 
 پروتوتایپ (Prototype) وب‌سایت کاریابی تخصصی پرسنل آزمایشگاه‌های تشخیص طبی و پژوهشی.
 
-**دامنه:** [aiolab.ir](https://aiolab.ir)
+**دامنه:** [demo.aiolab.ir](https://demo.aiolab.ir) — نسخه‌ی نمایشی (پروتوتایپ)
+
+> دامنه‌ی اصلی `aiolab.ir` به سایت وردپرسی اختصاص دارد؛ این پروتوتایپ روی زیردامنه‌ی `demo` منتشر می‌شود و با `noindex` از ایندکس گوگل خارج است.
 
 ## درباره این نسخه
 
@@ -136,4 +138,4 @@ npx serve .
 
 ## استقرار
 
-هر push روی شاخه `main` از طریق GitHub Actions روی `aiolab.ir` منتشر می‌شود (`.github/workflows/pages.yml`).
+هر push روی شاخه `main` از طریق GitHub Actions روی `demo.aiolab.ir` منتشر می‌شود (`.github/workflows/pages.yml`).

@@ -123,7 +123,7 @@ function injectBreadcrumbLD(leafTitle) {
   const p = currentPath(); if (p === "index.html" || (route(p) || {}).noindex) return;
   const items = breadcrumbChain(p, leafTitle || document.title.split("|")[0].trim());
   const ld = { "@context": "https://schema.org", "@type": "BreadcrumbList",
-    itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, name: it.title, item: "https://aiolab.ir/" + it.path + (it.path === p ? location.search : "") })) };
+    itemListElement: items.map((it, i) => ({ "@type": "ListItem", position: i + 1, name: it.title, item: "https://demo.aiolab.ir/" + it.path + (it.path === p ? location.search : "") })) };
   let el = document.getElementById("ld-breadcrumb");
   if (!el) { el = document.createElement("script"); el.type = "application/ld+json"; el.id = "ld-breadcrumb"; document.head.appendChild(el); }
   el.textContent = JSON.stringify(ld);

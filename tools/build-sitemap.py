@@ -15,7 +15,7 @@ urls += [(f"exam.html?id={i}", "0.5", "monthly") for i in re.findall(r'\{ id: (\
 urls += [(f"course.html?id={i}", "0.7", "monthly") for i in re.findall(r'\{ id: (\d+), type: "(?:course|guided)"', data)]
 urls += [(f"path.html?id={i}", "0.7", "monthly") for i in re.findall(r'\{ id: "([\w-]+)", kind:', data)]
 xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
-xml += "".join(f'  <url><loc>https://aiolab.ir/{u.replace("&", "&amp;")}</loc><lastmod>{today}</lastmod>'
+xml += "".join(f'  <url><loc>https://demo.aiolab.ir/{u.replace("&", "&amp;")}</loc><lastmod>{today}</lastmod>'
                f'<changefreq>{f}</changefreq><priority>{p}</priority></url>\n' for u, p, f in urls)
 xml += "</urlset>\n"
 (root / "sitemap.xml").write_text(xml, encoding="utf-8")

@@ -1,7 +1,4 @@
+# demo.aiolab.ir — نسخه‌ی نمایشی (پروتوتایپ)
+# سایت اصلی روی aiolab.ir است؛ این زیردامنه نباید ایندکس شود.
 User-agent: *
-Allow: /
-Disallow: /learn.html
-Disallow: /course-builder.html
-Disallow: /dashboard.html
-Disallow: /employer.html
-Sitemap: https://aiolab.ir/sitemap.xml
+Disallow: /

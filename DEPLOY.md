@@ -1,52 +1,38 @@
-# راهنمای استقرار آیولب روی aiolab.ir (GitHub Pages + Cloudflare DNS)
+# راهنمای استقرار آیولب روی demo.aiolab.ir (GitHub Pages + Cloudflare DNS)
 
-مسیر فعلی: **گیت‌هاب (mohmmadweb/aiolab) ← GitHub Pages ← دامنه aiolab.ir (DNS روی Cloudflare)**
+مسیر فعلی: **گیت‌هاب (mohmmadweb/aiolab) ← GitHub Pages ← زیردامنه demo.aiolab.ir (DNS روی Cloudflare)**
 
-GitHub Pages از شاخه `main` (پوشه ریشه) سایت را منتشر می‌کند و فایل `CNAME` دامنه سفارشی را مشخص می‌کند. هر push روی `main` خودکار منتشر می‌شود.
+> **تقسیم دامنه:** `aiolab.ir` و `www.aiolab.ir` به سایت وردپرسی روی هاست (آی‌پی `185.141.133.91`) می‌روند.
+> این پروتوتایپ فقط روی `demo.aiolab.ir` منتشر می‌شود و با `noindex` + `robots.txt` از ایندکس گوگل خارج است.
 
-## گام ۱ — رکوردهای DNS در Cloudflare (یک بار)
+## رکوردهای DNS در Cloudflare
 
-در داشبورد Cloudflare → دامنه aiolab.ir → **DNS → Records → Add record** این ۵ رکورد را بسازید:
-
-| Type | Name | Content | Proxy status |
+| Type | Name | Content | Proxy |
 |---|---|---|---|
-| A | `@` | `185.199.108.153` | DNS only (ابر خاکستری) |
-| A | `@` | `185.199.109.153` | DNS only |
-| A | `@` | `185.199.110.153` | DNS only |
-| A | `@` | `185.199.111.153` | DNS only |
-| CNAME | `www` | `mohmmadweb.github.io` | DNS only |
+| CNAME | `demo` | `mohmmadweb.github.io` | DNS only (خاکستری) |
+| A | `@` | `185.141.133.91` | به انتخاب شما |
+| A | `www` | `185.141.133.91` | به انتخاب شما |
 
-نکته مهم: Proxy را حتماً **DNS only** (خاکستری) بگذارید تا GitHub بتواند دامنه را تأیید و گواهی HTTPS صادر کند.
+نکته: رکورد `demo` حتماً باید **DNS only** بماند تا GitHub بتواند گواهی HTTPS صادر کند.
 
-## گام ۲ — تأیید دامنه در GitHub Pages
+## تنظیم GitHub Pages
 
-1. ریپو → **Settings → Pages**
-2. در بخش Custom domain دکمه **Check again** را بزنید (اگر لازم شد چند دقیقه صبر کنید — انتشار DNS معمولاً سریع است).
-3. وقتی تیک سبز «DNS check successful» آمد، گزینه **Enforce HTTPS** را فعال کنید (اگر خاکستری بود، چند دقیقه بعد فعال می‌شود؛ صدور گواهی زمان می‌برد).
+ریپو → Settings → Pages → Custom domain = `demo.aiolab.ir` → Save → پس از سبز شدن DNS check، گزینه Enforce HTTPS.
+فایل `CNAME` در ریشه‌ی ریپو همین مقدار را دارد و با هر انتشار در خروجی کپی می‌شود.
 
-## گام ۳ — چرخه کار روزانه
+## چرخه کار روزانه
 
 ```
-ویرایش فایل‌ها  →  git add -A  →  git commit -m "توضیح تغییر"  →  git push
+ویرایش فایل‌ها  →  git add -A  →  git commit -m "توضیح"  →  git push
 ```
 
-هر push روی `main`، در تب **Actions** با workflow خودکار «pages build and deployment» منتشر می‌شود (حدود ۱ دقیقه) و روی aiolab.ir دیده می‌شود.
-
-## ⚠️ نکته درباره پوشه Docs
-
-GitHub Pages کل ریپو را منتشر می‌کند؛ یعنی فایل‌های Word و PowerPoint داخل `Docs/` هم به‌صورت عمومی قابل دانلود هستند (مثلاً `aiolab.ir/Docs/...docx`). اگر نمی‌خواهید اسناد طرح عمومی باشند، پوشه Docs را از ریپو خارج کنید (فایل‌های محلی حذف نمی‌شوند):
-
-```
-git rm -r --cached Docs
-echo Docs/ >> .gitignore
-git add .gitignore && git commit -m "remove Docs from public repo" && git push
-```
+هر push روی `main` در تب Actions منتشر می‌شود (حدود یک دقیقه) و روی demo.aiolab.ir دیده می‌شود.
 
 ## عیب‌یابی سریع
 
 | مشکل | راه‌حل |
 |---|---|
-| DNS check unsuccessful | رکوردهای گام ۱ را چک کنید؛ Proxy باید DNS only باشد؛ چند دقیقه صبر و Check again |
-| خطای گواهی/SSL | Enforce HTTPS را بعد از سبزشدن DNS check فعال کنید؛ صدور گواهی تا ۱۵ دقیقه طول می‌کشد |
-| تغییرات دیده نمی‌شود | تب Actions ریپو سبز باشد؛ سپس Ctrl+F5 (پاک‌کردن کش مرورگر) |
-| صفحه ۴۰۴ گیت‌هاب | فایل CNAME باید در ریشه ریپو باشد و Source روی «Deploy from a branch / main / (root)» |
+| DNS check unsuccessful | رکورد `demo` باید CNAME به `mohmmadweb.github.io` و DNS only باشد |
+| خطای گواهی/SSL | بعد از سبز شدن DNS check، Enforce HTTPS را فعال کنید؛ صدور گواهی تا ۱۵ دقیقه طول می‌کشد |
+| تغییرات دیده نمی‌شود | تب Actions سبز باشد، سپس Ctrl+F5 |
+| دمو در گوگل دیده می‌شود | `robots.txt` و متا `noindex` باید سر جایشان باشند |
