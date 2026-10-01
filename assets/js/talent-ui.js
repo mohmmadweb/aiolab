@@ -300,7 +300,7 @@ const TUI = (() => {
     const slide = (s, i) => s.img
       ? `<figure class="sl-item"><img src="${e(s.img)}" alt="${e(s.t || "")}" loading="${i ? "lazy" : "eager"}">${s.t ? `<figcaption>${e(s.t)}</figcaption>` : ""}</figure>`
       : `<figure class="sl-item sl-ph" style="--sc:${e(s.c || "#0d9488")}"><svg viewBox="0 0 120 80" aria-hidden="true"><circle cx="92" cy="18" r="10" fill="#fff" opacity=".35"/><path d="M0 70 30 38l22 20 18-14 50 36z" fill="#fff" opacity=".28"/></svg>${s.t ? `<figcaption>${e(s.t)}</figcaption>` : ""}</figure>`;
-    setTimeout(() => {
+    if (slides.length > 1) setTimeout(() => {
       const el = document.getElementById(sid); if (!el) return;
       const track = el.querySelector(".sl-track"), dots = el.querySelectorAll(".sl-dots button");
       let i = 0;
@@ -320,7 +320,7 @@ const TUI = (() => {
   /* کارت محصول */
   function productCard(pr, href) {
     const cat = AIO_PRODUCT_CATS.find(c => c.id === pr.cat) || {}, org = AIO_LABS.find(l => l.id === pr.orgId) || {};
-    return `<a class="prod-card" href="${href || "product.html?id=" + pr.id}">
+    return `<a class="prod-card" href="${e(href || pr.url || "product.html?id=" + pr.id)}">
       <div class="pc-img" style="--pc:${pr.color || cat.color};--pbg:${cat.bg || "#f1f5f9"}">${pr.img ? `<img src="${e(pr.img)}" alt="">` : (typeof ICONS !== "undefined" ? (ICONS[cat.icon] || ICONS.flask) : "")}</div>
       <div class="pc-body"><span class="pc-cat">${e(cat.name || "")}</span><h3>${e(pr.name)}</h3>
         <small>${e(org.name || "")}</small>

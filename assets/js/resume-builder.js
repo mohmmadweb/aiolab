@@ -7,7 +7,7 @@
 const ResumeBuilder = (() => {
   const { e, fa, name, O } = TUI;
   const clone = o => JSON.parse(JSON.stringify(o || {}));
-  const EMPTY = { name: "", gender: "", birth: "", provinceId: "", city: "", relocate: false, provinces: [], military: "",
+  const EMPTY = { name: "", phone: "", gender: "", birth: "", provinceId: "", city: "", relocate: false, provinces: [], military: "",
     targetRoles: [], seniority: "", wantTypes: [], wantShifts: [], salaryMin: "", salaryMax: "", availability: "", availableFrom: "",
     experience: [], education: [], skills: [], licenses: [], langs: [], summary: "" };
 
@@ -25,6 +25,8 @@ const ResumeBuilder = (() => {
     if (!r.provinceId || !r.city) miss.push("استان و شهر محل سکونت");
     if (!(r.targetRoles || []).length) miss.push("عنوان شغلی موردنظر");
     if (!(r.skills || []).length) miss.push("حداقل یک مهارت");
+    if (r.phone && !/^09\d{9}$/.test(String(r.phone).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)))) miss.push("شماره موبایل درست (۰۹xxxxxxxxx)");
+    if (r.salaryMin && r.salaryMax && +r.salaryMax < +r.salaryMin) miss.push("بازه‌ی حقوق درست");
     return miss;
   }
 
@@ -129,6 +131,7 @@ const ResumeBuilder = (() => {
 
       <div class="panel rb-section"><h2>اطلاعات فردی</h2><div class="form-grid">
         <div class="form-field"><label>نام و نام خانوادگی *</label><input type="text" data-f="name" maxlength="80" value="${e(R.name)}"></div>
+        <div class="form-field"><label>شماره موبایل</label><input type="tel" dir="ltr" data-f="phone" maxlength="11" value="${e(R.phone || "")}" placeholder="09xxxxxxxxx"></div>
         <div class="form-field"><label>جنسیت *</label>${pick("gender", { options: O.genders(), value: R.gender, after: () => draw() })}</div>
         <div class="form-field"><label>تاریخ تولد *</label><span data-date="birth">${TUI.fullDate({ value: R.birth, back: 70, minAge: 16 })}</span></div>
         ${R.gender === "آقا" ? `<div class="form-field"><label>وضعیت نظام وظیفه</label>${pick("military", { options: O.military(), value: R.military })}</div>` : ""}
@@ -189,12 +192,13 @@ const ResumeBuilder = (() => {
 
       <div class="panel"><h2>رزومه PDF <small class="muted" style="font-weight:400">(اختیاری)</small></h2>
         <p style="margin-bottom:12px">موتور تطبیق فقط از داده‌های ساخت‌یافته‌ی بالا استفاده می‌کند؛ فایل PDF فقط ضمیمه‌ی درخواست‌هاست.</p>
-        <button type="button" class="btn btn-outline" onclick="toast('بارگذاری فایل در نسخه متصل به سرور فعال است')">📎 بارگذاری فایل PDF</button></div>
+        ${opts.filePanel ? opts.filePanel() : `<button type="button" class="btn btn-outline" onclick="toast('بارگذاری فایل در نسخه متصل به سرور فعال است')">📎 بارگذاری فایل PDF</button>`}</div>
 
       <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px">
         <span class="muted" style="font-size:13px">${R.updated ? "آخرین ذخیره: " + e(AioDate.toJ(R.updated)) : "هنوز ذخیره نشده"}</span>
         <button type="button" class="btn btn-primary btn-lg" data-save>ذخیره رزومه</button></div>`;
       live();
+      if (opts.afterDraw) opts.afterDraw();
     }
 
     /* ---------- رویدادها ---------- */
@@ -228,8 +232,12 @@ const ResumeBuilder = (() => {
         const miss = validate(R);
         if (miss.length) return toast("موارد لازم: " + miss.join("، "));
         R.updated = new Date().toISOString().slice(0, 10);
-        opts.save(clone(R)); draw();
-        if (opts.onSaved) opts.onSaved(R);
+        b.classList.add("is-busy");
+        Promise.resolve(opts.save(clone(R))).then(saved => {
+          if (saved && typeof saved === "object") R = Object.assign(clone(EMPTY), clone(saved));
+          draw();
+          if (opts.onSaved) opts.onSaved(R);
+        }, err => toast((err && err.message) || "ذخیره نشد")).finally(() => b.classList.remove("is-busy"));
       }
     });
     draw();

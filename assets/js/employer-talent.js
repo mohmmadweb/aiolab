@@ -5,7 +5,6 @@
 const EmpTalent = (() => {
   const { e, fa, name, O } = TUI;
   const clone = o => JSON.parse(JSON.stringify(o == null ? {} : o));
-  const myOrgId = () => Store.get("my_org_id", 1);
 
   /* تصویر انتخابی → JPEG کوچک‌شده (دمو در حافظه‌ی مرورگر نگه می‌دارد؛ نسخه‌ی اصلی در رسانه‌ی وردپرس) */
   function readImage(file, max) {
@@ -20,11 +19,37 @@ const EmpTalent = (() => {
       fr.readAsDataURL(file);
     });
   }
-  const safeSet = (k, v) => { try { Store.set(k, v); return true; } catch (_) { toast("حافظه‌ی مرورگر پر است؛ تعداد یا حجم تصاویر را کم کنید (در نسخه‌ی اصلی محدودیتی نیست)"); return false; } };
+  const safeSet = (k, v) => { try { localStorage.setItem("aio_" + k, JSON.stringify(v)); return true; } catch (_) { throw new Error("حافظه‌ی مرورگر پر است؛ تعداد یا حجم تصاویر را کم کنید (در نسخه‌ی اصلی محدودیتی نیست)"); } };
+
+  /* آداپتور ذخیره‌سازی: دمو = حافظه‌ی مرورگر؛ وردپرس = API سرور (window.EMP_ADAPTER) */
+  const A = Object.assign({
+    orgs: () => AIO_LABS.map(l => [l.id, l.name]),
+    orgId: () => Store.get("my_org_id", 1),
+    setOrgId: id => Store.set("my_org_id", +id),
+    org: id => orgFull(id),
+    publicUrl: id => "lab.html?id=" + id,
+    saveOrg: async (id, data) => { safeSet("org_" + id, data); },
+    image: async (file, purpose, max) => ({ img: await readImage(file, max) }),
+    products: orgId => aioProducts().filter(p => p.orgId === orgId),
+    newProductId: () => Date.now(),
+    saveProduct: async p => { const list = Store.get("products", []), i = list.findIndex(x => x.id === p.id); if (i >= 0) list[i] = p; else list.push(p); safeSet("products", list); return p; },
+    deleteProduct: async id => { Store.set("products", Store.get("products", []).filter(x => x.id !== id)); if (AIO_PRODUCTS.some(x => x.id === id)) Store.set("products_deleted", [...Store.get("products_deleted", []), id]); },
+    position: id => Store.get("positions", []).find(p => p.id === id),
+    savePosition: async job => {
+      job.id = job.id || 5000 + Date.now() % 100000; job.status = job.internal ? "active" : "pending";
+      const list = Store.get("positions", []), i = list.findIndex(p => p.id === job.id);
+      if (i >= 0) list[i] = job; else list.push(job);
+      Store.set("positions", list); return job;
+    },
+    withDesc: false
+  }, (typeof window !== "undefined" && window.EMP_ADAPTER) || {});
+  const myOrgId = () => +A.orgId();
+  const fail = err => toast((err && err.message) || String(err));
 
   /* ================= پروفایل سازمان ================= */
   function orgProfile(host) {
-    const id = myOrgId(), o = orgFull(id);
+    const id = myOrgId(), o = A.org(id);
+    if (!o) { host.innerHTML = '<div class="empty-inline">ابتدا سازمان خود را در بخش «ثبت سازمان روی نقشه» ثبت کنید.</div>'; return; }
     const D = Object.assign({ orgType: "lab", tagline: "", about: "", services: [], accreditations: [], hoursSpec: { days: [0, 1, 2, 3, 4], from: 8, to: 17, h24: false },
       phone: "", website: "", socials: {}, video: "", branches: "", staff: "", founded: "", gallery: [] }, clone(o));
     /* لینک‌های نمونه‌ی «#» معتبر نیستند و نباید جلوی ذخیره را بگیرند */
@@ -34,7 +59,7 @@ const EmpTalent = (() => {
     function draw() {
       host.innerHTML = `
       <div class="panel"><div class="form-grid">
-        <div class="form-field"><label>سازمانی که مدیریت می‌کنید (دمو)</label>${TUI.picker({ options: AIO_LABS.map(l => [l.id, l.name]), value: id, onChange: v => { Store.set("my_org_id", +v); orgProfile(host); if (window.EmpProducts) EmpProducts(); } })}</div>
+        <div class="form-field"><label>سازمانی که مدیریت می‌کنید</label>${TUI.picker({ options: A.orgs(), value: id, onChange: v => { A.setOrgId(+v); orgProfile(host); if (window.EmpProducts) EmpProducts(); } })}</div>
         <div class="form-field"><label>نوع سازمان</label>${TUI.picker({ options: O.orgTypes(), value: D.orgType, onChange: v => D.orgType = v })}</div>
         <div class="form-field full"><label>شعار / معرفی یک‌خطی</label><input type="text" maxlength="90" data-k="tagline" value="${e(D.tagline)}"></div>
         <div class="form-field full"><label>درباره سازمان</label><textarea rows="4" maxlength="1500" data-k="about">${e(D.about)}</textarea></div>
@@ -67,7 +92,7 @@ const EmpTalent = (() => {
         <div class="form-field"><label>تعداد پرسنل</label><input type="number" min="0" max="99999" data-k="staff" data-num value="${e(D.staff)}"></div>
         <div class="form-field"><label>سال تأسیس (شمسی)</label><input type="number" min="1300" max="${AioDate.thisJYear()}" data-k="founded" data-num value="${e(D.founded)}"></div>
       </div></div>
-      <div style="display:flex;justify-content:flex-end;gap:10px"><a class="btn btn-outline" href="lab.html?id=${id}" target="_blank">مشاهده صفحه‌ی عمومی</a><button type="button" class="btn btn-primary btn-lg" data-save>ذخیره پروفایل</button></div>`;
+      <div style="display:flex;justify-content:flex-end;gap:10px"><a class="btn btn-outline" href="${e(A.publicUrl(id))}" target="_blank">مشاهده صفحه‌ی عمومی</a><button type="button" class="btn btn-primary btn-lg" data-save>ذخیره پروفایل</button></div>`;
     }
     host.oninput = ev => {
       const t = ev.target;
@@ -81,7 +106,7 @@ const EmpTalent = (() => {
       if (t.dataset.h24 !== undefined) { D.hoursSpec.h24 = t.checked; host.querySelector("[data-hours]").textContent = "نمایش: " + hours(D.hoursSpec); }
       if (t.dataset.up !== undefined) {
         for (const f of [...t.files].slice(0, 10 - D.gallery.length)) {
-          try { D.gallery.push({ t: f.name.replace(/\.[^.]+$/, "").slice(0, 60), img: await readImage(f) }); } catch (err) { toast(err); }
+          try { D.gallery.push(Object.assign({ t: f.name.replace(/\.[^.]+$/, "").slice(0, 60) }, await A.image(f, "gallery:" + id, 1280))); } catch (err) { fail(err); }
         }
         draw();
       }
@@ -98,7 +123,8 @@ const EmpTalent = (() => {
         if (D.phone && !/^[0-9+\-\s]{5,20}$/.test(D.phone)) return toast("شماره تلفن معتبر نیست");
         const keep = ["orgType", "tagline", "about", "services", "accreditations", "hoursSpec", "phone", "website", "socials", "video", "branches", "staff", "founded", "gallery"];
         const out = {}; keep.forEach(k => out[k] = D[k]); out.hours = hours(D.hoursSpec);
-        if (safeSet("org_" + id, out)) toast("پروفایل سازمان ذخیره شد ✓ صفحه‌ی عمومی به‌روز است");
+        b.classList.add("is-busy");
+        A.saveOrg(id, out).then(() => toast("پروفایل سازمان ذخیره شد ✓ صفحه‌ی عمومی به‌روز است"), fail).finally(() => b.classList.remove("is-busy"));
       }
     };
     draw();
@@ -107,17 +133,10 @@ const EmpTalent = (() => {
   /* ================= محصولات ================= */
   function products(host) {
     let edit = null;
-    const mine = () => aioProducts().filter(p => p.orgId === myOrgId());
-    function save(p) {
-      const list = Store.get("products", []), i = list.findIndex(x => x.id === p.id);
-      if (i >= 0) list[i] = p; else list.push(p);
-      return safeSet("products", list);
-    }
+    const mine = () => A.products(myOrgId());
     function del(id) {
       if (!confirm("این محصول حذف شود؟")) return;
-      Store.set("products", Store.get("products", []).filter(x => x.id !== id));
-      if (AIO_PRODUCTS.some(x => x.id === id)) Store.set("products_deleted", [...Store.get("products_deleted", []), id]);
-      draw(); toast("محصول حذف شد");
+      A.deleteProduct(id).then(() => { draw(); toast("محصول حذف شد"); }, fail);
     }
     function form(d) {
       return `<div class="panel rb-form"><div class="form-grid">
@@ -135,7 +154,9 @@ const EmpTalent = (() => {
     }
     function draw() {
       const list = mine();
-      host.innerHTML = `<div class="syllabus-head" style="margin-bottom:12px"><div><p>محصولات «${e((orgFull(myOrgId()) || {}).name || "")}» در صفحه‌ی سازمان و کاتالوگ <a href="products.html" target="_blank">محصولات</a> نمایش داده می‌شوند.</p></div>
+      const org = A.org(myOrgId());
+      if (!org) { host.innerHTML = '<div class="empty-inline">ابتدا سازمان خود را ثبت کنید؛ محصولات به نام سازمان منتشر می‌شوند.</div>'; return; }
+      host.innerHTML = `<div class="syllabus-head" style="margin-bottom:12px"><div><p>محصولات «${e(org.name || "")}» در صفحه‌ی سازمان و کاتالوگ محصولات نمایش داده می‌شوند.</p></div>
         <button type="button" class="btn btn-primary btn-sm" data-new>+ محصول جدید</button></div>
         ${edit ? form(edit) : ""}
         <div class="prod-grid">${list.map(p => `<div>${TUI.productCard(p)}<div class="fb-actions" style="margin-top:6px"><button type="button" class="btn btn-sm btn-outline" data-edit="${p.id}">ویرایش</button><button type="button" class="btn btn-sm btn-ghost danger" data-del="${p.id}">حذف</button></div></div>`).join("")
@@ -148,21 +169,22 @@ const EmpTalent = (() => {
     };
     host.onchange = async ev => {
       if (ev.target.dataset.pimg === undefined || !edit) return;
-      try { edit.img = await readImage(ev.target.files[0], 900); draw(); } catch (err) { toast(err); }
+      try { Object.assign(edit, await A.image(ev.target.files[0], "product", 900)); draw(); } catch (err) { fail(err); }
     };
     host.onclick = ev => {
       const b = ev.target.closest("button"); if (!b) return;
-      if (b.dataset.new !== undefined) { edit = { id: Date.now(), orgId: myOrgId(), specs: [["", ""]] }; draw(); }
+      if (b.dataset.new !== undefined) { edit = { id: A.newProductId(), orgId: myOrgId(), specs: [["", ""]] }; draw(); }
       else if (b.dataset.edit) { edit = clone(aioProducts().find(p => p.id === +b.dataset.edit)); edit.specs = edit.specs || []; draw(); }
       else if (b.dataset.del) del(+b.dataset.del);
       else if (b.dataset.addspec !== undefined) { edit.specs.push(["", ""]); draw(); }
       else if (b.dataset.rmspec) { edit.specs.splice(+b.dataset.rmspec, 1); draw(); }
-      else if (b.dataset.noimg !== undefined) { delete edit.img; draw(); }
+      else if (b.dataset.noimg !== undefined) { delete edit.img; edit.att = 0; draw(); }
       else if (b.dataset.cancel !== undefined) { edit = null; draw(); }
       else if (b.dataset.ok !== undefined) {
         if (!edit.cat || !(edit.name || "").trim()) return toast("دسته و نام محصول لازم است");
         edit.specs = (edit.specs || []).filter(s => s[0].trim() && s[1].trim());
-        if (save(edit)) { edit = null; draw(); toast("محصول ذخیره شد ✓"); }
+        b.classList.add("is-busy");
+        A.saveProduct(edit).then(() => { edit = null; draw(); toast("محصول ذخیره شد ✓"); }, fail).finally(() => b.classList.remove("is-busy"));
       }
     };
     window.EmpProducts = () => { edit = null; draw(); };
@@ -172,10 +194,10 @@ const EmpTalent = (() => {
   /* ================= تعریف پوزیشن با نیازمندی ساخت‌یافته ================= */
   function positionForm(host, onSaved) {
     let D;
-    const blank = () => ({ title: "", role: "", dept: "", provinceId: "", city: "", type: "تمام‌وقت", shift: "صبح", salaryMin: "", salaryMax: "", internal: false, orgName: "",
+    const blank = () => ({ title: "", role: "", dept: "", provinceId: "", city: "", type: "تمام‌وقت", shift: "صبح", salaryMin: "", salaryMax: "", internal: false, orgName: "", desc: "", benefits: [], remote: false,
       req: { seniority: "", minExp: 0, expDept: 0, degree: "", fields: [], licenses: [], langs: [], age: null, gender: "", military: [], skills: [] } });
     function load(id) {
-      const ex = id ? Store.get("positions", []).find(p => p.id === id) : null;
+      const ex = id ? A.position(id) : null;
       D = ex ? clone(ex) : blank();
       D.req = Object.assign(blank().req, D.req || {});
       draw();
@@ -217,6 +239,9 @@ const EmpTalent = (() => {
         <div class="form-field"><label>شیفت</label>${TUI.picker({ options: O.shifts(), value: D.shift, onChange: v => D.shift = v })}</div>
         <div class="form-field"><label>حقوق از (میلیون تومان)</label><input type="number" min="0" data-d="salaryMin" data-num value="${e(D.salaryMin)}"></div>
         <div class="form-field"><label>حقوق تا (میلیون تومان)</label><input type="number" min="0" data-d="salaryMax" data-num value="${e(D.salaryMax)}"></div>
+        ${A.withDesc ? `<div class="form-field full"><label>شرح موقعیت شغلی ${D.internal ? "(اختیاری)" : "*"}</label><textarea rows="4" maxlength="5000" data-d="desc" placeholder="شرح وظایف، محیط کار و ساعات کاری">${e(D.desc || "")}</textarea></div>
+        <div class="form-field full"><label>مزایا</label>${TUI.picker({ multi: true, options: AIO_BENEFITS.map(x => [x, x]), value: D.benefits || [], addLabel: "مزیت", onChange: v => D.benefits = v })}</div>
+        <div class="form-field full"><label class="check-item inline"><input type="checkbox" data-remote ${D.remote ? "checked" : ""}> امکان دورکاری دارد</label></div>` : ""}
       </div></div>
 
       <div class="panel"><h2>شرایط احراز (ساخت‌یافته)</h2><div class="form-grid">
@@ -261,6 +286,7 @@ const EmpTalent = (() => {
     host.onchange = ev => {
       const t = ev.target;
       if (t.name === "pf-vis") { D.internal = t.value === "1"; draw(); return; }
+      if (t.dataset.remote !== undefined) { D.remote = t.checked; return; }
       if (t.dataset.sk && t.type === "checkbox") host.oninput(ev);
     };
     host.onclick = ev => {
@@ -275,22 +301,24 @@ const EmpTalent = (() => {
         if (D.internal && !(D.orgName || "").trim()) miss.push("نام مشتری");
         if (miss.length) return toast("موارد لازم: " + miss.join("، "));
         if (D.salaryMin && D.salaryMax && D.salaryMax < D.salaryMin) return toast("حداکثر حقوق کمتر از حداقل است");
-        const org = orgFull(myOrgId()) || {};
+        if (A.withDesc && !D.internal && (D.desc || "").trim().length < 20) return toast("شرح موقعیت شغلی را کامل‌تر بنویسید (حداقل ۲۰ نویسه)");
+        const org = A.org(myOrgId()) || {};
+        if (!org.id) return toast("ابتدا سازمان خود را ثبت کنید");
         const job = toJob();
-        Object.assign(job, { id: D.id || 5000 + Date.now() % 100000, mine: true, labId: org.id, orgName: D.internal ? D.orgName : org.name,
+        Object.assign(job, { mine: true, labId: org.id, orgName: D.internal ? D.orgName : org.name,
           salary: D.salaryMin ? fa(D.salaryMin) + (D.salaryMax ? " تا " + fa(D.salaryMax) : "") + " میلیون تومان" : "توافقی",
-          status: D.internal ? "active" : "pending", created: D.created || new Date().toISOString().slice(0, 10) });
-        const list = Store.get("positions", []), i = list.findIndex(p => p.id === job.id);
-        if (i >= 0) list[i] = job; else list.push(job);
-        Store.set("positions", list);
-        toast(D.internal ? "پوزیشن داخلی ثبت شد ✓ نیروهای مناسب را در «تطبیق هوشمند» ببینید" : "آگهی ثبت شد و پس از تأیید منتشر می‌شود ✓");
-        load(null);
-        if (onSaved) onSaved(job);
+          created: D.created || new Date().toISOString().slice(0, 10) });
+        b.classList.add("is-busy");
+        A.savePosition(job).then(saved => {
+          toast(D.internal ? "پوزیشن داخلی ثبت شد ✓ نیروهای مناسب را در «تطبیق هوشمند» ببینید" : (saved && saved.status === "publish" ? "آگهی منتشر شد ✓" : "آگهی ثبت شد و پس از تأیید منتشر می‌شود ✓"));
+          load(null);
+          if (onSaved) onSaved(saved || job);
+        }, fail).finally(() => b.classList.remove("is-busy"));
       }
     };
     load(null);
     return { load };
   }
 
-  return { orgProfile, products, positionForm, myOrgId };
+  return { orgProfile, products, positionForm, myOrgId, adapter: A, readImage };
 })();

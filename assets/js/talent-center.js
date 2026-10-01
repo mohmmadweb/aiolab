@@ -79,13 +79,23 @@ const TalentCenter = (() => {
   function mount(host, opts) {
     opts = opts || {};
     const params = new URLSearchParams(location.search);
+    /* فیلترهای ذخیره‌شده: دمو در حافظه‌ی مرورگر؛ وردپرس روی سرور (opts.saved) */
+    const SV = opts.saved || {
+      list: () => st("tl_filters", []),
+      add: async (n, tree) => { const a = st("tl_filters", []); a.push({ name: n, tree }); Store.set("tl_filters", a); },
+      remove: async i => { const a = st("tl_filters", []); a.splice(i, 1); Store.set("tl_filters", a); }
+    };
     const S = { tab: opts.tab || params.get("tab") || (params.get("cand") ? "bycand" : "byjob"),
                 job: params.get("job") || "", cand: params.get("cand") || "", onlyOk: false, min: 0,
                 tree: st("tl_last_filter", PRESETS[0].tree), rankJob: "" };
     const positions = () => aioPositions().map(j => Object.assign(j, { mine: !!j.mine }));
     const cands = () => aioCandidates();
-    if (!S.job) S.job = String((opts.jobs || positions())[0].id);
-    if (!S.cand) S.cand = String(cands()[0].id);
+    if (!positions().length || !cands().length) {
+      host.innerHTML = `<div class="empty-state"><b>${!positions().length ? "هنوز پوزیشنی با نیازمندی ساخت‌یافته ثبت نشده است" : "هنوز رزومه‌ی ساخت‌یافته‌ای در دسترس نیست"}</b>${!positions().length ? "از بخش «ثبت آگهی / پوزیشن» مهارت‌ها و شرایط احراز را تعریف کنید." : "رزومه‌های کارجویانِ «آماده به کار» این‌جا نمایش داده می‌شوند."}</div>`;
+      return { show() {}, state: {} };
+    }
+    if (!S.job || !positions().some(j => String(j.id) === String(S.job))) S.job = String(positions()[0].id);
+    if (!S.cand || !cands().some(c => String(c.id) === String(S.cand))) S.cand = String(cands()[0].id);
 
     host.innerHTML = `
       <div class="tl-tabs" role="tablist">
@@ -126,7 +136,7 @@ const TalentCenter = (() => {
       P.querySelectorAll(".tl-row").forEach(r => r.onclick = r.onkeydown = ev => {
         if (ev.type === "keydown" && ev.key !== "Enter") return;
         const x = res[+r.dataset.i];
-        openDrawer(TUI.candDetail(x.c, x.m) + `<div class="fb-actions" style="margin-top:18px"><button class="btn btn-primary" onclick="toast('دعوت به مصاحبه برای ${e(x.c.name)} ارسال شد ✓ (دمو)')">دعوت به مصاحبه</button>
+        openDrawer(TUI.candDetail(x.c, x.m) + `<div class="fb-actions" style="margin-top:18px">${opts.candActions ? opts.candActions(x.c, job) : `<button class="btn btn-primary" onclick="toast('دعوت به مصاحبه برای ${e(x.c.name)} ارسال شد ✓ (دمو)')">دعوت به مصاحبه</button>`}
           <a class="btn btn-outline" href="?tab=bycand&cand=${x.c.id}">پوزیشن‌های مناسب این فرد</a></div>`);
       });
     }
@@ -147,14 +157,14 @@ const TalentCenter = (() => {
         const x = res[+r.dataset.i];
         openDrawer(`<div class="cd-head"><div><h2>${e(x.job.title)}</h2><p>${e(x.job.orgName || "")} · ${e(x.job.city || "")}</p></div>${TUI.ring(x.m, 76)}</div>
           ${reqChips(x.job)}<h3>تطبیق «${e(c.name)}» با این پوزیشن</h3>${TUI.breakdown(x.m)}
-          ${x.job.internal || x.job.mine ? "" : `<div class="fb-actions" style="margin-top:18px"><a class="btn btn-primary" href="job.html?id=${x.job.id}">مشاهده آگهی</a></div>`}`);
+          ${x.job.internal || (x.job.mine && !x.job.url) ? "" : `<div class="fb-actions" style="margin-top:18px"><a class="btn btn-primary" href="${e(x.job.url || "job.html?id=" + x.job.id)}">مشاهده آگهی</a></div>`}`);
       });
     }
 
     /* ---------- ۳) جستجوی پیشرفته ---------- */
     function drawFilter() {
       const P = pane("filter"), list = positions();
-      const saved = st("tl_filters", []);
+      const saved = SV.list() || [];
       P.innerHTML = `<div class="panel">
           <div class="syllabus-head"><div><h2>شرط‌ها</h2><p>هر پارامتر رزومه را با «و» (همه) یا «یا» (حداقل یکی) ترکیب کنید؛ برای پرانتز، گروه بسازید.</p></div></div>
           <div class="tl-saved"><span class="muted" style="font-size:12.5px">نمونه‌ها:</span>${PRESETS.map((p, i) => `<button type="button" class="tp-add" data-preset="${i}">${e(p.name)}</button>`).join("")}</div>
@@ -170,13 +180,12 @@ const TalentCenter = (() => {
       const b = TUI.builder(host2, JSON.parse(JSON.stringify(S.tree)), t => { S.tree = t; try { Store.set("tl_last_filter", t); } catch (_) {} results(); }, ctx);
       P.querySelectorAll("[data-preset]").forEach(x => x.onclick = () => { S.tree = JSON.parse(JSON.stringify(PRESETS[+x.dataset.preset].tree)); drawFilter(); });
       P.querySelectorAll("[data-saved]").forEach(x => x.onclick = () => { S.tree = JSON.parse(JSON.stringify(saved[+x.dataset.saved].tree)); drawFilter(); });
-      P.querySelectorAll("[data-delsaved]").forEach(x => x.onclick = () => { saved.splice(+x.dataset.delsaved, 1); Store.set("tl_filters", saved); drawFilter(); });
+      P.querySelectorAll("[data-delsaved]").forEach(x => x.onclick = () => Promise.resolve(SV.remove(+x.dataset.delsaved)).then(drawFilter, err => toast(err.message)));
       P.querySelector("[data-clear]").onclick = () => { S.tree = { op: "and", rules: [] }; drawFilter(); };
       P.querySelector("[data-save]").onclick = () => {
         const n = prompt("نام این فیلتر:", TUI.describe(S.tree).slice(0, 60));
         if (!n) return;
-        saved.push({ name: n.slice(0, 80), tree: S.tree }); Store.set("tl_filters", saved);
-        toast("فیلتر ذخیره شد ✓ رزومه‌های جدید مطابق آن در اعلان‌ها به شما خبر داده می‌شود"); drawFilter();
+        Promise.resolve(SV.add(n.slice(0, 80), S.tree)).then(() => { toast("فیلتر ذخیره شد ✓"); drawFilter(); }, err => toast(err.message));
       };
       function results() {
         P.querySelector("[data-desc]").textContent = "شرط فعلی: " + TUI.describe(S.tree);
