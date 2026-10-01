@@ -29,12 +29,13 @@
     <div class="dash-profile">
       <div class="avatar" id="p-avatar">؟</div>
       <b id="p-name">...</b>
-      <span>کارشناس هماتولوژی · تهران</span>
+      <span id="p-sub"></span>
       <div><button class="otw-toggle" id="otw" onclick="toggleOTW()"><span class="dot"></span> آماده به کار</button></div>
     </div>
     <nav class="dash-nav" id="dash-nav">
       <a href="#overview" class="active" data-sec="overview"></a>
       <a href="#resume" data-sec="resume"></a>
+      <a href="#matches" data-sec="matches"></a>
       <a href="#applications" data-sec="applications"></a>
       <a href="#alerts" data-sec="alerts"></a>
       <a href="#courses" data-sec="courses"></a>
@@ -69,9 +70,9 @@
       </div>
 
       <div class="progress-card">
-        <b style="font-size:16px">قدرت پروفایل شما: ۷۵٪</b>
-        <div class="bar"><i style="width:75%"></i></div>
-        <small>با افزودن «گواهی‌های آموزشی» و «تجربه دستگاه‌ها»، پروفایل‌تان را به ۱۰۰٪ برسانید تا در نتایج جستجوی کارفرمایان بالاتر دیده شوید.</small>
+        <b style="font-size:16px" id="pw-title">قدرت پروفایل شما</b>
+        <div class="bar"><i id="pw-bar" style="width:0%"></i></div>
+        <small>هرچه رزومه‌ی آیتمی‌تان کامل‌تر باشد (سوابق با تاریخ، مهارت با سطح، مدارک و زبان)، در جستجوی کارفرمایان و تطبیق هوشمند بالاتر دیده می‌شوید.</small>
       </div>
       <div class="dash-cards">
         <div class="dash-stat"><b>۴</b><span>درخواست ارسال‌شده</span></div>
@@ -83,41 +84,18 @@
       <div class="job-grid" id="suggested"></div>
     </section>
 
-    <!-- ===== Resume ===== -->
+    <!-- ===== Resume (ساخت‌یافته) ===== -->
     <section id="sec-resume">
       <h1 class="dash-title">رزومه حرفه‌ای من</h1>
-      <div class="panel">
-        <h2>اطلاعات پایه</h2>
-        <div class="form-grid">
-          <div class="form-field"><label>نام و نام خانوادگی</label><input type="text" id="r-name" value="علی رضایی"></div>
-          <div class="form-field"><label>عنوان شغلی</label><input type="text" value="کارشناس هماتولوژی"></div>
-          <div class="form-field"><label>شهر</label><select><option>تهران</option><option>مشهد</option><option>اصفهان</option><option>شیراز</option></select></div>
-          <div class="form-field"><label>سابقه کار</label><select><option>۴ سال</option><option>کمتر از ۱ سال</option><option>۱ تا ۳ سال</option><option>بیش از ۵ سال</option></select></div>
-          <div class="form-field"><label>مدرک تحصیلی</label><select><option>کارشناسی علوم آزمایشگاهی</option><option>کاردانی</option><option>کارشناسی ارشد</option><option>دکتری</option></select></div>
-          <div class="form-field"><label>حقوق مورد انتظار</label><input type="text" value="۲۰ تا ۲۵ میلیون تومان"></div>
-          <div class="form-field full"><label>خلاصه حرفه‌ای</label><textarea rows="3">کارشناس هماتولوژی با ۴ سال تجربه کار با سل‌کانترهای Sysmex و تسلط بر کنترل کیفیت داخلی؛ علاقه‌مند به محیط‌های آموزش‌محور.</textarea></div>
-        </div>
-      </div>
-      <div class="panel">
-        <h2>مهارت‌های تخصصی</h2>
-        <div class="tag-list" id="skills"></div>
-        <div style="display:flex;gap:10px;margin-top:16px">
-          <input type="text" id="new-skill" placeholder="مهارت جدید... (مثلاً: کار با LIS)" style="flex:1;padding:10px 14px;border:1.5px solid var(--navy-200);border-radius:9px;font-size:14px;outline:none">
-          <button class="btn btn-outline" onclick="addSkill()">افزودن</button>
-        </div>
-      </div>
-      <div class="panel">
-        <h2>تجربه کار با دستگاه‌ها</h2>
-        <div class="tag-list" id="devices"></div>
-      </div>
-      <div class="panel">
-        <h2>رزومه PDF</h2>
-        <p style="margin-bottom:14px">نسخه PDF رزومه‌تان را بارگذاری کنید تا همراه درخواست‌ها ارسال شود.</p>
-        <button class="btn btn-outline" onclick="toast('بارگذاری فایل در نسخه متصل به سرور فعال می‌شود (دمو)')">📎 بارگذاری فایل PDF</button>
-      </div>
-      <div style="display:flex;justify-content:flex-end;margin-top:16px">
-        <button class="btn btn-primary btn-lg" onclick="toast('رزومه با موفقیت ذخیره شد ✓')">ذخیره تغییرات</button>
-      </div>
+      <p class="dash-sub">رزومه‌ی آیولب آیتمی است: به‌جای نوشتن متن، از فهرست‌های استاندارد انتخاب کنید تا کارفرمایان دقیق پیدایتان کنند و موتور تطبیق، پوزیشن‌های مناسب را به شما پیشنهاد دهد.</p>
+      <div id="resume-builder"></div>
+    </section>
+
+    <!-- ===== پیشنهادهای شغلی (تطبیق) ===== -->
+    <section id="sec-matches">
+      <h1 class="dash-title">پوزیشن‌های مناسب من</h1>
+      <p class="dash-sub">هر آگهی بر اساس مهارت‌ها و سطح آن‌ها، سابقه‌ی محاسبه‌شده از تاریخ‌ها، مدرک، محل سکونت و شرایط الزامی با رزومه‌ی شما سنجیده می‌شود. روی هر مورد بزنید تا دلیل امتیاز را ببینید.</p>
+      <div id="my-matches"></div>
     </section>
 
     <!-- ===== Applications ===== -->
@@ -291,12 +269,17 @@
 
 <script src="assets/js/geo.js"></script>
 <script src="assets/js/data.js"></script>
+<script src="assets/js/talent-data.js"></script>
+<script src="assets/js/match.js"></script>
+<script src="assets/js/talent-ui.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/resume-builder.js"></script>
 <script>
 const NAV_ITEMS = [
   ["overview", "پیشخوان", "home"],
   ["resume", "رزومه حرفه‌ای من", "doc"],
+  ["matches", "پوزیشن‌های مناسب من", "path"],
   ["applications", "درخواست‌های من", "send"],
   ["alerts", "هشدارهای شغلی", "bell"],
   ["courses", "دوره‌های من", "grad"],
@@ -308,15 +291,21 @@ const NAV_ITEMS = [
   ["orders", "سفارش‌های من", "bookmark"],
   ["notifications", "اعلان‌ها", "bell"]
 ];
-let skills = ["کار با سل‌کانتر Sysmex", "لام محیطی", "کنترل کیفیت داخلی", "نمونه‌گیری وریدی", "آشنایی با LIS"];
-const devices = ["Sysmex XN-1000", "Sysmex KX-21", "BT-3000", "Cobas c311"];
+/* رزومه‌ی ساخت‌یافته (دمو: حافظه‌ی مرورگر؛ نسخه‌ی اصلی: سرور) — بار اول با نمونه‌ی «علی رضایی» پر می‌شود */
+function loadResume() {
+  const saved = Store.get("resume", null);
+  if (saved) return saved;
+  const s = JSON.parse(JSON.stringify(AIO_CANDIDATES[0]));
+  delete s.id; delete s.certs; delete s.updated;
+  s.name = (Auth.user || {}).name || s.name;
+  return s;
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const u = requireLogin();
   if (!u) return;
   document.getElementById("p-avatar").textContent = u.name.charAt(0);
   document.getElementById("p-name").textContent = u.name;
-  document.getElementById("r-name").value = u.name;
 
   // nav
   const nav = document.getElementById("dash-nav");
@@ -329,12 +318,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (location.hash) showSec(location.hash.slice(1));
 
-  document.getElementById("suggested").innerHTML = AIO_JOBS.filter(j => j.dept === "hematology" || j.city === "تهران").slice(0, 4).map(jobCardHTML).join("");
+  ResumeBuilder.mount(document.getElementById("resume-builder"), {
+    load: loadResume,
+    save: r => Store.set("resume", r),
+    onSaved: () => { toast("رزومه ذخیره شد ✓ پیشنهادهای شغلی به‌روز شد"); renderMatches(); }
+  });
+  renderMatches();
   document.getElementById("apps-body").innerHTML = AIO_MY_APPLICATIONS.map(a => `
     <tr><td><b>${a.job}</b></td><td>${a.lab}</td><td>${a.date}</td><td><span class="status ${a.status}">${a.statusText}</span></td></tr>`).join("");
   document.getElementById("saved-jobs").innerHTML = AIO_JOBS.slice(0, 3).map(jobCardHTML).join("");
-  renderSkills();
-  document.getElementById("devices").innerHTML = devices.map(d => `<span class="tag">${d}</span>`).join("");
 
   renderOTW();
   initOnboard();
@@ -454,13 +446,31 @@ function showSec(sec) {
   window.scrollTo({ top: 0 });
 }
 
-function renderSkills() {
-  document.getElementById("skills").innerHTML = skills.map((s, i) =>
-    `<span class="tag">${s} <button onclick="skills.splice(${i},1);renderSkills()">×</button></span>`).join("");
-}
-function addSkill() {
-  const inp = document.getElementById("new-skill");
-  if (inp.value.trim()) { skills.push(inp.value.trim()); inp.value = ""; renderSkills(); toast("مهارت اضافه شد ✓"); }
+/* ---------- تطبیق رزومه با آگهی‌های عمومی ---------- */
+function renderMatches() {
+  const r = loadResume(), p = AioMatch.profile(r);
+  const pct = ResumeBuilder.completeness(r);
+  document.getElementById("pw-title").textContent = "قدرت پروفایل شما: " + fa(pct) + "٪";
+  document.getElementById("pw-bar").style.width = pct + "%";
+  const cur = p.current || p.last;
+  document.getElementById("p-sub").textContent = [cur ? TUI.name.role(cur.role) : TUI.name.role((r.targetRoles || [])[0]), r.city].filter(Boolean).join(" · ");
+  const jobs = aioPositions().filter(j => !j.internal && !j.mine);
+  const res = AioMatch.jobsFor(r, jobs);
+  const row = (x, i) => `<details class="tl-row" style="display:block;cursor:default" data-i="${i}">
+      <summary style="display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;cursor:pointer;list-style:none">
+        <div><b>${TUI.e(x.job.title)}</b><small>${TUI.e(x.job.orgName || "")} · ${TUI.e(x.job.city)} · ${TUI.e(x.job.salary || "")}</small></div>
+        ${TUI.fitBadge(x.m)}${TUI.ring(x.m, 50)}</summary>
+      <div style="margin-top:14px">${TUI.breakdown(x.m)}
+        <div class="fb-actions"><a class="btn btn-sm btn-primary" href="job.html?id=${x.job.id}">مشاهده و ارسال رزومه</a></div></div></details>`;
+  document.getElementById("my-matches").innerHTML = res.length
+    ? `<div class="tl-summary"><div><b>${fa(res.filter(x => x.m.fit === "high").length)}</b><span>تطبیق بالا</span></div><div><b>${fa(res.filter(x => x.m.fit === "mid").length)}</b><span>تطبیق متوسط</span></div>
+       <div><b>${fa(res.filter(x => x.m.eligible).length)}</b><span>واجد شرایط الزامی</span></div><div><b>${p.expMonths ? AioDate.durText(p.expMonths) : "—"}</b><span>سابقه‌ی محاسبه‌شده</span></div></div>`
+      + res.filter(x => x.m.fit !== "none").map(row).join("")
+      + (res.some(x => x.m.fit === "none") ? `<p class="muted" style="margin-top:10px">${fa(res.filter(x => x.m.fit === "none").length)} آگهی دیگر با رزومه‌ی شما ارتباط کمی دارند و نمایش داده نشدند.</p>` : "")
+    : '<div class="empty-inline">آگهی فعالی برای تطبیق وجود ندارد.</div>';
+  const top = res.filter(x => x.m.fit !== "none").slice(0, 4);
+  document.getElementById("suggested").innerHTML = top.map(x => jobCardHTML(x.job).replace('<div class="foot">', `<div class="foot"><span>${TUI.fitBadge(x.m)}</span>`)).join("")
+    || '<div class="empty-inline" style="grid-column:1/-1">رزومه‌تان را کامل کنید تا پیشنهادها ظاهر شوند.</div>';
 }
 /* وضعیت «آماده به کار» تنها یک منبع حقیقت دارد: حافظه محلی.
    قبلاً دکمه همیشه روشن نمایش داده می‌شد ولی چیزی ذخیره نشده بود،
@@ -485,7 +495,7 @@ function toggleOTW() {
 function initOnboard() {
   const steps = [
     { t: "رزومه‌ات را کامل کن", d: "مهارت‌ها، دستگاه‌ها و سوابق کاری — پروفایل بالای ۷۰٪ در جستجوی کارفرما بالاتر دیده می‌شود.",
-      done: true, act: "رفتن به رزومه", go: "showSec('resume')" },
+      done: ResumeBuilder.completeness(loadResume()) >= 70 && !!Store.get("resume", null), act: "رفتن به رزومه", go: "showSec('resume')" },
     { t: "«آماده به کار» را روشن کن", d: "تا در بانک رزومه کارفرمایان دیده شوی و در آگهی‌های فوری اولویت بگیری.",
       done: Store.get("otw", false), act: "فعال کردن", go: "toggleOTW()" },
     { t: "هشدار شغلی بساز", d: "تا آگهی‌های جدید مطابق معیارت خودکار به تو خبر داده شود.",

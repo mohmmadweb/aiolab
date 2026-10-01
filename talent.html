@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تطبیق هوشمند نیرو و پوزیشن | آیولب</title>
+<meta name="description" content="مرکز تطبیق هوشمند آیولب: نیروهای مناسب هر پوزیشن، پوزیشن‌های مناسب هر نفر و جستجوی پیشرفته رزومه با شرط‌های AND/OR.">
+<meta name="theme-color" content="#0d9488">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://demo.aiolab.ir/talent.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="تطبیق هوشمند نیرو و پوزیشن | آیولب">
+<meta property="og:description" content="مرکز تطبیق هوشمند آیولب: نیروهای مناسب هر پوزیشن، پوزیشن‌های مناسب هر نفر و جستجوی پیشرفته رزومه با شرط‌های AND/OR.">
+<meta property="og:url" content="https://demo.aiolab.ir/talent.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="talent.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / <a href="employer.html">پنل کارفرما</a> / تطبیق هوشمند</div>
+    <h1>مرکز تطبیق هوشمند</h1>
+    <p>برای هر پوزیشن (آگهی عمومی یا پوزیشن داخلی برای مشتری بیرون از سایت) نیروهای واجد شرایط را با درصد و دلیل تطبیق ببینید؛ یا برای هر نفر، پوزیشن‌های مناسبش را.</p>
+  </div>
+</div>
+<section class="section" style="padding-top:24px">
+  <div class="container" id="talent-center"></div>
+</section>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/talent-data.js"></script>
+<script src="assets/js/match.js"></script>
+<script src="assets/js/talent-ui.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/talent-center.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const u = requireLogin("employer");
+  if (!u) return;
+  if (u.role !== "employer") {
+    document.getElementById("talent-center").innerHTML = '<div class="empty-state"><b>این بخش ویژه‌ی کارفرمایان و مدیران است</b>برای دیدن پوزیشن‌های مناسب خودتان به <a href="dashboard.html#matches">داشبورد کارجو</a> بروید.</div>';
+    return;
+  }
+  TalentCenter.mount(document.getElementById("talent-center"));
+});
+</script>
+</body>
+</html>

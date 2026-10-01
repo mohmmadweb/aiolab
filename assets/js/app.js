@@ -85,6 +85,10 @@ const AIO_SITEMAP = [
   { path: "job.html",            title: "جزئیات آگهی",                  parent: "jobs.html",       dynamic: true },
   { path: "labs.html",           title: "آزمایشگاه‌ها روی نقشه",        parent: "index.html",      group: "company" },
   { path: "lab.html",            title: "پروفایل مرکز",                 parent: "labs.html",       dynamic: true },
+  { path: "companies.html",      title: "شرکت‌ها",                      parent: "index.html",      group: "company" },
+  { path: "products.html",       title: "محصولات و تجهیزات",            parent: "companies.html",  group: "company" },
+  { path: "product.html",        title: "محصول",                        parent: "products.html",   dynamic: true },
+  { path: "talent.html",         title: "تطبیق هوشمند",                 parent: "employer.html",   auth: "employer" },
   { path: "ranking.html",        title: "رتبه‌بندی مراکز",              parent: "labs.html",       group: "company" },
   { path: "dashboard.html",      title: "داشبورد کارجو",                parent: "index.html",      auth: "seeker" },
   { path: "employer.html",       title: "پنل کارفرما",                  parent: "index.html",      auth: "employer" },
@@ -136,11 +140,11 @@ const AIO_FOOTER = [
       ["services.html#advice", "مشاوره شغلی"], ["magazine.html", "راهنمای مسیر شغلی"] ] },
   { title: "کارفرمایان", links: [
       ["login.html?role=employer", "ثبت آگهی استخدام"], ["employer.html#resumes", "جستجوی بانک رزومه"], ["employer.html#pricing", "تعرفه‌ها و اشتراک"],
-      ["services.html#matching", "تطبیق هوشمند"], ["services.html#hiring", "خدمات استخدام کامل"], ["services.html#branding", "برند کارفرمایی"],
+      ["talent.html", "تطبیق هوشمند"], ["services.html#hiring", "خدمات استخدام کامل"], ["services.html#branding", "برند کارفرمایی"],
       ["advertise.html", "تبلیغات و اسپانسری"] ] },
   { title: "آیولب", links: [
       ["faq.html", "سؤالات پرتکرار"], ["services.html", "خدمات آیولب"], ["pricing.html", "تعرفه‌ها و اشتراک"], ["reports.html", "گزارش بازار کار"],
-      ["ranking.html", "رتبه‌بندی مراکز"], ["magazine.html", "در آزمایشگاه چه می‌گذرد؟"], ["community.html", "جامعه آزمایشگاهی"],
+      ["ranking.html", "رتبه‌بندی مراکز"], ["companies.html", "شرکت‌ها و محصولات"], ["magazine.html", "در آزمایشگاه چه می‌گذرد؟"], ["community.html", "جامعه آزمایشگاهی"],
       ["about.html", "درباره ما"], ["contact.html", "تماس با ما"] ] }
 ];
 
@@ -151,6 +155,8 @@ const AIO_NAV = [
   { href: "jobs.html",  key: "nav.jobs", label: "فرصت‌های شغلی" },
   { key: "nav.labs", label: "آزمایشگاه‌ها", children: [
       { href: "labs.html",    label: "آزمایشگاه‌ها روی نقشه", desc: "نقشه سراسری مراکز عضو", icon: "pin" },
+      { href: "companies.html", label: "شرکت‌ها",           desc: "تولیدکننده، واردکننده و توزیع‌کننده", icon: "building" },
+      { href: "products.html",  label: "محصولات و تجهیزات", desc: "کاتالوگ دستگاه، کیت و مواد مصرفی", icon: "machine" },
       { href: "ranking.html", label: "رتبه‌بندی مراکز",       desc: "امتیاز کاربران و میانگین حقوق", icon: "chart" }
   ]},
   { key: "nav.growth", label: "رشد حرفه‌ای", children: [

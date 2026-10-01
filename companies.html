@@ -3,31 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>آزمایشگاه‌ها روی نقشه | آیولب</title>
+<title>شرکت‌های تجهیزات و کیت آزمایشگاهی | آیولب</title>
 <meta name="description" content="نقشه سراسری آزمایشگاه‌ها و مراکز عضو آیولب — آزمایشگاه تشخیص طبی، بیمارستانی، مرکز پژوهشی، تولیدکننده و توزیع‌کننده تجهیزات.">
 <meta name="theme-color" content="#0d9488">
 <meta name="robots" content="noindex, nofollow">
-<link rel="canonical" href="https://demo.aiolab.ir/labs.html">
+<link rel="canonical" href="https://demo.aiolab.ir/companies.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="آیولب">
 <meta property="og:locale" content="fa_IR">
 <meta property="og:title" content="آزمایشگاه‌ها روی نقشه | آیولب">
 <meta property="og:description" content="نقشه سراسری آزمایشگاه‌ها و مراکز عضو آیولب — آزمایشگاه تشخیص طبی، بیمارستانی، مرکز پژوهشی، تولیدکننده و توزیع‌کننده تجهیزات.">
-<meta property="og:url" content="https://demo.aiolab.ir/labs.html">
+<meta property="og:url" content="https://demo.aiolab.ir/companies.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body data-page="labs.html" data-orgtype="lab">
+<body data-page="companies.html" data-orgtype="company">
 
 <header id="site-header" class="site-header"></header>
 
 <div class="page-head">
   <div class="container">
-    <div class="breadcrumb"><a href="index.html">خانه</a> / آزمایشگاه‌ها</div>
-    <h1 data-i18n="labs.title">آزمایشگاه‌ها و مراکز عضو</h1>
-    <p>هر مرکزی که در آیولب ثبت می‌شود، روی نقشه سراسری پین می‌شود — آزمایشگاه، بیمارستان، مرکز پژوهشی، تولیدکننده و توزیع‌کننده تجهیزات.</p>
+    <div class="breadcrumb"><a href="index.html">خانه</a> / شرکت‌ها</div>
+    <h1>شرکت‌های تولید، واردات و توزیع</h1>
+    <p>تولیدکنندگان کیت، واردکنندگان دستگاه و پخش‌کنندگان تجهیزات آزمایشگاهی — با محصولات، خدمات، نمایندگی‌ها و فرصت‌های شغلی‌شان. <a href="products.html">مشاهده‌ی همه‌ی محصولات ←</a></p>
   </div>
 </div>
 
@@ -38,13 +38,13 @@
     <div class="view-tabs">
       <button class="vt active" data-view="map" onclick="setView('map')">🗺️ <span data-i18n="labs.map">نمایش روی نقشه</span></button>
       <button class="vt" data-view="list" onclick="setView('list')">☰ <span data-i18n="labs.list">نمایش فهرستی</span></button>
-      <span class="vt-count"><b id="lab-count">۰</b> <span data-i18n="labs.count">مرکز ثبت‌شده</span></span>
-      <a href="employer.html#addlab" class="btn btn-primary vt-add">+ ثبت آزمایشگاه من</a>
+      <span class="vt-count"><b id="lab-count">۰</b> <span>شرکت ثبت‌شده</span></span>
+      <a href="employer.html#addlab" class="btn btn-primary vt-add">+ ثبت شرکت من</a>
     </div>
 
     <!-- Filters -->
     <div class="lab-filters">
-      <input type="text" id="f-q" placeholder="نام مرکز…" aria-label="جستجوی نام مرکز">
+      <input type="text" id="f-q" placeholder="نام شرکت…" aria-label="جستجوی نام شرکت">
       <select id="f-prov" aria-label="استان" title="استان"></select>
       <select id="f-city" aria-label="شهر" title="شهر"></select>
       <select id="f-sector" aria-label="بخش مالکیت" title="بخش مالکیت"><option value="">همه بخش‌ها (دولتی/خصوصی…)</option></select>
@@ -71,7 +71,7 @@
     </div>
 
     <div class="empty-state" id="empty" style="display:none">
-      <b>مرکزی یافت نشد</b>
+      <b>شرکتی یافت نشد</b>
       فیلترها را تغییر دهید.
     </div>
 
@@ -88,10 +88,10 @@
   <div class="container">
     <div class="cta-band">
       <div>
-        <h2>آزمایشگاه شما هنوز روی نقشه آیولب نیست؟</h2>
-        <p>پروفایل رسمی بسازید، موقعیت مرکزتان را روی نقشه پین کنید و به هزاران متخصص آزمایشگاهی دیده شوید.</p>
+        <h2>شرکت شما هنوز در آیولب نیست؟</h2>
+        <p>پروفایل رسمی شرکت را با گالری تصاویر، محصولات و نمایندگی‌ها بسازید و به هزاران آزمایشگاه و متخصص معرفی شوید.</p>
       </div>
-      <a href="employer.html#addlab" class="btn btn-lg">ثبت آزمایشگاه روی نقشه</a>
+      <a href="employer.html#addlab" class="btn btn-lg">ثبت شرکت و محصولات</a>
     </div>
   </div>
 </section>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>محصول | آیولب</title>
+<meta name="description" content="جزئیات محصول آزمایشگاهی: مشخصات فنی، تأمین‌کننده و استعلام قیمت در آیولب.">
+<meta name="theme-color" content="#0d9488">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://demo.aiolab.ir/product.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="محصول | آیولب">
+<meta property="og:description" content="جزئیات محصول آزمایشگاهی: مشخصات فنی، تأمین‌کننده و استعلام قیمت در آیولب.">
+<meta property="og:url" content="https://demo.aiolab.ir/product.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="product.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / <a href="products.html">محصولات</a> / <span id="bc">…</span></div>
+    <h1 id="pr-name">…</h1>
+    <p id="pr-sub"></p>
+  </div>
+</div>
+<div class="container detail-layout">
+  <main>
+    <div class="panel"><div id="pr-media"></div><h2>معرفی محصول</h2><p id="pr-desc"></p></div>
+    <div class="panel"><h2>مشخصات فنی</h2><div class="table-wrap"><table class="data spec-table"><tbody id="pr-specs"></tbody></table></div></div>
+    <div class="panel"><h2>محصولات دیگر این تأمین‌کننده</h2><div class="prod-grid" id="pr-more"></div></div>
+  </main>
+  <aside>
+    <div class="side-card">
+      <span class="pc-cat" id="pr-cat"></span>
+      <div class="sc-val" style="margin:8px 0"><b id="pr-price"></b></div>
+      <div class="row"><span>برند</span><b id="pr-brand"></b></div>
+      <div class="row"><span>مدل</span><b id="pr-model"></b></div>
+      <button class="btn btn-primary btn-block" style="margin-top:14px" onclick="inquiry()">استعلام قیمت و شرایط</button>
+    </div>
+    <div class="side-card" id="pr-org"></div>
+  </aside>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/talent-data.js"></script>
+<script src="assets/js/match.js"></script>
+<script src="assets/js/talent-ui.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script>
+let PR = null;
+document.addEventListener("DOMContentLoaded", () => {
+  PR = aioProducts().find(p => p.id === +qs("id")) || aioProducts()[0];
+  const org = orgFull(PR.orgId) || {}, cat = AIO_PRODUCT_CATS.find(c => c.id === PR.cat) || {};
+  document.title = PR.name + " | آیولب";
+  document.getElementById("bc").textContent = PR.name;
+  injectBreadcrumbLD(PR.name);
+  document.getElementById("pr-name").textContent = PR.name;
+  document.getElementById("pr-sub").textContent = [cat.name, org.name].filter(Boolean).join(" · ");
+  document.getElementById("pr-media").innerHTML = PR.img ? `<img src="${TUI.e(PR.img)}" alt="" style="width:100%;border-radius:14px;margin-bottom:16px">`
+    : `<div class="pc-img" style="--pc:${PR.color || cat.color};--pbg:${cat.bg};border-radius:14px;margin-bottom:16px;aspect-ratio:16/7">${ICONS[cat.icon] || ICONS.flask}</div>`;
+  document.getElementById("pr-desc").textContent = PR.desc || "";
+  document.getElementById("pr-specs").innerHTML = (PR.specs || []).map(([k, v]) => `<tr><td>${TUI.e(k)}</td><td>${TUI.e(v)}</td></tr>`).join("") || '<tr><td colspan="2" class="muted">مشخصاتی ثبت نشده است.</td></tr>';
+  document.getElementById("pr-cat").textContent = cat.name || "";
+  document.getElementById("pr-price").textContent = PR.price ? fa(Number(PR.price).toLocaleString("en")).replace(/,/g, "٬") + " تومان" : "استعلام قیمت";
+  document.getElementById("pr-brand").textContent = PR.brand || "—";
+  document.getElementById("pr-model").textContent = PR.model || "—";
+  const more = aioProducts().filter(p => p.orgId === PR.orgId && p.id !== PR.id);
+  document.getElementById("pr-more").innerHTML = more.map(p => TUI.productCard(p)).join("") || '<p class="muted">محصول دیگری ثبت نشده است.</p>';
+  document.getElementById("pr-org").innerHTML = `<h2 style="font-size:16px;margin-bottom:10px">تأمین‌کننده</h2>
+    <div style="display:flex;gap:10px;align-items:center"><div class="job-logo" style="background:${org.color}">${TUI.e((org.name || "؟").replace("شرکت ", "").charAt(0))}</div>
+    <div><b>${TUI.e(org.name || "")} ${org.verified ? "✔️" : ""}</b><div class="muted" style="font-size:12.5px">${TUI.e(org.city || "")}${org.tagline ? " · " + TUI.e(org.tagline) : ""}</div></div></div>
+    <a class="btn btn-outline btn-block" style="margin-top:12px" href="lab.html?id=${org.id}">مشاهده پروفایل ${org.orgType === "company" ? "شرکت" : "مرکز"}</a>`;
+});
+function inquiry() {
+  if (!Auth.user) { Store.set("after_login", currentPath() + location.search); location.href = "login.html"; return; }
+  toast("درخواست استعلام برای «" + PR.name + "» به تأمین‌کننده ارسال شد ✓");
+}
+</script>
+</body>
+</html>

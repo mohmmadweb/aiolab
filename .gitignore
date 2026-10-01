@@ -5,3 +5,7 @@ AioLab-Job-RevenueModel-V1-050516.xlsx
 # اطلاعات محرمانه اتصال (هرگز کامیت نشود)
 .secrets/
 *.env
+
+# وردپرس: وابستگی‌های تست و خروجی‌های موقت
+wordpress/tests/node_modules/
+wordpress/theme/aiolab/assets/js/pages/_raw/

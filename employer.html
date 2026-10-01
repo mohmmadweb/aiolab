@@ -34,6 +34,8 @@
     <nav class="dash-nav" id="dash-nav">
       <a href="#overview" class="active" data-sec="overview"></a>
       <a href="#addlab" data-sec="addlab"></a>
+      <a href="#orgprofile" data-sec="orgprofile"></a>
+      <a href="#products" data-sec="products"></a>
       <a href="#post" data-sec="post"></a>
       <a href="#jobs" data-sec="jobs"></a>
       <a href="#applicants" data-sec="applicants"></a>
@@ -78,13 +80,16 @@
 
     <!-- ===== Register lab (map) ===== -->
     <section id="sec-addlab">
-      <h1 class="dash-title">ثبت آزمایشگاه / مرکز</h1>
+      <h1 class="dash-title">ثبت آزمایشگاه یا شرکت</h1>
       <p class="dash-sub">اطلاعات مرکز را وارد کنید و موقعیت دقیق آن را روی نقشه پین کنید. پس از تأیید، مرکز شما در صفحه «آزمایشگاه‌ها» روی نقشه سراسری نمایش داده می‌شود.</p>
 
       <div class="panel">
         <h2>اطلاعات مرکز</h2>
         <div class="form-grid">
-          <div class="form-field full"><label>نام مرکز *</label><input type="text" id="lb-name" placeholder="مثلاً: آزمایشگاه پاتوبیولوژی نور"></div>
+          <div class="form-field full"><label>نوع سازمان *</label><div style="display:flex;gap:18px;flex-wrap:wrap">
+            <label class="check-item inline"><input type="radio" name="lb-otype" value="lab" checked> آزمایشگاه / مرکز تشخیصی و پژوهشی</label>
+            <label class="check-item inline"><input type="radio" name="lb-otype" value="company"> شرکت (تولید، واردات، توزیع، خدمات)</label></div></div>
+          <div class="form-field full"><label>نام سازمان *</label><input type="text" id="lb-name" placeholder="مثلاً: آزمایشگاه پاتوبیولوژی نور"></div>
           <div class="form-field"><label>عمودی (حوزه فعالیت)</label><select id="lb-vertical"></select></div>
           <div class="form-field"><label>نوع مرکز *</label>
             <select id="lb-type">
@@ -151,31 +156,24 @@
       </div>
     </section>
 
+    <!-- ===== پروفایل کامل سازمان ===== -->
+    <section id="sec-orgprofile">
+      <h1 class="dash-title">پروفایل و گالری سازمان</h1>
+      <p class="dash-sub">هرچه این صفحه کامل‌تر باشد، کارجویان و مشتریان شناخت بهتری از مجموعه‌ی شما پیدا می‌کنند. همه‌ی موارد در صفحه‌ی عمومی سازمان نمایش داده می‌شود.</p>
+      <div id="org-profile"></div>
+    </section>
+
+    <!-- ===== محصولات ===== -->
+    <section id="sec-products">
+      <h1 class="dash-title">محصولات من</h1>
+      <div id="org-products"></div>
+    </section>
+
     <!-- ===== Post job ===== -->
     <section id="sec-post">
-      <h1 class="dash-title">ثبت آگهی استخدام</h1>
-      <div class="panel">
-        <div class="form-grid">
-          <div class="form-field full"><label>عنوان شغلی *</label><input type="text" placeholder="مثلاً: کارشناس هماتولوژی"></div>
-          <div class="form-field"><label>بخش آزمایشگاهی *</label><select id="pj-dept"></select></div>
-          <div class="form-field"><label>شهر *</label><select id="pj-city"></select></div>
-          <div class="form-field"><label>نوع همکاری</label><select><option>تمام‌وقت</option><option>پاره‌وقت</option><option>شیفتی</option><option>موقت</option><option>قراردادی</option></select></div>
-          <div class="form-field"><label>شیفت کاری</label><select><option>صبح</option><option>عصر</option><option>شب</option><option>چرخشی</option></select></div>
-          <div class="form-field"><label>حداقل سابقه</label><select><option>بدون نیاز به سابقه</option><option>۱ سال</option><option>۲ سال</option><option>۳ سال</option><option>۵ سال +</option></select></div>
-          <div class="form-field"><label>حقوق پیشنهادی</label><input type="text" placeholder="مثلاً: ۱۸ تا ۲۴ میلیون تومان"></div>
-          <div class="form-field full"><label>شرح موقعیت و شرایط احراز</label><textarea rows="5" placeholder="شرح وظایف، مهارت‌های ضروری، دستگاه‌ها، مدرک تحصیلی و..."></textarea></div>
-          <div class="form-field full"><label>مهارت‌های موردنیاز (با ویرگول جدا کنید)</label><input type="text" placeholder="مثلاً: سل‌کانتر Sysmex، کنترل کیفیت، LIS"></div>
-        </div>
-        <div style="background:var(--teal-50);border:1px solid var(--teal-100);border-radius:10px;padding:16px;margin:8px 0 20px">
-          <b style="font-size:14px;color:var(--teal-800)">نوع آگهی</b>
-          <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap">
-            <label class="check-item"><input type="radio" name="plan" checked> پایه (رایگان در ماه اول)</label>
-            <label class="check-item"><input type="radio" name="plan"> ⭐ ویژه — نمایش در صدر نتایج</label>
-            <label class="check-item"><input type="radio" name="plan"> 🔥 فوری — اطلاع‌رسانی پیامکی به کارجویان آماده‌به‌کار</label>
-          </div>
-        </div>
-        <button class="btn btn-primary btn-lg" onclick="toast('آگهی ثبت شد و پس از تأیید مدیر منتشر می‌شود ✓ (دمو)')">ثبت و ارسال برای تأیید</button>
-      </div>
+      <h1 class="dash-title">ثبت آگهی یا پوزیشن</h1>
+      <p class="dash-sub">نیازمندی‌ها را از فهرست‌های استاندارد انتخاب کنید؛ همین معیارها مبنای تطبیق خودکار با رزومه‌هاست و همان لحظه می‌بینید چند نفر واجد شرایط‌اند.</p>
+      <div id="pos-form"></div>
     </section>
 
     <!-- ===== My jobs ===== -->
@@ -183,7 +181,7 @@
       <h1 class="dash-title">آگهی‌های من</h1>
       <div class="table-wrap">
         <table class="data">
-          <thead><tr><th>عنوان</th><th>نوع</th><th>بازدید</th><th>متقاضی</th><th>انقضا</th><th>وضعیت</th><th></th></tr></thead>
+          <thead><tr><th>عنوان</th><th>نوع</th><th>بازدید</th><th>متقاضی / واجد شرایط</th><th>انقضا</th><th>وضعیت</th><th></th></tr></thead>
           <tbody id="jobs-body"></tbody>
         </table>
       </div>
@@ -203,34 +201,9 @@
 
     <!-- ===== Resume bank ===== -->
     <section id="sec-resumes">
-      <h1 class="dash-title">بانک رزومه — جستجوی پیشرفته نفرات</h1>
-      <div class="panel" style="margin-bottom:16px">
-        <div class="form-grid cols-4">
-          <div class="form-field"><label>مهارت / عنوان شغلی</label><input type="text" id="rb-q" placeholder="مثلاً: هماتولوژی"></div>
-          <div class="form-field"><label>استان (محدوده جغرافیایی)</label><select id="rb-prov" aria-label="استان"></select></div>
-          <div class="form-field"><label>شهر</label><select id="rb-city" aria-label="شهر"></select></div>
-          <div class="form-field"><label>شعاع جغرافیایی</label>
-            <select id="rb-radius"><option>محدودیت ندارد</option><option>تا ۱۰ کیلومتر</option><option>تا ۲۵ کیلومتر</option><option>تا ۵۰ کیلومتر</option><option>هم‌استان</option></select></div>
-          <div class="form-field"><label>رشته تحصیلی</label><select id="rb-field"><option value="">همه</option></select></div>
-          <div class="form-field"><label>مدرک تحصیلی</label><select id="rb-degree"><option value="">همه</option></select></div>
-          <div class="form-field"><label>سابقه کار</label><select id="rb-exp"><option value="">همه</option></select></div>
-          <div class="form-field"><label>جنسیت</label><select id="rb-gender"><option value="">فرقی نمی‌کند</option></select></div>
-          <div class="form-field"><label>نوع همکاری موردنظر</label><select id="rb-type"><option value="">همه</option></select></div>
-          <div class="form-field"><label>وضعیت سربازی</label><select id="rb-military"><option value="">مهم نیست</option></select></div>
-          <div class="form-field"><label>سقف حقوق درخواستی</label><select id="rb-salary"><option value="">همه</option></select></div>
-          <div class="form-field"><label>مزایای موردانتظار</label><select id="rb-benefit"><option value="">همه</option></select></div>
-          <div class="form-field"><label>وضعیت</label><select id="rb-status"><option>همه</option><option>فقط آماده به کار</option><option>دارای نشان مهارت</option><option>دارای نتیجه MBTI</option></select></div>
-          <div class="form-field"><label>تیپ شخصیتی (MBTI)</label><select id="rb-mbti"><option value="">همه</option></select></div>
-        </div>
-        <button class="btn btn-primary" onclick="toast('جستجو انجام شد — ۵ رزومه مطابق فیلترها (دمو)')">جستجوی رزومه</button>
-        <button class="btn btn-outline" onclick="toast('این جستجو ذخیره شد؛ رزومه‌های جدید مطابق آن به شما اطلاع داده می‌شود ✓')">🔔 ذخیره جستجو + هشدار رزومه</button>
-      </div>
-      <div class="table-wrap">
-        <table class="data">
-          <thead><tr><th>کارجو</th><th>عنوان</th><th>شهر</th><th>وضعیت</th><th></th></tr></thead>
-          <tbody id="resumes-body"></tbody>
-        </table>
-      </div>
+      <h1 class="dash-title">بانک رزومه — جستجوی پیشرفته</h1>
+      <p class="dash-sub">هر پارامتر رزومه را با «و» / «یا» ترکیب کنید و گروه‌های تودرتو بسازید؛ مثلاً «(هماتولوژی پیشرفته و ساکن تهران) یا (آماده‌ی جابه‌جایی و بیش از ۳ سال سابقه)».</p>
+      <div id="emp-resumes"></div>
     </section>
 
     <!-- ===== Exam builder ===== -->
@@ -313,6 +286,8 @@
         <p>موتور تطبیق آیولب نیازمندی‌های آگهی شما را با رزومه کارجویان می‌سنجد و منطبق‌ترین گزینه‌ها را
            همراه با درصد تطبیق و رزومه کامل به شما نشان می‌دهد.</p>
       </div>
+      <div id="emp-talent" style="margin-bottom:24px"></div>
+      <h2 style="font-size:17px;margin:8px 0 14px">خدمات تطبیق و جذب آیولب</h2>
       <div class="svc-grid" id="emp-matching"></div>
     </section>
 
@@ -405,14 +380,21 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="assets/js/geo.js"></script>
 <script src="assets/js/data.js"></script>
+<script src="assets/js/talent-data.js"></script>
+<script src="assets/js/match.js"></script>
+<script src="assets/js/talent-ui.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="assets/js/map.js"></script>
+<script src="assets/js/talent-center.js"></script>
+<script src="assets/js/employer-talent.js"></script>
 <script>
 const NAV_ITEMS = [
   ["overview", "پیشخوان", "home"],
-  ["addlab", "ثبت آزمایشگاه روی نقشه", "pin"],
-  ["post", "ثبت آگهی جدید", "plus"],
+  ["addlab", "ثبت سازمان روی نقشه", "pin"],
+  ["orgprofile", "پروفایل و گالری سازمان", "doc"],
+  ["products", "محصولات من", "machine"],
+  ["post", "ثبت آگهی / پوزیشن", "plus"],
   ["jobs", "آگهی‌های من", "briefcase"],
   ["applicants", "متقاضیان", "users"],
   ["resumes", "بانک رزومه", "search"],
@@ -442,26 +424,20 @@ document.addEventListener("DOMContentLoaded", () => {
   nav.querySelector("button").innerHTML = ICONS.logout + " خروج از حساب";
   if (location.hash) showSec(location.hash.slice(1));
 
-  // post-job selects
-  const deptSel = document.getElementById("pj-dept");
-  AIO_DEPARTMENTS.forEach(d => deptSel.insertAdjacentHTML("beforeend", `<option>${d.name}</option>`));
-  const citySel = document.getElementById("pj-city");
-  AIO_ALL_CITIES.forEach(c => citySel.insertAdjacentHTML("beforeend", `<option>${c}</option>`));
+  /* رزومه/تطبیق/سازمان/محصولات — همه ساخت‌یافته */
+  EmpTalent.orgProfile(document.getElementById("org-profile"));
+  EmpTalent.products(document.getElementById("org-products"));
+  window.posForm = EmpTalent.positionForm(document.getElementById("pos-form"), () => { renderMyJobs(); showSec("jobs"); });
+  TalentCenter.mount(document.getElementById("emp-talent"));
+  TalentCenter.mount(document.getElementById("emp-resumes"), { tab: "filter" });
 
   initAddLab();
-  initResumeBank();
   initExamBuilder();
   initEmployerServices();
   renderTraining();
 
-  // my jobs
-  document.getElementById("jobs-body").innerHTML = AIO_EMPLOYER_JOBS.map(j => `
-    <tr>
-      <td><b>${j.title}</b></td><td>${j.plan}</td>
-      <td>${j.views.toLocaleString("fa-IR")}</td><td>${j.applicants.toLocaleString("fa-IR")}</td>
-      <td>${j.expire}</td><td><span class="status ${j.status}">${j.statusText}</span></td>
-      <td><button class="btn btn-sm btn-ghost" onclick="toast('ویرایش آگهی (دمو)')">ویرایش</button></td>
-    </tr>`).join("");
+  renderMyJobs();
+
 
   // applicants
   const rows = AIO_APPLICANTS.map(a => `
@@ -484,24 +460,34 @@ document.addEventListener("DOMContentLoaded", () => {
     <td><span class="status ${a.status}">${a.statusText}</span></td>
     <td><button class="btn btn-sm btn-outline" onclick="showSec('applicants')">جزئیات</button></td></tr>`).join("");
 
-  // resume bank
-  const seekers = [
-    ["مینا رحیمی", "کارشناس بیوشیمی — ۵ سال", "تهران", "آماده به کار", "#0d9488"],
-    ["پارسا ملکی", "تکنسین نمونه‌گیری — ۲ سال", "کرج", "آماده به کار", "#0ea5e9"],
-    ["شیدا کاویانی", "کارشناس میکروب‌شناسی — ۳ سال", "تهران", "شاغل", "#8b5cf6"],
-    ["آرش نعمتی", "کارشناس QC — ۷ سال", "اصفهان", "آماده به کار", "#f59e0b"],
-    ["نازنین شریفی", "کارشناس ژنتیک — ۱ سال", "تهران", "شاغل", "#f43f5e"]
-  ];
-  document.getElementById("resumes-body").innerHTML = seekers.map(([n, t, c, s, col]) => `
-    <tr>
-      <td><div style="display:flex;gap:10px;align-items:center">
-        <div style="width:36px;height:36px;border-radius:50%;background:${col};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">${n.charAt(0)}</div>
-        <b>${n}</b></div></td>
-      <td>${t}</td><td>${c}</td>
-      <td><span class="status ${s === "آماده به کار" ? "active" : "expired"}">${s}</span></td>
-      <td><button class="btn btn-sm btn-outline" onclick="toast('مشاهده رزومه کامل — از اعتبار پلن شما کسر می‌شود (دمو)')">مشاهده رزومه</button></td>
-    </tr>`).join("");
 });
+
+/* ---------- آگهی‌ها و پوزیشن‌های من ---------- */
+function renderMyJobs() {
+  const cands = aioCandidates();
+  const qual = j => cands.filter(c => AioMatch.score(c, j).score >= 55).length;
+  const mine = Store.get("positions", []).map(j => `
+    <tr>
+      <td><b>${TUI.e(j.title)}</b>${j.internal ? ' <span class="chip">داخلی · ' + TUI.e(j.orgName) + "</span>" : ""}</td><td>${j.internal ? "پوزیشن داخلی" : "پایه"}</td>
+      <td>—</td><td><a href="talent.html?job=${j.id}">${fa(qual(j))} نفر واجد شرایط</a></td>
+      <td>—</td><td><span class="status ${j.status === "pending" ? "pending" : "active"}">${j.status === "pending" ? "در انتظار تأیید" : "فعال"}</span></td>
+      <td style="white-space:nowrap"><a class="btn btn-sm btn-outline" href="talent.html?job=${j.id}">نیروهای پیشنهادی</a>
+        <button class="btn btn-sm btn-ghost" onclick="showSec('post');posForm.load(${j.id})">ویرایش</button>
+        <button class="btn btn-sm btn-ghost danger" onclick="delPosition(${j.id})">حذف</button></td>
+    </tr>`).join("");
+  document.getElementById("jobs-body").innerHTML = mine + AIO_EMPLOYER_JOBS.map(j => `
+    <tr>
+      <td><b>${j.title}</b></td><td>${j.plan}</td>
+      <td>${j.views.toLocaleString("fa-IR")}</td><td>${j.applicants.toLocaleString("fa-IR")}</td>
+      <td>${j.expire}</td><td><span class="status ${j.status}">${j.statusText}</span></td>
+      <td><button class="btn btn-sm btn-ghost" onclick="toast('ویرایش آگهی (دمو)')">ویرایش</button></td>
+    </tr>`).join("");
+}
+function delPosition(id) {
+  if (!confirm("این پوزیشن حذف شود؟")) return;
+  Store.set("positions", Store.get("positions", []).filter(p => p.id !== id));
+  renderMyJobs(); toast("پوزیشن حذف شد");
+}
 
 /* ---------- دوره‌های آموزشی من (سازنده دوره) ---------- */
 function renderTraining() {
@@ -635,7 +621,7 @@ function submitLab() {
   if (!pinned) { toast("لطفاً موقعیت مرکز را روی نقشه پین کنید"); focusField("pick-map"); return; }
   const salary = parseFloat(salaryRaw) || 0;
   MyLabs.add({
-    name, lat: pinned.lat, lng: pinned.lng,
+    name, orgType: (document.querySelector("[name=lb-otype]:checked") || {}).value || "lab", lat: pinned.lat, lng: pinned.lng,
     provinceId: document.getElementById("lb-prov").value,
     city: document.getElementById("lb-city").value,
     sector: document.getElementById("lb-sector").value,
@@ -654,24 +640,6 @@ function focusField(id) {
   el.classList.add("field-error");
   setTimeout(() => el.classList.remove("field-error"), 2200);
   if (el.focus && el.tagName !== "DIV") el.focus();
-}
-
-/* ================== بانک رزومه پیشرفته ================== */
-function initResumeBank() {
-  const fill = (id, arr) => document.getElementById(id).insertAdjacentHTML("beforeend",
-    arr.map(v => `<option value="${v}">${v}</option>`).join(""));
-  bindProvinceCity("rb-prov", "rb-city");
-  fill("rb-field", AIO_FIELDS_STUDY);
-  fill("rb-degree", AIO_DEGREES);
-  fill("rb-exp", AIO_EXPERIENCES);
-  fill("rb-gender", AIO_GENDERS);
-  fill("rb-type", AIO_JOB_TYPES);
-  fill("rb-military", AIO_MILITARY);
-  fill("rb-benefit", AIO_BENEFITS);
-  document.getElementById("rb-salary").insertAdjacentHTML("beforeend",
-    AIO_SALARY_BANDS.map(b => `<option value="${b.id}">${b.name}</option>`).join(""));
-  document.getElementById("rb-mbti").insertAdjacentHTML("beforeend",
-    Object.keys(AIO_MBTI_TYPES).map(t => `<option value="${t}">${t} — ${AIO_MBTI_TYPES[t].name}</option>`).join(""));
 }
 
 /* ================== طراحی آزمون ================== */

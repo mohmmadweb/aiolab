@@ -41,6 +41,17 @@
       <div class="job-meta" id="j-skills"></div>
     </div>
 
+    <div class="panel" id="p-req" hidden>
+      <h2>نیازمندی‌های ساخت‌یافته</h2>
+      <p class="muted" style="font-size:13px">این معیارها توسط کارفرما از فهرست‌های استاندارد آیولب انتخاب شده‌اند و موتور تطبیق با همین‌ها رزومه‌ها را می‌سنجد.</p>
+      <div id="j-req"></div>
+    </div>
+
+    <div class="panel" id="p-match" hidden>
+      <h2>تطبیق رزومه‌ی شما با این آگهی</h2>
+      <div id="j-match"></div>
+    </div>
+
     <div class="panel">
       <h2>درباره کارفرما</h2>
       <div style="display:flex;gap:14px;align-items:center;margin-bottom:12px">
@@ -67,7 +78,7 @@
         <div class="ring" id="match-ring"><i id="match-val"></i></div>
         <div>
           <b>میزان تطابق شما با این آگهی</b>
-          <small>بر اساس مهارت‌ها و سوابق پروفایل شما (دمو)</small>
+          <small id="match-note">بر اساس رزومه‌ی ساخت‌یافته‌ی شما</small>
         </div>
       </div>
       <div class="row"><span>نوع همکاری</span><b id="s-type"></b></div>
@@ -87,6 +98,9 @@
 
 <script src="assets/js/geo.js"></script>
 <script src="assets/js/data.js"></script>
+<script src="assets/js/talent-data.js"></script>
+<script src="assets/js/match.js"></script>
+<script src="assets/js/talent-ui.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
 <script>
@@ -121,19 +135,50 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("s-degree").textContent = J.degree;
   document.getElementById("s-date").textContent = timeAgo(J.days);
 
-  // demo match score for logged-in jobseekers
-  if (Auth.user && Auth.user.role !== "employer") {
-    const p = 60 + ((J.id * 7) % 35);
+  /* نیازمندی‌ها و تطبیق واقعی با رزومه‌ی ساخت‌یافته‌ی کاربر */
+  if (J.req) {
+    document.getElementById("p-req").hidden = false;
+    document.getElementById("j-req").innerHTML = TalentReq(J);
+  }
+  if (J.req && Auth.user && Auth.user.role !== "employer") {
+    const r = Store.get("resume", null);
     const box = document.getElementById("match-box");
-    box.style.display = "flex";
-    document.getElementById("match-ring").style.setProperty("--p", p);
-    document.getElementById("match-val").textContent = p.toLocaleString("fa-IR") + "٪";
+    if (r) {
+      const m = AioMatch.score(r, J);
+      box.style.display = "flex";
+      document.getElementById("match-ring").style.setProperty("--p", m.score);
+      document.getElementById("match-val").textContent = fa(m.score) + "٪";
+      document.getElementById("match-note").textContent = "تطبیق " + m.fitName + (m.eligible ? "" : " — شرط الزامی ناقص");
+      document.getElementById("p-match").hidden = false;
+      document.getElementById("j-match").innerHTML = TUI.breakdown(m);
+    } else {
+      document.getElementById("p-match").hidden = false;
+      document.getElementById("j-match").innerHTML = '<div class="empty-inline">رزومه‌ی آیتمی خود را بسازید تا ببینید چقدر با این آگهی تطبیق دارید. <a href="dashboard.html#resume">ساخت رزومه</a></div>';
+    }
   }
 
   // similar
   const sim = AIO_JOBS.filter(x => x.id !== J.id && (x.dept === J.dept || x.city === J.city)).slice(0, 2);
   document.getElementById("similar").innerHTML = sim.map(jobCardHTML).join("");
 });
+
+/* نمایش نیازمندی‌های ساخت‌یافته */
+function TalentReq(j) {
+  const r = j.req, n = TUI.name, rows = [];
+  if (r.role) rows.push(["عنوان شغلی", n.role(r.role)]);
+  if (r.seniority) rows.push(["رده شغلی", n.seniority(r.seniority)]);
+  rows.push(["حداقل سابقه کل", r.minExp ? AioDate.durText(r.minExp) : "نیاز نیست"]);
+  if (r.expDept) rows.push(["سابقه در همین بخش", AioDate.durText(r.expDept)]);
+  if (r.degree) rows.push(["حداقل مدرک", n.degree(r.degree) + ((r.fields || []).length ? " — " + r.fields.join("، ") : "")]);
+  (r.licenses || []).forEach(l => rows.push(["مدرک الزامی", n.license(l)]));
+  (r.langs || []).forEach(l => rows.push(["زبان", n.lang(l.id) + " — حداقل " + n.langLevel(l.lvl)]));
+  if (r.age) rows.push(["بازه سنی", fa(r.age[0]) + " تا " + fa(r.age[1]) + " سال"]);
+  if (r.gender) rows.push(["جنسیت", r.gender]);
+  if ((r.military || []).length) rows.push(["نظام وظیفه (آقایان)", r.military.join("، ")]);
+  return `<div class="table-wrap"><table class="data spec-table"><tbody>${rows.map(([k, v]) => `<tr><td>${k}</td><td>${TUI.e(v)}</td></tr>`).join("")}</tbody></table></div>
+    <h3>مهارت‌ها و سطح لازم</h3><div class="table-wrap"><table class="data"><thead><tr><th>مهارت</th><th>سطح لازم</th><th>اهمیت</th></tr></thead><tbody>
+    ${(r.skills || []).map(s => `<tr><td>${TUI.e(n.skill(s.id))}${s.must ? ' <span class="chip sm warn">کلیدی</span>' : ""}</td><td>${TUI.e(n.level(s.lvl))}</td><td><div class="cc-progress" style="width:90px"><i style="width:${s.w * 10}%"></i></div></td></tr>`).join("")}</tbody></table></div>`;
+}
 
 function applyJob() {
   const u = Auth.user;

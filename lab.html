@@ -27,9 +27,10 @@
   <div class="container" style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
     <div class="job-logo" id="l-logo" style="width:84px;height:84px;font-size:32px;border-radius:20px"></div>
     <div style="flex:1">
-      <div class="breadcrumb"><a href="index.html">خانه</a> / <a href="labs.html">آزمایشگاه‌ها</a> / <span id="bc-lab">…</span></div>
+      <div class="breadcrumb"><a href="index.html">خانه</a> / <a href="labs.html" id="bc-list">آزمایشگاه‌ها</a> / <span id="bc-lab">…</span></div>
       <h1 id="l-name">...</h1>
       <p id="l-sub"></p>
+      <div class="org-badges" id="l-acc"></div>
     </div>
     <button class="btn btn-outline" onclick="toast('دنبال شد ✓ از این پس آگهی‌های جدید این مجموعه را در اعلان‌ها می‌بینید')">+ دنبال کردن</button>
   </div>
@@ -37,11 +38,21 @@
 
 <div class="container detail-layout">
   <main>
+    <div id="l-slider"></div>
     <div class="panel">
       <h2>درباره مجموعه</h2>
       <p id="l-about"></p>
+      <div id="l-video"></div>
       <h3>مزایای همکاری</h3>
       <div class="job-meta" id="l-perks"></div>
+    </div>
+    <div class="panel" id="p-services" hidden>
+      <h2>خدمات</h2>
+      <ul class="org-services" id="l-services" style="padding:0"></ul>
+    </div>
+    <div class="panel" id="p-products" hidden>
+      <div class="syllabus-head"><div><h2>محصولات</h2></div><a class="btn btn-sm btn-outline" id="l-allprod" href="products.html">همه محصولات</a></div>
+      <div class="prod-grid" id="l-products"></div>
     </div>
     <!-- امتیاز و رتبه‌بندی -->
     <div class="panel">
@@ -88,7 +99,11 @@
       <div class="row"><span>اندازه سازمان</span><b id="s-size"></b></div>
       <div class="row"><span>سال تأسیس</span><b id="s-founded"></b></div>
       <div class="row"><span>وضعیت احراز</span><b id="s-verified"></b></div>
-      <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="msgLab()">ارسال پیام به آزمایشگاه</button>
+      <div class="row" id="r-branches" hidden><span>شعب / نمایندگی</span><b id="s-branches"></b></div>
+      <div class="row" id="r-hours" hidden><span>ساعات کاری</span><b id="s-hours" style="max-width:60%;text-align:left"></b></div>
+      <div class="row" id="r-phone" hidden><span>تلفن</span><b id="s-phone" dir="ltr"></b></div>
+      <div class="job-meta" id="s-socials" style="margin-top:10px"></div>
+      <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="msgLab()">ارسال پیام</button>
     </div>
 
     <!-- موقعیت روی نقشه -->
@@ -105,6 +120,9 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="assets/js/geo.js"></script>
 <script src="assets/js/data.js"></script>
+<script src="assets/js/talent-data.js"></script>
+<script src="assets/js/match.js"></script>
+<script src="assets/js/talent-ui.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="assets/js/map.js"></script>
@@ -113,7 +131,22 @@ const METRIC_LABELS = { salary: "حقوق و مزایا", environment: "محیط
                         management: "مدیریت", worklife: "تعادل کار و زندگی" };
 
 document.addEventListener("DOMContentLoaded", () => {
-  const L = AIO_LABS.find(l => l.id === (parseInt(qs("id")) || 1)) || AIO_LABS[0];
+  /* پروفایل کامل = داده‌ی پایه + اطلاعات تکمیلی که مدیر سازمان از پنل وارد کرده */
+  const L = orgFull(parseInt(qs("id")) || 1) || orgFull(AIO_LABS[0].id);
+  const isCo = L.orgType === "company";
+  if (isCo) { const bl = document.getElementById("bc-list"); bl.href = "companies.html"; bl.textContent = "شرکت‌ها"; document.body.dataset.page = "companies.html"; }
+  document.getElementById("l-slider").innerHTML = TUI.slider(L.gallery || []);
+  document.getElementById("l-acc").innerHTML = `<span style="background:var(--navy-100);color:var(--navy-700);border-color:var(--navy-200)">${isCo ? "شرکت" : "آزمایشگاه / مرکز"}</span>` + (L.accreditations || []).map(a => `<span>${TUI.e(a)}</span>`).join("");
+  if ((L.services || []).length) { document.getElementById("p-services").hidden = false; document.getElementById("l-services").innerHTML = L.services.map(x => `<li>${TUI.e(x)}</li>`).join(""); }
+  const prods = aioProducts().filter(p => p.orgId === L.id);
+  if (prods.length) { document.getElementById("p-products").hidden = false; document.getElementById("l-products").innerHTML = prods.map(p => TUI.productCard(p)).join(""); document.getElementById("l-allprod").href = "products.html?org=" + L.id; }
+  if (L.video && /^https:\/\/(www\.)?aparat\.com\//.test(L.video)) document.getElementById("l-video").innerHTML = `<p><a href="${TUI.e(L.video)}" target="_blank" rel="noopener">▶ مشاهده ویدئوی معرفی</a></p>`;
+  const show = (id, v) => { if (v) { document.getElementById("r-" + id).hidden = false; document.getElementById("s-" + id).textContent = v; } };
+  show("branches", L.branches ? fa(L.branches) + " شعبه" : "");
+  show("hours", L.hours || "");
+  show("phone", L.phone || "");
+  const soc = Object.assign({}, L.socials || {}, L.website ? { website: L.website } : {});
+  document.getElementById("s-socials").innerHTML = AIO_SOCIALS.filter(([k]) => soc[k] && soc[k] !== "#").map(([k, n]) => `<a class="chip" href="${TUI.e(soc[k])}" target="_blank" rel="noopener nofollow">${n}</a>`).join("");
   document.title = L.name + " | آیولب";
   const logo = document.getElementById("l-logo");
   logo.style.background = L.color;
@@ -121,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("l-name").textContent = L.name + (L.verified ? " ✔️" : "");
   document.getElementById("bc-lab").textContent = L.name;
   injectBreadcrumbLD(L.name);
-  document.getElementById("l-sub").textContent = `${L.type} · ${L.city} · ${sectorName(L.sector)}`;
+  document.getElementById("l-sub").textContent = [L.tagline || L.type, L.city, sectorName(L.sector)].filter(Boolean).join(" · ");
   document.getElementById("l-about").textContent = L.about;
   document.getElementById("l-perks").innerHTML = L.perks.map(p => `<span class="chip teal">${p}</span>`).join("");
 
