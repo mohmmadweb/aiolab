@@ -51,7 +51,7 @@ const EmpTalent = (() => {
     const id = myOrgId(), o = A.org(id);
     if (!o) { host.innerHTML = '<div class="empty-inline">ابتدا سازمان خود را در بخش «ثبت سازمان روی نقشه» ثبت کنید.</div>'; return; }
     const D = Object.assign({ orgType: "lab", tagline: "", about: "", services: [], accreditations: [], hoursSpec: { days: [0, 1, 2, 3, 4], from: 8, to: 17, h24: false },
-      phone: "", website: "", socials: {}, video: "", branches: "", staff: "", founded: "", gallery: [] }, clone(o));
+      phone: "", email: "", website: "", socials: {}, video: "", branches: "", staff: "", founded: "", gallery: [] }, clone(o));
     /* لینک‌های نمونه‌ی «#» معتبر نیستند و نباید جلوی ذخیره را بگیرند */
     D.socials = Object.fromEntries(Object.entries(D.socials || {}).filter(([, v]) => /^https:\/\//.test(v)));
     const hours = h => h.h24 ? "شبانه‌روزی" : (h.days.length ? (h.days.length > 2 && h.days.every((d, i) => i === 0 || d === h.days[i - 1] + 1) ? AIO_WEEKDAYS[h.days[0]] + " تا " + AIO_WEEKDAYS[h.days[h.days.length - 1]] : h.days.map(d => AIO_WEEKDAYS[d]).join("، ")) + " " + fa(h.from) + " تا " + fa(h.to) : "");
@@ -84,13 +84,14 @@ const EmpTalent = (() => {
         <div class="form-field"><label>از ساعت</label>${hsel("from", D.hoursSpec.from)}</div>
         <div class="form-field"><label>تا ساعت</label>${hsel("to", D.hoursSpec.to)}</div>
         <div class="form-field full"><label class="check-item inline"><input type="checkbox" data-h24 ${D.hoursSpec.h24 ? "checked" : ""}> شبانه‌روزی</label> <span class="muted" data-hours style="font-size:13px">نمایش: ${e(hours(D.hoursSpec))}</span></div>
-        <div class="form-field"><label>تلفن</label><input type="tel" dir="ltr" maxlength="20" data-k="phone" value="${e(D.phone)}" placeholder="021-12345678"></div>
+        <div class="form-field"><label>تلفن سازمان *</label><input type="tel" dir="ltr" maxlength="20" data-k="phone" value="${e(D.phone)}" placeholder="02122220000"></div>
+        <div class="form-field"><label>ایمیل سازمان *</label><input type="email" dir="ltr" maxlength="120" data-k="email" value="${e(D.email || "")}" placeholder="info@example.ir"></div>
         <div class="form-field"><label>وب‌سایت</label><input type="url" dir="ltr" maxlength="200" data-k="website" value="${e(D.website)}" placeholder="https://"></div>
         ${AIO_SOCIALS.filter(([k]) => k !== "website").map(([k, n]) => `<div class="form-field"><label>${n}</label><input type="url" dir="ltr" maxlength="200" data-soc="${k}" value="${e((D.socials || {})[k] && D.socials[k] !== "#" ? D.socials[k] : "")}" placeholder="https://"></div>`).join("")}
         <div class="form-field"><label>ویدئوی معرفی (لینک آپارات)</label><input type="url" dir="ltr" maxlength="200" data-k="video" value="${e(D.video)}" placeholder="https://www.aparat.com/v/..."></div>
-        <div class="form-field"><label>تعداد شعب / نمایندگی</label><input type="number" min="0" max="999" data-k="branches" data-num value="${e(D.branches)}"></div>
-        <div class="form-field"><label>تعداد پرسنل</label><input type="number" min="0" max="99999" data-k="staff" data-num value="${e(D.staff)}"></div>
-        <div class="form-field"><label>سال تأسیس (شمسی)</label><input type="number" min="1300" max="${AioDate.thisJYear()}" data-k="founded" data-num value="${e(D.founded)}"></div>
+        <div class="form-field"><label>تعداد شعب / نمایندگی</label><input type="number" min="0" max="999" data-k="branches" data-num value="${D.branches ? e(D.branches) : ""}"></div>
+        <div class="form-field"><label>تعداد پرسنل</label><input type="number" min="0" max="99999" data-k="staff" data-num value="${D.staff ? e(D.staff) : ""}"></div>
+        <div class="form-field"><label>سال تأسیس (شمسی)</label><input type="number" min="1300" max="${AioDate.thisJYear()}" data-k="founded" data-num value="${D.founded ? e(D.founded) : ""}"></div>
       </div></div>
       <div style="display:flex;justify-content:flex-end;gap:10px"><a class="btn btn-outline" href="${e(A.publicUrl(id))}" target="_blank">مشاهده صفحه‌ی عمومی</a><button type="button" class="btn btn-primary btn-lg" data-save>ذخیره پروفایل</button></div>`;
     }
@@ -120,8 +121,11 @@ const EmpTalent = (() => {
         const urls = [D.website, D.video, ...Object.values(D.socials || {})].filter(Boolean);
         if (urls.some(u => !/^https:\/\/[^\s<>"']+$/.test(u))) return toast("لینک‌ها باید با https:// شروع شوند");
         if (D.video && !/^https:\/\/(www\.)?aparat\.com\//.test(D.video)) return toast("ویدئو فعلاً فقط از آپارات پذیرفته می‌شود");
-        if (D.phone && !/^[0-9+\-\s]{5,20}$/.test(D.phone)) return toast("شماره تلفن معتبر نیست");
-        const keep = ["orgType", "tagline", "about", "services", "accreditations", "hoursSpec", "phone", "website", "socials", "video", "branches", "staff", "founded", "gallery"];
+        const ph = String(D.phone || "").replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[\s-]/g, "");
+        if (!/^0\d{9,10}$/.test(ph)) return toast("تلفن سازمان لازم است (با پیش‌شماره، مثلاً ۰۲۱۲۲۲۲۰۰۰۰)");
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(D.email || "")) return toast("ایمیل سازمان لازم است تا متقاضیان و اطلاع‌رسانی‌ها به آن برسند");
+        D.phone = ph;
+        const keep = ["orgType", "tagline", "about", "services", "accreditations", "hoursSpec", "phone", "email", "website", "socials", "video", "branches", "staff", "founded", "gallery"];
         const out = {}; keep.forEach(k => out[k] = D[k]); out.hours = hours(D.hoursSpec);
         b.classList.add("is-busy");
         A.saveOrg(id, out).then(() => toast("پروفایل سازمان ذخیره شد ✓ صفحه‌ی عمومی به‌روز است"), fail).finally(() => b.classList.remove("is-busy"));

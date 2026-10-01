@@ -23,11 +23,14 @@ const TalentCenter = (() => {
       { field: "lang", op: "has", value: { id: "en", lvl: 3 } }] } }
   ];
 
+  /* پنجره‌ی وسط صفحه (به‌جای کشوی کناری) — روی موبایل تمام‌صفحه */
   function drawer() {
     let d = document.getElementById("tl-drawer");
     if (!d) {
-      d = document.createElement("aside");
-      d.id = "tl-drawer"; d.className = "tl-drawer"; d.setAttribute("aria-hidden", "true");
+      d = document.createElement("div");
+      d.id = "tl-drawer"; d.className = "tl-backdrop"; d.setAttribute("aria-hidden", "true");
+      d.innerHTML = '<div class="tl-dialog" role="dialog" aria-modal="true"><button class="x" type="button" aria-label="بستن">✕</button><div class="tl-body"></div></div>';
+      d.addEventListener("click", ev => { if (ev.target === d || ev.target.closest(".tl-dialog > .x")) closeDrawer(); });
       document.body.appendChild(d);
       document.addEventListener("keydown", ev => { if (ev.key === "Escape") closeDrawer(); });
     }
@@ -35,10 +38,17 @@ const TalentCenter = (() => {
   }
   function openDrawer(html) {
     const d = drawer();
-    d.innerHTML = `<button class="x" type="button" aria-label="بستن" onclick="TalentCenter.close()">✕</button>${html}`;
-    d.classList.add("open"); d.setAttribute("aria-hidden", "false"); d.scrollTop = 0;
+    d.querySelector(".tl-body").innerHTML = html;
+    d.classList.add("open"); d.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+    d.querySelector(".tl-dialog").scrollTop = 0;
+    return d.querySelector(".tl-body");
   }
-  function closeDrawer() { const d = document.getElementById("tl-drawer"); if (d) { d.classList.remove("open"); d.setAttribute("aria-hidden", "true"); } }
+  function closeDrawer() {
+    const d = document.getElementById("tl-drawer");
+    if (d) { d.classList.remove("open"); d.setAttribute("aria-hidden", "true"); }
+    document.body.classList.remove("modal-open");
+  }
 
   /* خلاصه‌ی نیازمندی‌های پوزیشن به‌صورت چیپ */
   function reqChips(j) {

@@ -2080,3 +2080,149 @@ details.tl-row summary::-webkit-details-marker { display: none; }
 .tl-drawer, [dir=rtl] .tl-drawer { inset-inline-start: auto; right: 0; left: auto; transform: translateX(105%); visibility: hidden; transition: transform .25s, visibility .25s; }
 .tl-drawer.open, [dir=rtl] .tl-drawer.open { transform: none; visibility: visible; }
 [hidden] { display: none !important; }
+
+/* ===============================================
+   لایه ۷ — پنجره‌ی وسط صفحه، فرایند استخدام، داشبورد آگهی
+   =============================================== */
+body.modal-open { overflow: hidden; }
+.tl-drawer { display: none !important; }
+.tl-backdrop { position: fixed; inset: 0; background: rgba(15, 23, 42, .55); z-index: 1500; display: flex; align-items: center; justify-content: center; padding: 20px;
+  opacity: 0; visibility: hidden; transition: opacity .2s, visibility .2s; }
+.tl-backdrop.open { opacity: 1; visibility: visible; }
+.tl-dialog { position: relative; background: #fff; border-radius: 18px; width: min(920px, 100%); max-height: calc(100vh - 40px); overflow-y: auto;
+  padding: 26px 28px 28px; box-shadow: 0 30px 80px rgba(15, 23, 42, .35); transform: translateY(12px) scale(.98); transition: transform .2s; overscroll-behavior: contain; }
+.tl-backdrop.open .tl-dialog { transform: none; }
+.tl-dialog > .x { position: sticky; top: 0; float: left; margin: -8px -10px 0 0; z-index: 2; background: var(--navy-100); border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 16px; color: var(--navy-700); cursor: pointer; }
+.tl-dialog > .x:hover { background: var(--navy-200); }
+.tl-body h3 { font-size: 15px; margin: 20px 0 8px; color: var(--navy-900); }
+.tl-body h3 small { color: var(--navy-400); font-weight: 400; }
+.tl-body .cd-head { padding-left: 40px; }
+@media (max-width: 640px) {
+  .tl-backdrop { padding: 0; align-items: stretch; }
+  .tl-dialog { width: 100%; max-height: 100vh; border-radius: 0; padding: 18px 16px 24px; }
+}
+/* سازنده‌ی فیلتر: هیچ‌وقت از کادر بیرون نزند */
+.fb-group, .fb-rule, .fb-ghead, .fb-val { min-width: 0; max-width: 100%; }
+.fb-rule > select { flex: 1 1 170px; min-width: 0; }
+.fb-rule > select + select { flex: 0 1 140px; }
+.fb-val { flex: 2 1 220px; }
+.fb-val select { flex: 1 1 140px; min-width: 0; }
+.fb-ghead .fb-toggle { flex-wrap: wrap; }
+.tl-pane, .tl-pane .panel { min-width: 0; }
+.dash-main { min-width: 0; }
+
+/* فرایند استخدام */
+.ats-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; }
+.ats-kpis div { background: #fff; border: 1px solid var(--navy-100); border-radius: 12px; padding: 12px 14px; }
+.ats-kpis b { display: block; font-size: 22px; color: var(--navy-900); }
+.ats-kpis span { font-size: 12.5px; color: var(--navy-500); }
+.ats-kpis small { display: block; font-size: 11.5px; color: var(--teal-700); margin-top: 2px; }
+.ats-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+.ats-chart { background: #fff; border: 1px solid var(--navy-100); border-radius: 12px; padding: 12px 14px; }
+.ats-chart b { font-size: 13.5px; color: var(--navy-800); }
+.ats-chart small { display: block; color: var(--navy-400); font-size: 11.5px; margin-bottom: 8px; }
+.ats-bars { display: flex; align-items: flex-end; gap: 3px; height: 90px; border-bottom: 1px solid var(--navy-100); }
+.ats-bars i { flex: 1; background: var(--teal-500); border-radius: 3px 3px 0 0; min-height: 2px; position: relative; }
+.ats-bars i.mute { background: var(--navy-200); }
+.ats-axis { display: flex; justify-content: space-between; font-size: 10.5px; color: var(--navy-400); margin-top: 4px; }
+.ats-filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+.ats-filters select { border: 1.5px solid var(--navy-200); border-radius: 9px; padding: 7px 10px; font-size: 13px; background: #fff; }
+.ats-table td { vertical-align: middle; }
+.ats-table tr.clickable { cursor: pointer; }
+.ats-table tr.clickable:hover td { background: var(--teal-50); }
+.ats-pager { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 10px; font-size: 13px; color: var(--navy-500); flex-wrap: wrap; }
+.ats-pager button { border: 1.5px solid var(--navy-200); background: #fff; border-radius: 8px; padding: 5px 12px; font-size: 13px; }
+.ats-pager button:disabled { opacity: .4; }
+.badge-dot { display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; background: #e11d48; color: #fff; font-size: 11px; font-weight: 700; margin-inline-start: 6px; }
+.need-act { display: inline-block; background: var(--amber-100); color: #92400e; border-radius: 99px; padding: 2px 9px; font-size: 11.5px; font-weight: 700; margin-inline-start: 6px; }
+.app-steps { display: flex; gap: 0; margin: 14px 0 18px; overflow-x: auto; }
+.app-steps span { flex: 1; min-width: 92px; text-align: center; font-size: 11.5px; color: var(--navy-400); position: relative; padding-top: 22px; }
+.app-steps span::before { content: ""; position: absolute; top: 6px; right: 50%; width: 100%; height: 3px; background: var(--navy-100); }
+.app-steps span:first-child::before { display: none; }
+.app-steps span::after { content: ""; position: absolute; top: 1px; right: calc(50% - 7px); width: 14px; height: 14px; border-radius: 50%; background: var(--navy-200); }
+.app-steps span.done { color: var(--teal-800); font-weight: 700; }
+.app-steps span.done::before, .app-steps span.done::after { background: var(--teal-500); }
+.app-steps span.bad::after { background: #e11d48; }
+.app-tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--navy-100); margin-bottom: 14px; flex-wrap: wrap; }
+.app-tabs button { background: none; border: none; border-bottom: 2.5px solid transparent; padding: 8px 12px; font-size: 13.5px; color: var(--navy-500); font-weight: 600; }
+.app-tabs button.on { color: var(--teal-800); border-bottom-color: var(--teal-500); }
+.app-card { border: 1px solid var(--navy-100); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; background: var(--navy-50); font-size: 13.5px; line-height: 2; }
+.app-card.teal { background: var(--teal-50); border-color: var(--teal-100); }
+.app-card.amber { background: var(--amber-100); border-color: #fde68a; }
+.app-card b { color: var(--navy-900); }
+.app-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.app-form { border: 1.5px dashed var(--teal-500); border-radius: 12px; padding: 14px; margin-top: 12px; background: #fff; }
+.app-form .form-grid { margin-bottom: 8px; }
+.chat { display: flex; flex-direction: column; gap: 8px; max-height: 380px; overflow-y: auto; padding: 4px; }
+.chat .msg { max-width: 78%; padding: 9px 13px; border-radius: 14px; font-size: 13.5px; line-height: 1.9; white-space: pre-wrap; word-break: break-word; }
+.chat .msg.me { align-self: flex-start; background: var(--teal-600); color: #fff; border-bottom-right-radius: 4px; }
+.chat .msg.them { align-self: flex-end; background: var(--navy-100); color: var(--navy-800); border-bottom-left-radius: 4px; }
+.chat .msg small { display: block; font-size: 10.5px; opacity: .75; margin-top: 2px; }
+.chat-box { display: flex; gap: 8px; margin-top: 10px; }
+.chat-box textarea { flex: 1; border: 1.5px solid var(--navy-200); border-radius: 10px; padding: 8px 10px; font-size: 13.5px; resize: vertical; min-height: 44px; }
+.timeline-list { list-style: none; padding: 0; margin: 0; }
+.timeline-list li { border-inline-start: 2px solid var(--teal-100); padding: 2px 14px 12px; position: relative; font-size: 13px; color: var(--navy-700); }
+.timeline-list li::before { content: ""; position: absolute; inset-inline-start: -6px; top: 7px; width: 10px; height: 10px; border-radius: 50%; background: var(--teal-500); }
+.timeline-list li.seeker::before { background: #6366f1; }
+.timeline-list small { display: block; color: var(--navy-400); font-size: 11.5px; }
+@media (max-width: 760px) {
+  .ats-kpis { grid-template-columns: 1fr 1fr; }
+  .ats-charts { grid-template-columns: 1fr; }
+  .chat .msg { max-width: 92%; }
+}
+.fb-actions .app-form, .fb-actions .notice-box { flex-basis: 100%; }
+
+/* ===============================================
+   لایه ۸ — رفع ایرادهای بازبینی ظاهری (موبایل و دسکتاپ)
+   =============================================== */
+/* ستاره‌های خلاصه‌ی امتیاز دوره عمودی نشوند */
+.rev-summary .big .stars { display: inline-flex; margin-top: 4px; }
+.rev-summary .big .stars span { display: inline; margin: 0; font-size: 16px; }
+/* دکمه‌های کارت کناری متن بلند را بشکنند */
+.side-card .btn-block { white-space: normal; height: auto; line-height: 1.7; padding-top: 10px; padding-bottom: 10px; }
+/* جدول‌های مشخصات و جزئیات تطبیق: متن بشکند، از کادر بیرون نزند */
+.spec-table td, .mb-table td, .mb-table th { white-space: normal; word-break: break-word; }
+.spec-table { width: 100%; table-layout: fixed; }
+/* ردیف سازمان‌های من */
+.order-item { flex-wrap: wrap; }
+.order-item .oi-body { min-width: 160px; flex: 1 1 200px; }
+@media (max-width: 900px) {
+  /* داشبوردها روی موبایل: پروفایل فشرده + منوی افقی لغزنده، محتوا بلافاصله دیده شود */
+  .dash-layout { gap: 14px; padding-top: 16px; }
+  .dash-side { padding: 10px; position: sticky; top: 64px; z-index: 50; box-shadow: 0 6px 16px rgba(15, 23, 42, .06); }
+  .dash-profile { display: flex; align-items: center; gap: 10px; text-align: right; padding: 4px 4px 10px; margin-bottom: 8px; flex-wrap: wrap; }
+  .dash-profile .avatar { width: 40px; height: 40px; font-size: 16px; margin: 0; flex-shrink: 0; }
+  .dash-profile b { font-size: 14px; display: inline; }
+  .dash-profile > span, .dash-profile > b { margin: 0; }
+  .dash-profile > div:last-child { margin-inline-start: auto; }
+  .dash-profile .otw-toggle { margin-top: 0; }
+  .dash-nav { display: flex; flex-direction: row; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; scroll-snap-type: x proximity; }
+  .dash-nav::-webkit-scrollbar { display: none; }
+  .dash-nav a, .dash-nav button { flex: 0 0 auto; width: auto; white-space: nowrap; padding: 7px 12px; border-radius: 99px; border: 1px solid var(--navy-100); font-size: 13px; margin: 0; scroll-snap-align: start; }
+  .dash-nav a svg, .dash-nav button svg { width: 16px; height: 16px; }
+  .dash-nav a.active { background: var(--teal-600); color: #fff; border-color: var(--teal-600); }
+  .dash-nav a.active svg { color: #fff; }
+}
+@media (max-width: 640px) {
+  /* سربرگ صفحه‌ی سازمان: عنوان تمام‌عرض */
+  .page-head .container > div:has(#l-name) { flex: 1 1 100% !important; order: 2; }
+  .page-head #l-logo { width: 56px !important; height: 56px !important; font-size: 22px !important; border-radius: 14px !important; }
+  .page-head .container:has(#l-name) > .btn { order: 1; margin-inline-start: auto; }
+  /* داشبورد متقاضیان روی موبایل: هر درخواست یک کارت */
+  .ats-table thead { display: none; }
+  .ats-table, .ats-table tbody, .ats-table tr, .ats-table td { display: block; width: 100%; }
+  .ats-table tr { border: 1px solid var(--navy-100); border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; background: #fff; }
+  .ats-table td { border: none !important; padding: 3px 0 !important; text-align: right; }
+  .ats-table td:last-child { display: none; }
+  .ats-filters select { flex: 1 1 140px; }
+  .table-wrap:has(.ats-table) { border: none; background: none; overflow: visible; }
+  /* دکمه‌های فرم‌ها روی موبایل بشکنند */
+  .dash-main section > div:has(> .btn) { display: flex; flex-wrap: wrap; gap: 8px; }
+  .app-actions .btn { flex: 1 1 140px; }
+  .cd-head { flex-wrap: wrap; }
+  .cd-head > div:nth-child(2) { flex: 1 1 calc(100% - 80px); min-width: 0; }
+  .tl-body .cd-head { padding-left: 0; padding-top: 6px; }
+  .tl-body .cd-head .mring { margin-inline-start: auto; }
+}
+table.data.spec-table { min-width: 0; }
+@media (max-width: 640px) { table.data.ats-table { min-width: 0 !important; } }

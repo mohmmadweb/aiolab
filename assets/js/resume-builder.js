@@ -25,7 +25,7 @@ const ResumeBuilder = (() => {
     if (!r.provinceId || !r.city) miss.push("استان و شهر محل سکونت");
     if (!(r.targetRoles || []).length) miss.push("عنوان شغلی موردنظر");
     if (!(r.skills || []).length) miss.push("حداقل یک مهارت");
-    if (r.phone && !/^09\d{9}$/.test(String(r.phone).replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)))) miss.push("شماره موبایل درست (۰۹xxxxxxxxx)");
+    if (!/^09\d{9}$/.test(String(r.phone || "").replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)))) miss.push("شماره موبایل (۰۹xxxxxxxxx)");
     if (r.salaryMin && r.salaryMax && +r.salaryMax < +r.salaryMin) miss.push("بازه‌ی حقوق درست");
     return miss;
   }
@@ -131,7 +131,7 @@ const ResumeBuilder = (() => {
 
       <div class="panel rb-section"><h2>اطلاعات فردی</h2><div class="form-grid">
         <div class="form-field"><label>نام و نام خانوادگی *</label><input type="text" data-f="name" maxlength="80" value="${e(R.name)}"></div>
-        <div class="form-field"><label>شماره موبایل</label><input type="tel" dir="ltr" data-f="phone" maxlength="11" value="${e(R.phone || "")}" placeholder="09xxxxxxxxx"></div>
+        <div class="form-field"><label>شماره موبایل *</label><input type="tel" dir="ltr" data-f="phone" maxlength="11" value="${e(R.phone || "")}" placeholder="09xxxxxxxxx"></div>
         <div class="form-field"><label>جنسیت *</label>${pick("gender", { options: O.genders(), value: R.gender, after: () => draw() })}</div>
         <div class="form-field"><label>تاریخ تولد *</label><span data-date="birth">${TUI.fullDate({ value: R.birth, back: 70, minAge: 16 })}</span></div>
         ${R.gender === "آقا" ? `<div class="form-field"><label>وضعیت نظام وظیفه</label>${pick("military", { options: O.military(), value: R.military })}</div>` : ""}
