@@ -88,7 +88,8 @@ async function checkMenu(p) {
     ctxSeeker = await newCtx(b); const s = await page(ctxSeeker);
     await s.goto(BASE + "/register/", { waitUntil: "networkidle" });
     await s.fill("#name", "سارا ریسپانسیو"); await s.fill("#email", `resp-s${stamp}@example.com`); await s.fill("#pass", "Test12345!"); await s.fill("#phone", testPhone());
-    await Promise.all([s.waitForNavigation({ waitUntil: "networkidle" }), s.click(".auth-form button[type=submit]")]);
+    await Promise.all([s.waitForURL(/dashboard/, { timeout: 120000 }), s.click(".auth-form button[type=submit]")]);
+    await s.waitForTimeout(3000); await s.goto(BASE + "/dashboard/", { waitUntil: "load", timeout: 120000 });
     await s.evaluate(() => API.post("me/cv", { cv: { name: AIO_ME.name, phone: AIO_ME.phone, gender: "خانم", birth: "1995-04-20", provinceId: "tehran", city: "تهران", targetRoles: ["hematology-tech"],
       experience: [{ orgType: "other", orgName: "آزمایشگاه نمونه", role: "hematology-tech", dept: "hematology", start: "2020-01", end: null, skills: [] }],
       education: [{ degree: 3, field: "علوم آزمایشگاهی", uni: "u1", start: 2013, end: 2017 }], skills: [{ id: "sysmex-xn", lvl: 4 }, { id: "blood-smear", lvl: 4 }] } }));
@@ -98,7 +99,8 @@ async function checkMenu(p) {
     ctxEmp = await newCtx(b); const e = await page(ctxEmp);
     await e.goto(BASE + "/register/?role=employer", { waitUntil: "networkidle" });
     await e.fill("#name", "آزمایشگاه ریسپانسیو"); await e.fill("#email", `resp-e${stamp}@example.com`); await e.fill("#pass", "Test12345!"); await e.fill("#phone", testPhone());
-    await Promise.all([e.waitForNavigation({ waitUntil: "networkidle" }), e.click(".auth-form button[type=submit]")]);
+    await Promise.all([e.waitForURL(/employer/, { timeout: 120000 }), e.click(".auth-form button[type=submit]")]);
+    await e.waitForTimeout(3000); await e.goto(BASE + "/employer/", { waitUntil: "load", timeout: 120000 });
     const labId = await e.evaluate(async () => (await API.post("employer/lab", { lab: { name: "آزمایشگاه ریسپانسیو", provinceId: "tehran", city: "تهران", lat: 35.72, lng: 51.41, avgSalary: 22, phone: "02144445555", email: "hr@resp.example.com" } })).id);
     wp(`wp_update_post(["ID"=>${labId},"post_status"=>"publish"]); echo 1;`);
     const jid = await e.evaluate(async lab => (await API.post("employer/job", { job: { title: "کارشناس هماتولوژی (ریسپانسیو)", labId: lab, dept: "hematology", provinceId: "tehran", city: "تهران", desc: "برای بخش هماتولوژی به کارشناس مسلط به سل‌کانتر نیازمندیم.",
