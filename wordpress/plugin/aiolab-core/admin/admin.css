@@ -1,0 +1,41 @@
+/* آیولب — ظاهر فیلدهای پیشخوان */
+.aio-fields{display:flex;flex-wrap:wrap;gap:14px 18px;padding:6px 0}
+.aio-f{box-sizing:border-box;flex:1 1 calc(50% - 18px);min-width:220px}
+.aio-f.full{flex-basis:100%}
+.aio-f>label{display:block;font-weight:600;margin-bottom:5px;color:#1e293b}
+.aio-f input[type=text],.aio-f input[type=number],.aio-f input[type=url],.aio-f input[type=email],.aio-f input[type=date],.aio-f select,.aio-f textarea{width:100%;max-width:100%}
+.aio-f textarea.code{font-family:Consolas,monospace;font-size:12px}
+.aio-f-heading{flex-basis:100%;border-top:1px solid #e2e8f0;padding-top:10px;margin-top:4px}
+.aio-f-heading h3{margin:0 0 2px;font-size:14px;color:#0f766e}
+.aio-multi{display:flex;flex-wrap:wrap;gap:6px 14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:10px}
+.aio-multi label{font-weight:400}
+.aio-multi label.extra{color:#b45309}
+.aio-switch{display:inline-flex;align-items:center;gap:6px;font-weight:400!important}
+.aio-media img{display:block;max-width:120px;max-height:120px;margin:6px 0;border-radius:6px;border:1px solid #e2e8f0}
+.aio-repeater{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:10px}
+.aio-rep-item{background:#fff;border:1px solid #dbe3ea;border-radius:7px;margin-bottom:8px}
+.aio-rep-head{display:flex;align-items:center;gap:10px;padding:8px 10px;cursor:pointer}
+.aio-rep-head .n{background:#0d9488;color:#fff;border-radius:50%;min-width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+.aio-rep-head b{flex:1;font-weight:600}
+.aio-rep-head .acts button{margin-inline-start:6px;color:#64748b;text-decoration:none}
+.aio-rep-head .acts .del{color:#dc2626}
+.aio-rep-body{display:none;padding:10px 12px 14px;border-top:1px solid #eef2f6}
+.aio-rep-item.open>.aio-rep-body{display:flex}
+.aio-rep-nested .aio-rep-item{background:#fcfdfd}
+.aio-rep-nested .aio-rep-head .n{background:#64748b}
+.aio-posts-list{margin:0 0 8px;padding-inline-start:22px}
+.aio-posts-list li{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:5px 8px;display:flex;gap:8px;align-items:center}
+.aio-posts-list li span{flex:1}
+.aio-settings .aio-fields{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:18px;margin-top:14px;max-width:1100px}
+.aio-preview-link{background:#ecfdf5;border:1px solid #a7f3d0;padding:10px 14px;border-radius:8px;max-width:1070px}
+.aio-tools{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px}
+.aio-tools .card{max-width:420px;margin:0}
+.aio-term .aio-f>label:empty{display:none}
+.aio-map{border-radius:8px;border:1px solid #e2e8f0}
+.aio-gal { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 10px; }
+.aio-gal-item { border: 1px solid #dcdcde; border-radius: 6px; overflow: hidden; background: #fff; }
+.aio-gal-item input { width: 100%; border: 0; border-top: 1px solid #dcdcde; border-radius: 0; }
+.aio-gal-item > div:last-child { padding: 4px 8px; display: flex; justify-content: space-between; }
+.aio-gal-img { aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; }
+.aio-gal-img img { width: 100%; height: 100%; object-fit: cover; }
+.aio-danger { color: #b32d2e !important; }

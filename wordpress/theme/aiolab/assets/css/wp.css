@@ -1,0 +1,58 @@
+/* ===============================================
+   آیولب — افزوده‌های نسخه‌ی وردپرس (لایه ۶)
+   عناصر جدیدی که در دمو نبودند: پیام‌ها، پرداخت، استعلام، مقاله، مودال عمومی
+   =============================================== */
+.logo .logo-img { width: 40px; height: 40px; object-fit: contain; border-radius: 10px; }
+.notice-box { border-radius: 12px; padding: 14px 18px; font-size: 14px; line-height: 2; margin-bottom: 16px; border: 1px solid; }
+.notice-box.ok { background: #ecfdf5; border-color: #a7f3d0; color: #065f46; }
+.notice-box.err { background: #fff1f2; border-color: #fecdd3; color: #9f1239; }
+.notice-box.info { background: var(--sky-100); border-color: #bae6fd; color: #075985; }
+.notice-box.warn { background: var(--amber-100); border-color: #fde68a; color: #92400e; }
+.price-big { font-size: 20px; color: var(--teal-700); }
+.status.sent, .status.seen { background: var(--sky-100); color: #0369a1; }
+.status.paid, .status.done { background: #d1fae5; color: #047857; }
+.status.processing { background: var(--sky-100); color: #0369a1; }
+.status.cancelled, .status.failed { background: var(--navy-100); color: var(--navy-500); }
+.cert-verify { text-align: center; }
+.cert-verify .row { text-align: right; }
+.cert-verify .cv-badge { font-size: 46px; margin-bottom: 8px; }
+.cert-verify.ok h2 { color: #047857; }
+.cert-verify.no h2 { color: #be123c; }
+.footer-contact, .footer-social { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 12px; font-size: 13px; }
+.footer-contact a, .footer-social a { color: inherit; opacity: .85; }
+.footer-contact a:hover, .footer-social a:hover { opacity: 1; text-decoration: underline; }
+.trust-code { display: inline-block; background: #fff; border-radius: 10px; padding: 4px; }
+.trust-code img { max-height: 90px; width: auto; }
+.entry-content { font-size: 15px; line-height: 2.1; color: var(--navy-800); }
+.entry-content h2, .entry-content h3 { margin: 22px 0 10px; color: var(--navy-900); }
+.entry-content p { margin-bottom: 14px; }
+.entry-content ul, .entry-content ol { padding-inline-start: 22px; margin-bottom: 14px; }
+.entry-content img { max-width: 100%; height: auto; border-radius: 12px; }
+.entry-content a { color: var(--teal-700); text-decoration: underline; }
+.entry-thumb { width: 100%; height: auto; border-radius: 12px; margin-bottom: 18px; }
+.content-card .thumb img { width: 100%; height: 100%; object-fit: cover; }
+.pager .nav-links { display: flex; gap: 8px; justify-content: center; margin-top: 24px; }
+.pager .page-numbers { padding: 6px 12px; border-radius: 8px; background: #fff; border: 1px solid var(--navy-200); }
+.pager .page-numbers.current { background: var(--teal-600); color: #fff; border-color: var(--teal-600); }
+/* مودال عمومی (رزومه، پیام به مرکز، تأیید) */
+.aio-modal { position: fixed; inset: 0; background: rgba(15, 23, 42, .5); display: flex; align-items: center; justify-content: center; z-index: 1600; padding: 16px; }
+.aio-modal .modal { max-height: calc(100vh - 32px); overflow-y: auto; width: 100%; }
+.aio-modal .modal { max-width: 620px; position: relative; }
+.aio-modal .modal .x { position: absolute; top: 14px; left: 14px; background: var(--navy-100); border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; color: var(--navy-600); }
+.aio-modal .row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px dashed var(--navy-200); font-size: 13.5px; }
+.aio-modal .row span { color: var(--navy-500); }
+/* حالت در حال ارسال دکمه‌ها */
+.btn.is-busy { opacity: .65; pointer-events: none; position: relative; }
+.btn.is-busy::after { content: ""; width: 14px; height: 14px; border: 2px solid currentColor; border-left-color: transparent; border-radius: 50%; display: inline-block; margin-inline-start: 8px; vertical-align: -2px; animation: aio-spin .7s linear infinite; }
+@keyframes aio-spin { to { transform: rotate(360deg); } }
+.field-error input, .field-error select, .field-error textarea { border-color: var(--rose-500) !important; box-shadow: 0 0 0 3px var(--rose-100); }
+.form-msg { font-size: 13px; margin-top: 10px; color: #be123c; min-height: 1em; }
+.form-msg.ok { color: #047857; }
+.auth-form .alt-link + .alt-link { margin-top: 6px; }
+.empty-state { text-align: center; padding: 36px 16px; color: var(--navy-500); }
+.empty-state b { display: block; color: var(--navy-800); font-size: 16px; margin-bottom: 6px; }
+.lesson-video { position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 14px; overflow: hidden; background: #0f172a; margin-bottom: 16px; }
+.lesson-video iframe, .lesson-video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.muted { color: var(--navy-500); }
+.credit-strip { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 16px; }
+.credit-strip span { background: var(--teal-50); border: 1px solid var(--teal-100); color: var(--teal-800); border-radius: 99px; padding: 5px 12px; font-size: 12.5px; font-weight: 600; }

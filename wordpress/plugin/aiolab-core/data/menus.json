@@ -1,0 +1,256 @@
+{
+ "primary": {
+  "name": "منوی اصلی",
+  "items": [
+   {
+    "label": "خانه",
+    "href": "/"
+   },
+   {
+    "label": "فرصت‌های شغلی",
+    "href": "/jobs/"
+   },
+   {
+    "label": "آزمایشگاه‌ها",
+    "href": "#",
+    "children": [
+     {
+      "label": "آزمایشگاه‌ها روی نقشه",
+      "href": "/labs/",
+      "desc": "نقشه سراسری مراکز عضو",
+      "icon": "pin"
+     },
+     {
+      "label": "شرکت‌ها",
+      "href": "/companies/",
+      "desc": "تولیدکننده، واردکننده و توزیع‌کننده",
+      "icon": "building"
+     },
+     {
+      "label": "محصولات و تجهیزات",
+      "href": "/products/",
+      "desc": "کاتالوگ دستگاه، کیت و مواد مصرفی",
+      "icon": "machine"
+     },
+     {
+      "label": "رتبه‌بندی مراکز",
+      "href": "/ranking/",
+      "desc": "امتیاز کاربران و میانگین حقوق",
+      "icon": "chart"
+     }
+    ]
+   },
+   {
+    "label": "رشد حرفه‌ای",
+    "href": "#",
+    "children": [
+     {
+      "label": "رزومه حرفه‌ای من",
+      "href": "/dashboard/#resume",
+      "desc": "رزومه‌ساز تخصصی آزمایشگاه",
+      "icon": "doc"
+     },
+     {
+      "label": "آزمون و گواهینامه",
+      "href": "/exams/",
+      "desc": "نشان مهارت تأییدشده روی رزومه",
+      "icon": "shield"
+     },
+     {
+      "label": "خودارزیابی مهارت",
+      "href": "/assessment/",
+      "desc": "۶ حوزه، نمودار مهارت و تحلیل شکاف",
+      "icon": "chart"
+     },
+     {
+      "label": "تست شخصیت‌شناسی MBTI",
+      "href": "/mbti/",
+      "desc": "تیپ شخصیتی و مشاغل متناسب",
+      "icon": "path"
+     },
+     {
+      "label": "آکادمی آیولب",
+      "href": "/courses/",
+      "desc": "دوره‌های تخصصی، پروژه راهنما و گواهی",
+      "icon": "grad"
+     },
+     {
+      "label": "مسیرهای یادگیری",
+      "href": "/courses/#paths",
+      "desc": "زنجیره دوره‌ها تا یک نقش شغلی مشخص",
+      "icon": "path"
+     }
+    ]
+   },
+   {
+    "label": "جامعه و محتوا",
+    "href": "#",
+    "children": [
+     {
+      "label": "در آزمایشگاه چه می‌گذرد؟",
+      "href": "/magazine/",
+      "desc": "مجله تخصصی آیولب",
+      "icon": "doc"
+     },
+     {
+      "label": "جامعه آزمایشگاهی",
+      "href": "/community/",
+      "desc": "شبکه حرفه‌ای پرسنل آزمایشگاه",
+      "icon": "users"
+     },
+     {
+      "label": "سؤالات پرتکرار",
+      "href": "/faq/",
+      "desc": "پاسخ کوتاه به پرسش‌های رایج",
+      "icon": "comment"
+     }
+    ]
+   },
+   {
+    "label": "خدمات و تعرفه",
+    "href": "#",
+    "children": [
+     {
+      "label": "خدمات آیولب",
+      "href": "/services/",
+      "desc": "همه سرویس‌های کارجو، آزمایشگاه و تأمین‌کننده",
+      "icon": "briefcase"
+     },
+     {
+      "label": "تعرفه‌ها",
+      "href": "/pricing/",
+      "desc": "قیمت شفاف تک‌تک خدمات و اشتراک‌ها",
+      "icon": "chart"
+     },
+     {
+      "label": "گزارش بازار کار",
+      "href": "/reports/",
+      "desc": "تحلیل حقوق، عرضه و تقاضای تخصص‌ها",
+      "icon": "doc"
+     },
+     {
+      "label": "تبلیغات و همکاری",
+      "href": "/advertise/",
+      "desc": "ویژه تأمین‌کنندگان تجهیزات و مواد",
+      "icon": "machine"
+     }
+    ]
+   }
+  ]
+ },
+ "footer_1": {
+  "name": "کارجویان",
+  "items": [
+   {
+    "label": "جستجوی فرصت شغلی",
+    "href": "/jobs/"
+   },
+   {
+    "label": "رزومه‌ساز حرفه‌ای",
+    "href": "/dashboard/#resume"
+   },
+   {
+    "label": "آکادمی و دوره‌های آموزشی",
+    "href": "/courses/"
+   },
+   {
+    "label": "مسیرهای یادگیری تخصصی",
+    "href": "/courses/#paths"
+   },
+   {
+    "label": "آزمون و گواهینامه",
+    "href": "/exams/"
+   },
+   {
+    "label": "مصاحبه تخصصی و توصیه‌نامه",
+    "href": "/services/#interview"
+   },
+   {
+    "label": "مشاوره شغلی",
+    "href": "/services/#advice"
+   },
+   {
+    "label": "راهنمای مسیر شغلی",
+    "href": "/magazine/"
+   }
+  ]
+ },
+ "footer_2": {
+  "name": "کارفرمایان",
+  "items": [
+   {
+    "label": "ثبت آگهی استخدام",
+    "href": "/login/?role=employer"
+   },
+   {
+    "label": "جستجوی بانک رزومه",
+    "href": "/employer/#resumes"
+   },
+   {
+    "label": "تعرفه‌ها و اشتراک",
+    "href": "/employer/#pricing"
+   },
+   {
+    "label": "تطبیق هوشمند",
+    "href": "/talent/"
+   },
+   {
+    "label": "خدمات استخدام کامل",
+    "href": "/services/#hiring"
+   },
+   {
+    "label": "برند کارفرمایی",
+    "href": "/services/#branding"
+   },
+   {
+    "label": "تبلیغات و اسپانسری",
+    "href": "/advertise/"
+   }
+  ]
+ },
+ "footer_3": {
+  "name": "آیولب",
+  "items": [
+   {
+    "label": "سؤالات پرتکرار",
+    "href": "/faq/"
+   },
+   {
+    "label": "خدمات آیولب",
+    "href": "/services/"
+   },
+   {
+    "label": "تعرفه‌ها و اشتراک",
+    "href": "/pricing/"
+   },
+   {
+    "label": "گزارش بازار کار",
+    "href": "/reports/"
+   },
+   {
+    "label": "رتبه‌بندی مراکز",
+    "href": "/ranking/"
+   },
+   {
+    "label": "شرکت‌ها و محصولات",
+    "href": "/companies/"
+   },
+   {
+    "label": "در آزمایشگاه چه می‌گذرد؟",
+    "href": "/magazine/"
+   },
+   {
+    "label": "جامعه آزمایشگاهی",
+    "href": "/community/"
+   },
+   {
+    "label": "درباره ما",
+    "href": "/about/"
+   },
+   {
+    "label": "تماس با ما",
+    "href": "/contact/"
+   }
+  ]
+ }
+}
