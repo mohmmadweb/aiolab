@@ -9,3 +9,7 @@ AioLab-Job-RevenueModel-V1-050516.xlsx
 # وردپرس: وابستگی‌های تست و خروجی‌های موقت
 wordpress/tests/node_modules/
 wordpress/theme/aiolab/assets/js/pages/_raw/
+
+# گزارش ساعات کار — خصوصی؛ در ریپوی عمومی منتشر نشود
+aiolab-timesheet.pdf
+Docs/timesheet/

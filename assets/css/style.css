@@ -2226,3 +2226,41 @@ body.modal-open { overflow: hidden; }
 }
 table.data.spec-table { min-width: 0; }
 @media (max-width: 640px) { table.data.ats-table { min-width: 0 !important; } }
+
+/* ===============================================
+   لایه ۹ — ریسپانسیو کامل تا عرض ۳۲۰ پیکسل
+   =============================================== */
+@media (max-width: 480px) {
+  /* هدر کاربر واردشده: فقط آواتار، نام در منوی کشویی */
+  .user-chip > button { font-size: 0; padding: 3px; gap: 0; }
+  .user-chip .avatar { font-size: 14px; }
+  .header-actions { gap: 4px; }
+  .header-actions .icon-btn { width: 34px; height: 34px; }
+  /* نوار آمار: کارت عمودی و فشرده */
+  .stats-strip { gap: 10px; }
+  .stat-card { flex-direction: column; align-items: flex-start; padding: 14px 12px; gap: 8px; min-width: 0; }
+  .stat-card > div { min-width: 0; }
+  .stat-card b { font-size: 18px; }
+  .stat-card span { font-size: 12px; }
+  /* نوار ابزار فهرست آگهی‌ها */
+  .listing-main .toolbar > * { max-width: 100%; }
+  .tb-right { flex-wrap: wrap; width: 100%; }
+  .tb-right > * { flex: 1 1 140px; min-width: 0; }
+}
+@media (max-width: 640px) {
+  /* هر ردیف دکمه‌ی داخل داشبوردها بشکند */
+  .dash-main div[style*="display:flex"], .dash-main div[style*="display: flex"] { flex-wrap: wrap; }
+  .dash-main .btn { white-space: normal; }
+}
+@media (max-width: 360px) {
+  .container { padding-inline: 12px; }
+  .logo span { font-size: 18px; }
+}
+@media (max-width: 480px) { .tb-right > .btn { flex-basis: 100%; white-space: normal; } }
+/* تبلت افقی و لپ‌تاپ کوچک (۹۰۱ تا ۱۰۲۴): ستون کناری باریک کنار محتوا بماند */
+@media (min-width: 901px) and (max-width: 1024px) {
+  .dash-layout { grid-template-columns: 210px 1fr; gap: 16px; }
+  .dash-side { position: sticky; padding: 12px; }
+  .dash-nav a, .dash-nav button { font-size: 13px; padding: 8px 10px; }
+}
+.app-card a[dir=ltr], .tl-body a[dir=ltr] { display: inline-block; max-width: 100%; overflow-wrap: anywhere; vertical-align: bottom; }
