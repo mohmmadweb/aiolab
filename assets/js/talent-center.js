@@ -74,6 +74,9 @@ const TalentCenter = (() => {
     const hit = m.skills.filter(s => s.status === "full").sort((a, b) => b.w - a.w)[0];
     return [hit ? "✓ " + hit.name : "", miss ? "✗ " + miss.name : ""].filter(Boolean).join(" · ");
   }
+  /* دارنده‌ی گواهی آزمونِ خود کارفرما (c.pin از سرور) بالای فهرست و با نشان */
+  const pinFirst = list => list.sort((a, b) => (b.c.pin ? 1 : 0) - (a.c.pin ? 1 : 0));
+  const pinChip = c => c.pin ? ` <span class="chip amber" title="${e(c.pin)}">🎖 گواهی آزمون شما</span>` : "";
   const posLabel = j => j.internal ? "پوزیشن داخلی" : j.mine ? "پوزیشن من" : "آگهی عمومی";
   const posOptions = list => list.map(j => [j.id, j.title + " — " + (j.orgName || ""), posLabel(j)]);
 
@@ -137,11 +140,11 @@ const TalentCenter = (() => {
         <div data-res></div>`;
       P.querySelector("[data-ok]").onchange = ev => { S.onlyOk = ev.target.checked; drawByJob(); };
       P.querySelector("[data-min]").onchange = ev => { S.min = +ev.target.value; drawByJob(); };
-      const all = AioMatch.candidatesFor(job, cands());
+      const all = pinFirst(AioMatch.candidatesFor(job, cands()));
       const res = all.filter(x => (!S.onlyOk || x.m.eligible) && x.m.score >= S.min);
       P.querySelector("[data-res]").innerHTML = summary(all) + (res.map((x, i) => `
         <div class="tl-row ${x.m.fit === "none" ? "dim" : ""}" data-i="${i}" tabindex="0" role="button">
-          <div><b>${e(x.c.name)}${x.c.self ? ' <span class="chip teal">رزومه‌ی شما</span>' : ""}</b><small>${e(TUI.candSummary(x.c))}</small></div>
+          <div><b>${e(x.c.name)}${x.c.self ? ' <span class="chip teal">رزومه‌ی شما</span>' : ""}${pinChip(x.c)}</b><small>${e(TUI.candSummary(x.c))}</small></div>
           <span class="tl-why">${e(why(x.m))}</span>${TUI.ring(x.m, 52)}</div>`).join("") || '<div class="empty-inline">کسی با این شرایط پیدا نشد.</div>');
       P.querySelectorAll(".tl-row").forEach(r => r.onclick = r.onkeydown = ev => {
         if (ev.type === "keydown" && ev.key !== "Enter") return;
@@ -202,9 +205,10 @@ const TalentCenter = (() => {
         const job = S.rankJob ? list.find(j => String(j.id) === String(S.rankJob)) : null;
         let res = cands().filter(c => AioMatch.evaluate(c, S.tree, ctx)).map(c => ({ c, m: job ? AioMatch.score(c, job) : null }));
         if (job) res.sort((a, b) => b.m.score - a.m.score);
+        pinFirst(res);
         P.querySelector("[data-res]").innerHTML = `<p class="muted" style="margin-bottom:10px">${fa(res.length)} نفر از ${fa(cands().length)} رزومه با شرط‌ها مطابقت دارند.</p>` +
           (res.map((x, i) => `<div class="tl-row" data-i="${i}" tabindex="0" role="button">
-            <div><b>${e(x.c.name)}${x.c.self ? ' <span class="chip teal">رزومه‌ی شما</span>' : ""}</b><small>${e(TUI.candSummary(x.c))}</small></div>
+            <div><b>${e(x.c.name)}${x.c.self ? ' <span class="chip teal">رزومه‌ی شما</span>' : ""}${pinChip(x.c)}</b><small>${e(TUI.candSummary(x.c))}</small></div>
             <span class="tl-why">${x.c.otw ? "آماده به کار" : ""}</span>${x.m ? TUI.ring(x.m, 52) : `<span class="chip">${e(name.availability(x.c.availability))}</span>`}</div>`).join("") || '<div class="empty-inline">هیچ رزومه‌ای با این ترکیب شرط‌ها پیدا نشد.</div>');
         P.querySelectorAll("[data-res] .tl-row").forEach(r => r.onclick = r.onkeydown = ev => {
           if (ev.type === "keydown" && ev.key !== "Enter") return;

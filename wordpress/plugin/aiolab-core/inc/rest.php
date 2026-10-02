@@ -215,6 +215,7 @@ add_action('rest_api_init', function () {
 
     /* ================= پنل کارفرما ================= */
     $R('POST', '/employer/lab', 'aio_api_emp_lab', $emp);
+    $R('POST', '/employer/lab-draft', 'aio_api_emp_lab_draft', $emp);
     $R('POST', '/employer/lab/(?P<id>\d+)/logo', 'aio_api_emp_lab_logo', $emp);
     $R('POST', '/employer/job', 'aio_api_emp_job', $emp);
     $R('POST', '/employer/job/(?P<id>\d+)/status', 'aio_api_emp_job_status', $emp);
@@ -609,7 +610,10 @@ function aio_api_exam_submit(WP_REST_Request $r)
     aio_set_umeta($uid, 'exams', $all);
     if ($first) aio_set_meta($ex->ID, 'takers', (int) aio_meta($ex->ID, 'takers', 0) + 1);
     if ($pass && !$was_passed) aio_set_meta($ex->ID, 'passes', (int) aio_meta($ex->ID, 'passes', 0) + 1);
-    $cert = $pass ? aio_issue_cert($uid, 'exam', $ex->ID, $ex->post_title, $g['score'], (string) aio_meta($ex->ID, 'badge', '🏅')) : 0;
+    $cert = ($pass && aio_bool(aio_meta($ex->ID, 'auto_cert', 1))) ? aio_issue_cert($uid, 'exam', $ex->ID, $ex->post_title, $g['score'], (string) aio_meta($ex->ID, 'badge', '🏅')) : 0;
+    /* اعتبار گواهی: با هر قبولی دوباره از امروز تمدید می‌شود */
+    if ($cert) { $months = (int) aio_meta($ex->ID, 'cert_valid', 0); aio_set_meta($cert, 'expires', $months > 0 ? strtotime("+{$months} months") : 0); }
+    if ($pass) aio_exam_auto_invite($ex, $uid, $g['score']);
     do_action('aio_data_changed');
     return aio_ok(['score' => $g['score'], 'right' => $g['right'], 'total' => $g['total'], 'pass' => $pass, 'late' => $late,
         'passScore' => $pass_score, 'key' => $g['key'], 'cert' => $cert ? aio_cert_item(get_post($cert)) : null], true);
@@ -797,8 +801,27 @@ function aio_api_emp_lab(WP_REST_Request $r)
     }
     if (!aio_meta($id, 'color')) aio_set_meta($id, 'color', $colors[$id % max(1, count($colors))] ?? '#0d9488');
     if (isset($d['orgType']) && in_array($d['orgType'], array_column(aio_id_list('org_types'), 'id'), true)) aio_set_meta($id, 'org_type', $d['orgType']);
+    if ($was === 'new') delete_user_meta($uid, 'aio_lab_draft');
     if ($was === 'publish') aio_notify_admin('ویرایش مرکز: ' . $name, '<p>کارفرما اطلاعات مرکز «' . esc_html($name) . '» را ویرایش کرد.</p><p><a class="btn" href="' . esc_url(admin_url('post.php?action=edit&post=' . $id)) . '">بررسی</a></p>');
     return aio_ok(['id' => $id, 'status' => get_post_status($id)], true);
+}
+
+/** پیش‌نویس فرم ثبت مرکز (بدون اعتبارسنجی؛ فقط برای همین کاربر، روی هر دستگاهی) */
+function aio_api_emp_lab_draft(WP_REST_Request $r)
+{
+    $uid = get_current_user_id();
+    $d = (array) aio_p($r, 'lab', []);
+    if (!$d) { delete_user_meta($uid, 'aio_lab_draft'); return aio_ok([], true); }
+    $out = [];
+    foreach (['name', 'orgType', 'type', 'sector', 'orgKind', 'size', 'founded', 'staff', 'provinceId', 'city', 'address', 'phone', 'email', 'website', 'avgSalary'] as $k)
+        if (isset($d[$k])) $out[$k] = aio_clean_text((string) $d[$k], 200);
+    $out['about'] = aio_clean_textarea($d['about'] ?? '', 3000);
+    $out['perks'] = aio_clean_list($d['perks'] ?? [], 20, 60);
+    $lat = (float) ($d['lat'] ?? 0); $lng = (float) ($d['lng'] ?? 0);
+    if ($lat >= 24 && $lat <= 40.5 && $lng >= 44 && $lng <= 63.5) { $out['lat'] = round($lat, 6); $out['lng'] = round($lng, 6); }
+    $out['saved'] = aio_jdate('Y/m/d H:i');
+    aio_set_umeta($uid, 'lab_draft', $out);
+    return aio_ok(['saved' => $out['saved']], true);
 }
 
 function aio_api_emp_lab_logo(WP_REST_Request $r)
@@ -1015,6 +1038,13 @@ function aio_api_emp_exam(WP_REST_Request $r)
     aio_set_meta($id, 'bg', '#ccfbf1');
     aio_set_meta($id, 'vertical', 'lab');
     aio_set_meta($id, 'questions', $qs);
+    /* تنظیمات گواهی */
+    $valid = (int) ($d['certValid'] ?? 0);
+    aio_set_meta($id, 'cert_valid', (string) (in_array($valid, [0, 12, 24, 36], true) ? $valid : 0));
+    aio_set_meta($id, 'auto_cert', empty($d['autoCert']) ? 0 : 1);
+    aio_set_meta($id, 'holders_top', empty($d['holdersTop']) ? 0 : 1);
+    aio_set_meta($id, 'auto_invite', empty($d['autoInvite']) ? 0 : 1);
+    aio_set_meta($id, 'invite_score', max(50, min(100, (int) ($d['inviteScore'] ?? 90))));
     return aio_ok(['id' => $id], true);
 }
 

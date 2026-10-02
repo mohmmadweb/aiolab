@@ -10,13 +10,14 @@ $q = get_posts(['post_type' => 'aio_cert', 'post_status' => 'publish', 'numberpo
 </div></div>
 <section class="section"><div class="container" style="max-width:720px">
 <?php if ($q) : $c = aio_cert_item($q[0]); $u = get_userdata((int) $q[0]->post_author); ?>
-  <div class="panel cert-verify ok">
+  <div class="panel cert-verify <?php echo $c['expired'] ? 'no' : 'ok'; ?>">
     <div class="cv-badge"><?php echo esc_html($c['badge']); ?></div>
-    <h2>✅ این گواهی معتبر است</h2>
+    <h2><?php echo $c['expired'] ? '⚠️ اعتبار این گواهی به پایان رسیده است' : '✅ این گواهی معتبر است'; ?></h2>
     <div class="row"><span>دارنده</span><b><?php echo esc_html($u ? $u->display_name : '—'); ?></b></div>
     <div class="row"><span>عنوان</span><b><?php echo esc_html($c['title']); ?></b></div>
     <div class="row"><span>نمره</span><b><?php echo esc_html(aio_fa($c['score'])); ?> از ۱۰۰</b></div>
     <div class="row"><span>تاریخ صدور</span><b><?php echo esc_html($c['date']); ?></b></div>
+    <?php if ($c['expires']) : ?><div class="row"><span><?php echo $c['expired'] ? 'تاریخ انقضا' : 'معتبر تا'; ?></span><b><?php echo esc_html($c['expires']); ?></b></div><?php endif; ?>
     <div class="row"><span>کد رهگیری</span><b dir="ltr"><?php echo esc_html($c['code']); ?></b></div>
   </div>
 <?php else : ?>

@@ -86,7 +86,9 @@ PATCHES["employer"] = [
     ('<input type="text" id="lb-salary-date" value="۱۴۰۵/۰۴/۰۵" readonly>', '<input type="text" id="lb-salary-date" value="" readonly>'),
     ('''        <button class="btn btn-outline" onclick="toast('پیش‌نویس ذخیره شد (دمو)')">ذخیره پیش‌نویس</button>
         <button class="btn btn-primary btn-lg" onclick="submitLab()">ثبت مرکز و ارسال برای تأیید</button>''',
-     '''        <button class="btn btn-ghost" id="lb-cancel" style="display:none" onclick="editLab(0)">انصراف از ویرایش</button>
+     '''        <small class="muted" id="lb-draft-note" style="margin-inline-end:auto"></small>
+        <button class="btn btn-ghost" id="lb-cancel" style="display:none" onclick="editLab(0)">انصراف از ویرایش</button>
+        <button class="btn btn-outline" id="lb-draft" onclick="saveLabDraft(this)">ذخیره پیش‌نویس</button>
         <button class="btn btn-primary btn-lg" id="lb-submit" onclick="submitLab(this)">ثبت مرکز و ارسال برای تأیید</button>'''),
     (re.compile(r'<section id="sec-applicants">.*?</section>', re.S),
      '''<section id="sec-applicants">
@@ -94,9 +96,14 @@ PATCHES["employer"] = [
       <p class="dash-sub">قیف استخدام: درخواست / دعوت ← دیده‌شده ← فهرست کوتاه ← مصاحبه ← پیشنهاد همکاری ← استخدام. روی هر ردیف بزنید تا رزومه، تطبیق، گفتگو و اقدام‌ها باز شود؛ کارجو در هر مرحله با اعلان و ایمیل باخبر می‌شود.</p>
       <div id="ats"></div>
     </section>'''),
-    (re.compile(r'\s*<div class="form-field"><label>اعتبار گواهی</label>\s*<select>.*?</select></div>', re.S), ''),
+    (re.compile(r'<div class="form-field"><label>اعتبار گواهی</label>\s*<select>.*?</select></div>', re.S),
+     '''<div class="form-field"><label>اعتبار گواهی</label>
+            <select id="eb-valid"><option value="12">۱ سال</option><option value="24">۲ سال</option><option value="36">۳ سال</option><option value="0">بدون انقضا</option></select></div>'''),
     (re.compile(r'<label class="check-item"><input type="checkbox" checked> صدور خودکار گواهی.*?نمره بالای ۹۰٪</label>', re.S),
-     '<p class="muted">گواهی به‌صورت خودکار برای شرکت‌کنندگانی که حد نصاب را کسب کنند صادر و با کد رهگیری روی رزومه‌شان قرار می‌گیرد.</p>'),
+     '''<label class="check-item"><input type="checkbox" id="eb-autocert" checked> صدور خودکار گواهی و افزودن به رزومه در صورت قبولی</label>
+            <label class="check-item"><input type="checkbox" id="eb-top" checked> نمایش دارندگان گواهی در بالای نتایج بانک رزومه من</label>
+            <label class="check-item"><input type="checkbox" id="eb-invite"> ارسال خودکار دعوت‌نامه مصاحبه به قبول‌شدگان با نمره بالای <input type="number" id="eb-invite-score" value="90" min="50" max="100" style="width:64px;display:inline-block;padding:2px 6px" aria-label="حداقل نمره دعوت">٪</label>
+            <p class="muted" style="font-size:12.5px">دعوت خودکار برای جدیدترین آگهی فعال شما (ترجیحاً در همان بخش تخصصی) ارسال می‌شود و در «مدیریت متقاضیان» دیده می‌شود.</p>'''),
     ('<button class="btn btn-primary btn-lg" onclick="submitExam()">ارسال برای بازبینی و انتشار</button>',
      '<button class="btn btn-primary btn-lg" onclick="submitExam(this)">ارسال برای بازبینی و انتشار</button>'),
     ('<thead><tr><th>عنوان</th><th>سطح</th><th>سؤال</th><th>شرکت‌کننده</th><th>گواهی صادرشده</th><th>وضعیت</th></tr></thead>',

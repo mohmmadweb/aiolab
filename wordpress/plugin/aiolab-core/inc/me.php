@@ -69,7 +69,7 @@ function aio_resume_public(int $uid, bool $contact = false): array
         'city' => $r['city'], 'provinceId' => $r['province'], 'experience' => $r['experience'], 'degree' => $r['degree'],
         'field' => $r['field'], 'salary' => $r['salary'], 'summary' => $r['summary'], 'skills' => $r['skills'], 'devices' => $r['devices'],
         'history' => $r['history'], 'education' => $r['education'], 'dept' => $r['dept'],
-        'certs' => array_map(fn($c) => $c['title'], aio_user_certs($uid)),
+        'certs' => array_map(fn($c) => $c['title'], aio_user_valid_certs($uid)),
         'mbti' => (is_array($mbti) && aio_umeta($uid, 'mbti_public', 0)) ? ($mbti['type'] ?? '') : '',
         'otw' => (bool) aio_umeta($uid, 'otw', 0), 'strength' => aio_profile_strength($uid),
         'color' => AIO_DEFAULT_COLORS[$uid % 8], 'updated' => aio_jdate('Y/m/d', (int) aio_umeta($uid, 'resume_updated', strtotime($u->user_registered))),
@@ -102,7 +102,14 @@ function aio_cert_item(WP_Post $c): array
         'title' => $c->post_title, 'score' => (int) aio_meta($c->ID, 'score', 100),
         'date' => aio_jdate('Y/m/d', get_post_time('U', true, $c)), 'badge' => (string) aio_meta($c->ID, 'badge', '🏅'),
         'verify' => home_url('/verify/' . $code . '/'),
+        'expires' => ($exp = (int) aio_meta($c->ID, 'expires', 0)) ? aio_jdate('Y/m/d', $exp) : '', 'expired' => $exp && $exp < time(),
     ];
+}
+
+/** گواهی‌های معتبر (منقضی‌نشده) — برای رزومه و مرکز تطبیق */
+function aio_user_valid_certs(int $uid): array
+{
+    return array_values(array_filter(aio_user_certs($uid), fn($c) => empty($c['expired'])));
 }
 
 function aio_issue_cert(int $uid, string $type, int $ref_id, string $title, int $score = 100, string $badge = '🏅'): int
@@ -307,6 +314,7 @@ function aio_build_me(int $uid = 0): ?array
         $me['myExams'] = array_map(fn($p) => aio_exam_item($p), get_posts(['post_type' => 'aio_exam', 'post_status' => ['publish', 'pending', 'draft'], 'author' => $uid, 'numberposts' => -1]));
         $me['savedSearches'] = array_values((array) aio_umeta($uid, 'saved_searches', []));
         $me['talentFilters'] = array_values((array) aio_umeta($uid, 'talent_filters', []));
+        $me['labDraft'] = aio_umeta($uid, 'lab_draft', null) ?: null;
         $me['products'] = array_map('aio_product_item', get_posts(['post_type' => 'aio_product', 'post_status' => ['publish', 'pending', 'draft'], 'author' => $uid, 'numberposts' => -1]));
     }
     return $me;

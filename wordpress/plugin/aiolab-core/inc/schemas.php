@@ -187,6 +187,11 @@ add_action('init', function () {
         'bg'          => ['type' => 'color', 'label' => 'رنگ زمینه', 'default' => '#ccfbf1'],
         'takers_base' => ['type' => 'number', 'label' => 'شرکت‌کنندگان پایه', 'desc' => 'به شمار شرکت‌کنندگان واقعی افزوده می‌شود.'],
         'certs_base'  => ['type' => 'number', 'label' => 'گواهی‌های صادرشده پایه'],
+        'auto_cert'   => ['type' => 'bool', 'label' => 'صدور خودکار گواهی', 'default' => 1, 'desc' => 'در صورت قبولی، گواهی صادر و به رزومه افزوده می‌شود.'],
+        'cert_valid'  => ['type' => 'select', 'label' => 'اعتبار گواهی', 'options' => ['0' => 'دائمی', '12' => 'یک سال', '24' => 'دو سال', '36' => 'سه سال'], 'default' => '0'],
+        'holders_top' => ['type' => 'bool', 'label' => 'دارندگان گواهی بالای بانک رزومه‌ی طراح', 'default' => 1],
+        'auto_invite' => ['type' => 'bool', 'label' => 'دعوت خودکار به مصاحبه', 'default' => 0, 'desc' => 'قبول‌شدگان با نمره‌ی بالاتر از حد زیر به آخرین آگهی فعال طراح دعوت می‌شوند.'],
+        'invite_score'=> ['type' => 'number', 'label' => 'حداقل نمره برای دعوت خودکار (٪)', 'default' => 90],
         'questions'   => ['type' => 'repeater', 'label' => 'سؤالات', 'item_label' => 'سؤال', 'title_key' => 'q', 'fields' => [
             'q'       => ['type' => 'textarea', 'label' => 'متن سؤال', 'rows' => 2],
             'options' => ['type' => 'lines', 'label' => 'گزینه‌ها (هر گزینه یک خط)', 'rows' => 4],

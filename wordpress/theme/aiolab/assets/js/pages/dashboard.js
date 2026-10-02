@@ -256,6 +256,7 @@ function initCerts() {
           <span class="cc-score">نمره: ${fa(c.score)}٪</span>
           <span class="cc-code">کد: <a href="${c.verify}" target="_blank" dir="ltr">${c.code}</a></span>
           <span class="cc-date">تاریخ صدور: ${c.date}</span>
+          ${c.expires ? `<span class="cc-date" ${c.expired ? 'style="color:#be123c"' : ""}>${c.expired ? "منقضی شده در" : "معتبر تا"}: ${esc(c.expires)}</span>` : ""}
         </div>`).join("")}</div>`
     : `<div class="empty-inline">هنوز گواهی مهارتی ندارید. آزمون‌های آیولب توسط کارفرمایان طراحی می‌شوند و گواهی آن‌ها مستقیم روی رزومه شما می‌نشیند.</div>`;
   const m = MyMBTI.get(), T = m && AIO_MBTI_TYPES[m.type];

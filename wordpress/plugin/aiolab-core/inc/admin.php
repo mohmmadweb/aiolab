@@ -171,6 +171,7 @@ function aio_cert_box(WP_Post $p): void
     echo aio_row('دارنده', aio_user_link((int) $p->post_author));
     echo aio_row('نوع', esc_html(['exam' => 'آزمون مهارت', 'course' => 'پایان دوره', 'path' => 'مسیر یادگیری'][$c['type']] ?? $c['type']));
     echo aio_row('نمره', esc_html(aio_fa($c['score'])));
+    echo aio_row('اعتبار', esc_html($c['expires'] ? ($c['expired'] ? 'منقضی در ' : 'تا ') . $c['expires'] : 'دائمی'));
     echo aio_row('کد رهگیری', '<code>' . esc_html($c['code']) . '</code> — <a href="' . esc_url($c['verify']) . '" target="_blank">صفحه‌ی استعلام</a>');
     echo '</table>';
 }

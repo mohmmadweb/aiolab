@@ -146,6 +146,7 @@ function initAddLab() {
   const ct = E().centerType;
   if (ct) { const s = document.getElementById("lb-type"); if (![...s.options].some(o => o.value === ct)) s.insertAdjacentHTML("beforeend", `<option>${esc(ct)}</option>`); s.value = ct; }
   if (!(E().labs || []).length) document.getElementById("lb-name").value = E().name || "";
+  restoreLabDraft();
 }
 
 function renderMyLabs() {
@@ -170,17 +171,22 @@ function editLab(id) {
   document.getElementById("lb-form-title").textContent = l ? `ویرایش «${l.name}»` : "اطلاعات مرکز";
   document.getElementById("lb-submit").textContent = l ? "ذخیره تغییرات مرکز" : "ثبت مرکز و ارسال برای تأیید";
   document.getElementById("lb-cancel").style.display = l ? "" : "none";
-  if (!l) { ["lb-name", "lb-address", "lb-about", "lb-salary", "lb-phone", "lb-email", "lb-website", "lb-staff", "lb-founded"].forEach(k => set(k, "")); clearPin(); document.querySelectorAll("#lb-perks .cp").forEach(b => b.classList.remove("on")); return; }
+  document.getElementById("lb-draft").style.display = l ? "none" : "";
+  if (!l) { ["lb-name", "lb-address", "lb-about", "lb-salary", "lb-phone", "lb-email", "lb-website", "lb-staff", "lb-founded"].forEach(k => set(k, "")); clearPin(); document.querySelectorAll("#lb-perks .cp").forEach(b => b.classList.remove("on")); restoreLabDraft(); return; }
+  fillLab(l);
+  document.getElementById("lb-name").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+function fillLab(l) {
+  const set = (k, v) => { const el = document.getElementById(k); if (el) el.value = v == null ? "" : v; };
   set("lb-name", l.name); set("lb-address", l.address); set("lb-about", l.about); set("lb-salary", l.avgSalary || "");
   set("lb-phone", l.phone); set("lb-email", l.email); set("lb-website", l.website); set("lb-staff", l.staff || ""); set("lb-founded", l.founded || "");
   set("lb-sector", l.sector); set("lb-kind", l.orgKind); set("lb-size", l.size);
   document.querySelectorAll("[name=lb-otype]").forEach(r => r.checked = r.value === (l.orgType || "lab"));
-  const t = document.getElementById("lb-type"); if (![...t.options].some(o => o.value === l.type)) t.insertAdjacentHTML("beforeend", `<option>${esc(l.type)}</option>`); t.value = l.type;
+  const t = document.getElementById("lb-type"); if (l.type) { if (![...t.options].some(o => o.value === l.type)) t.insertAdjacentHTML("beforeend", `<option>${esc(l.type)}</option>`); t.value = l.type; }
   set("lb-prov", l.provinceId); document.getElementById("lb-prov").dispatchEvent(new Event("change")); set("lb-city", l.city);
   document.querySelectorAll("#lb-perks .cp").forEach(b => b.classList.toggle("on", (l.perks || []).includes(b.textContent)));
   if (picker && l.lat) picker.setPin(l.lat, l.lng);
   previewSalary();
-  document.getElementById("lb-name").scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 function goToCity() {
@@ -209,6 +215,32 @@ function previewSalary() {
     : `<i class="down">▼ ${fa(Math.abs(diff))}٪ پایین‌تر از میانگین بازار (${fa(market.toFixed(1))} م.ت)</i>`;
 }
 
+function labForm() {
+  const v = id => document.getElementById(id).value.trim();
+  return { name: v("lb-name"), orgType: (document.querySelector("[name=lb-otype]:checked") || {}).value || "lab", type: v("lb-type"), sector: v("lb-sector"), orgKind: v("lb-kind"), size: v("lb-size"),
+    founded: v("lb-founded"), staff: v("lb-staff"), provinceId: v("lb-prov"), city: v("lb-city"), address: v("lb-address"),
+    phone: v("lb-phone"), email: v("lb-email"), website: v("lb-website"), about: v("lb-about"), avgSalary: v("lb-salary"),
+    lat: pinned ? pinned.lat : 0, lng: pinned ? pinned.lng : 0, perks: [...document.querySelectorAll("#lb-perks .cp.on")].map(b => b.textContent) };
+}
+/* پیش‌نویس فرم ثبت مرکز روی سرور (بدون اعتبارسنجی) */
+async function saveLabDraft(btn) {
+  const r = await busy(btn, () => API.post("employer/lab-draft", { lab: labForm() }));
+  E().labDraft = Object.assign(labForm(), { saved: r.saved });
+  toast("پیش‌نویس ذخیره شد ✓ هر وقت برگردید، فرم از همین‌جا ادامه پیدا می‌کند");
+  const n = document.getElementById("lb-draft-note"); if (n) n.innerHTML = `آخرین پیش‌نویس: ${esc(r.saved)} · <button type="button" class="btn btn-sm btn-ghost" onclick="dropLabDraft(this)">حذف پیش‌نویس</button>`;
+}
+async function dropLabDraft(btn) {
+  await busy(btn, () => API.post("employer/lab-draft", { lab: {} }));
+  E().labDraft = null; editLab(0); toast("پیش‌نویس حذف شد");
+}
+function restoreLabDraft() {
+  const d = E().labDraft;
+  const n = document.getElementById("lb-draft-note");
+  if (!d || editingLab) { if (n) n.innerHTML = ""; return; }
+  fillLab(d);
+  if (n) n.innerHTML = `پیش‌نویس ذخیره‌شده (${esc(d.saved || "")}) بارگذاری شد · <button type="button" class="btn btn-sm btn-ghost" onclick="dropLabDraft(this)">حذف پیش‌نویس</button>`;
+}
+
 async function submitLab(btn) {
   const v = id => document.getElementById(id).value.trim();
   if (!v("lb-name")) { toast("نام مرکز را وارد کنید"); focusField("lb-name"); return; }
@@ -219,12 +251,9 @@ async function submitLab(btn) {
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v("lb-email"))) { toast("ایمیل سازمان را وارد کنید"); focusField("lb-email"); return; }
   if (!pinned) { toast("لطفاً موقعیت مرکز را روی نقشه پین کنید"); focusField("pick-map"); return; }
   try {
-    const r = await busy(btn, () => API.post("employer/lab", { lab: {
-      id: editingLab, name: v("lb-name"), orgType: (document.querySelector("[name=lb-otype]:checked") || {}).value || "lab", type: v("lb-type"), sector: v("lb-sector"), orgKind: v("lb-kind"), size: v("lb-size"),
-      founded: v("lb-founded"), staff: v("lb-staff"), provinceId: v("lb-prov"), city: v("lb-city"), address: v("lb-address"),
-      phone: v("lb-phone"), email: v("lb-email"), website: v("lb-website"), about: v("lb-about"), avgSalary: v("lb-salary"),
-      lat: pinned.lat, lng: pinned.lng, perks: [...document.querySelectorAll("#lb-perks .cp.on")].map(b => b.textContent) } }));
+    const r = await busy(btn, () => API.post("employer/lab", { lab: Object.assign(labForm(), { id: editingLab }) }));
     toast(editingLab ? "تغییرات مرکز ذخیره شد ✓" : "مرکز ثبت شد ✓ پس از تأیید کارشناسان، روی نقشه سراسری نمایش داده می‌شود");
+    if (!editingLab) { E().labDraft = null; restoreLabDraft(); }
     editLab(0);
     renderAll();
     if (!r.id) return;
@@ -354,7 +383,9 @@ async function submitExam(btn) {
   });
   await busy(btn, () => API.post("employer/exam", { exam: { title, dept: document.getElementById("eb-dept").value, level: document.getElementById("eb-level").value,
     duration: Number(document.getElementById("eb-duration").value), passScore: Number(document.getElementById("eb-pass").value),
-    desc: document.getElementById("eb-desc").value, badge: document.getElementById("eb-badge").value, questions } }));
+    desc: document.getElementById("eb-desc").value, badge: document.getElementById("eb-badge").value, questions,
+    certValid: Number(document.getElementById("eb-valid").value), autoCert: document.getElementById("eb-autocert").checked,
+    holdersTop: document.getElementById("eb-top").checked, autoInvite: document.getElementById("eb-invite").checked, inviteScore: Number(document.getElementById("eb-invite-score").value) } }));
   toast(`آزمون «${title}» با ${fa(filled.length)} سؤال برای بازبینی ارسال شد ✓`);
   document.getElementById("eb-title").value = ""; document.getElementById("eb-desc").value = "";
   ebQs = []; addQuestion(); renderMyExams();

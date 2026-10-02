@@ -267,10 +267,19 @@ function aio_api_talent_invite(WP_REST_Request $r)
     $dup = get_posts(['post_type' => 'aio_application', 'author' => $uid, 'post_status' => 'publish', 'meta_key' => '_aio_job_id', 'meta_value' => $job->ID, 'fields' => 'ids', 'numberposts' => 1]);
     if ($dup) return aio_err('برای این پوزیشن قبلاً درخواست یا دعوتی با این کارجو ثبت شده است.', 409, ['appId' => (int) $dup[0]]);
     if (!aio_rate_limit('invite' . get_current_user_id(), 40, DAY_IN_SECONDS)) return aio_err('سقف دعوت روزانه پر شده است.', 429);
-    $note = aio_clean_textarea(aio_p($r, 'note'), 1000);
+    $id = aio_create_invite($job, $uid, aio_clean_textarea(aio_p($r, 'note'), 1000), 'کارفرما از مرکز تطبیق دعوت کرد');
+    if (!$id) return aio_err('ثبت دعوت ناموفق بود.');
+    return aio_ok(['id' => $id], true);
+}
+
+/** ساخت دعوت (درخواست با وضعیت invited) و خبر دادن به کارجو */
+function aio_create_invite(WP_Post $job, int $uid, string $note, string $log): int
+{
+    $u = get_userdata($uid);
+    if (!$u) return 0;
     $lab = (int) aio_meta($job->ID, 'lab_id', 0);
-    $id = wp_insert_post(['post_type' => 'aio_application', 'post_status' => 'publish', 'post_author' => $uid, 'post_title' => 'دعوت: ' . $cand['name'] . ' ← ' . $job->post_title]);
-    if (is_wp_error($id)) return aio_err('ثبت دعوت ناموفق بود.');
+    $id = wp_insert_post(['post_type' => 'aio_application', 'post_status' => 'publish', 'post_author' => $uid, 'post_title' => 'دعوت: ' . $u->display_name . ' ← ' . $job->post_title]);
+    if (is_wp_error($id) || !$id) return 0;
     aio_set_meta($id, 'job_id', $job->ID);
     aio_set_meta($id, 'lab_id', $lab);
     aio_set_meta($id, 'employer_id', (int) $job->post_author);
@@ -278,10 +287,29 @@ function aio_api_talent_invite(WP_REST_Request $r)
     aio_set_meta($id, 'channel', 'invite');
     aio_set_meta($id, 'note', $note);
     aio_set_meta($id, 'match', aio_match_cv(aio_cv($uid), aio_job_item($job))['score']);
-    aio_app_log($id, 'employer', 'status', 'کارفرما از مرکز تطبیق دعوت کرد' . ($note ? ' — ' . $note : ''), ['status' => 'invited']);
+    aio_app_log($id, 'employer', 'status', $log . ($note ? ' — ' . $note : ''), ['status' => 'invited']);
     $title = $job->post_status === 'aio_internal' ? ((string) aio_meta($job->ID, 'client_name', '') ?: $job->post_title) : $job->post_title;
     aio_app_tell($id, 'seeker', '📨 ' . (get_the_title($lab) ?: 'یک کارفرما') . " شما را برای پوزیشن «{$title}» دعوت کرد. از داشبورد پاسخ دهید." . ($note ? " — {$note}" : ''), true, '📨');
-    return aio_ok(['id' => $id], true);
+    return (int) $id;
+}
+
+/** قبولی در آزمونِ کارفرما با نمره‌ی بالا ← دعوت خودکار به آخرین آگهی فعال او (اگر طراح آزمون فعالش کرده باشد) */
+function aio_exam_auto_invite(WP_Post $ex, int $uid, int $score): void
+{
+    if (!aio_bool(aio_meta($ex->ID, 'auto_invite', 0)) || $score < (int) aio_meta($ex->ID, 'invite_score', 90)) return;
+    $lab = (int) aio_meta($ex->ID, 'author_lab', 0);
+    $emp = $lab ? (int) get_post_field('post_author', $lab) : (int) $ex->post_author;
+    if (!$emp || $emp === $uid) return;
+    $jobs = get_posts(['post_type' => 'aio_job', 'post_status' => 'publish', 'author' => $emp, 'numberposts' => 30, 'orderby' => 'date', 'order' => 'DESC']);
+    $dept = wp_get_object_terms($ex->ID, 'aio_dept', ['fields' => 'slugs']);
+    $same = array_values(array_filter($jobs, fn($j) => $dept && has_term($dept, 'aio_dept', $j)));
+    $job = $same[0] ?? ($jobs[0] ?? null);
+    $name = get_the_author_meta('display_name', $uid);
+    if (!$job) { aio_notify($emp, "🎖 {$name} در آزمون «{$ex->post_title}» با نمره‌ی " . aio_fa($score) . '٪ قبول شد؛ برای دعوت خودکار آگهی فعالی ندارید.', aio_page_url('employer', '#resumes')); return; }
+    $dup = get_posts(['post_type' => 'aio_application', 'author' => $uid, 'post_status' => 'publish', 'meta_key' => '_aio_job_id', 'meta_value' => $job->ID, 'fields' => 'ids', 'numberposts' => 1]);
+    if ($dup) return;
+    if (aio_create_invite($job, $uid, "قبولی در آزمون «{$ex->post_title}» با نمره‌ی " . aio_fa($score) . '٪', 'دعوت خودکار پس از قبولی در آزمون'))
+        aio_notify($emp, "🎖 {$name} با نمره‌ی " . aio_fa($score) . "٪ در آزمون «{$ex->post_title}» قبول شد و خودکار به «{$job->post_title}» دعوت شد.", aio_page_url('employer', '#applicants'));
 }
 
 /* ================================================================

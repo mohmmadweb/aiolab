@@ -522,7 +522,7 @@ function aio_talent_candidate(int $uid): ?array
     $birth = !empty($cv['birth']) ? substr($cv['birth'], 0, 7) . '-15' : '';
     return array_merge($cv, [
         'id' => $uid, 'name' => $u->display_name, 'birth' => $birth, 'color' => AIO_DEFAULT_COLORS[$uid % 8],
-        'otw' => (bool) aio_umeta($uid, 'otw', 0), 'certs' => array_map(fn($c) => $c['title'], aio_user_certs($uid)),
+        'otw' => (bool) aio_umeta($uid, 'otw', 0), 'certs' => array_map(fn($c) => $c['title'], aio_user_valid_certs($uid)),
         'mbti' => (is_array($mbti) && aio_umeta($uid, 'mbti_public', 0)) ? ($mbti['type'] ?? '') : '',
     ]);
 }
@@ -659,8 +659,22 @@ function aio_api_talent_candidates(WP_REST_Request $r)
     foreach (get_users($args) as $id) $ids[(int) $id] = 1;
     /* متقاضیانی که برای آگهی‌های همین کارفرما درخواست داده‌اند، حتی اگر «آماده به کار» نباشند */
     foreach (aio_employer_applicants($uid) as $a) $ids[(int) $a['userId']] = 1;
+    /* دارندگان گواهی آزمون‌های همین کارفرما (اگر «نمایش در بالای بانک رزومه» روشن باشد) اول می‌آیند */
+    $labs = get_posts(['post_type' => 'aio_lab', 'author' => $uid, 'post_status' => 'any', 'numberposts' => -1, 'fields' => 'ids']);
+    $exams = [];
+    foreach (get_posts(['post_type' => 'aio_exam', 'post_status' => 'publish', 'numberposts' => -1]) as $ex) {
+        $own = (int) $ex->post_author === $uid || in_array((int) aio_meta($ex->ID, 'author_lab', 0), $labs, true);
+        if ($own && aio_bool(aio_meta($ex->ID, 'holders_top', 1))) $exams[$ex->ID] = $ex->post_title;
+    }
     $out = [];
-    foreach (array_keys($ids) as $id) if ($c = aio_talent_candidate($id)) $out[] = $c;
+    foreach (array_keys($ids) as $id) {
+        if (!($c = aio_talent_candidate($id))) continue;
+        if ($exams) foreach (aio_user_valid_certs($id) as $ct) {
+            if ($ct['type'] === 'exam' && isset($exams[$ct['refId']])) { $c['pin'] = 'گواهی آزمون شما: ' . $exams[$ct['refId']]; break; }
+        }
+        $out[] = $c;
+    }
+    usort($out, fn($a, $b) => (empty($b['pin']) ? 0 : 1) - (empty($a['pin']) ? 0 : 1));
     return aio_ok(['candidates' => $out]);
 }
 

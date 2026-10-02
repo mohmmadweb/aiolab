@@ -13,3 +13,7 @@ wordpress/theme/aiolab/assets/js/pages/_raw/
 # گزارش ساعات کار — خصوصی؛ در ریپوی عمومی منتشر نشود
 aiolab-timesheet.pdf
 Docs/timesheet/
+
+# کش پایتون
+__pycache__/
+*.pyc
