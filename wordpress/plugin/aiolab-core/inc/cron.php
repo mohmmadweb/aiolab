@@ -39,6 +39,9 @@ function aio_send_alert(int $uid, array $alert, array $jobs): void
     $link = $n === 1 ? $jobs[0]['url'] : aio_page_url('jobs');
     $channels = (array) ($alert['channels'] ?? []);
     if (in_array('اعلان سایت', $channels, true) || !$channels) aio_notify($uid, $text, $link, 'هشدار شغلی من', false, '🔔');
+    $sms = aio_alert_has($channels, AIO_CH_SMS) && aio_bool(aio_opt('ch_sms', 0));
+    $bot = aio_alert_has($channels, AIO_CH_BOT) && aio_bool(aio_opt('ch_bot', 0));
+    if ($sms || $bot) aio_push_user($uid, $text . ($n === 1 ? ' ' . $jobs[0]['title'] . ' — ' : ' ') . $link, $sms, $bot);
     if (in_array('ایمیل', $channels, true)) {
         $u = get_userdata($uid);
         if ($u && is_email($u->user_email) && !str_ends_with($u->user_email, '.invalid')) {

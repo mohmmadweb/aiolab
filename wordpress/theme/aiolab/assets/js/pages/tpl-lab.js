@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if ((LAB.services || []).length) { document.getElementById("p-services").hidden = false; document.getElementById("l-services").innerHTML = LAB.services.map(x => `<li>${esc(x)}</li>`).join(""); }
   const prods = aioProducts().filter(p => p.orgId === LAB.id);
   if (prods.length) { document.getElementById("p-products").hidden = false; document.getElementById("l-products").innerHTML = prods.map(p => TUI.productCard(p)).join(""); document.getElementById("l-allprod").href = P.products + "?org=" + LAB.id; }
-  if (LAB.video && /^https:\/\/(www\.)?aparat\.com\//.test(LAB.video)) document.getElementById("l-video").innerHTML = `<p><a href="${esc(LAB.video)}" target="_blank" rel="noopener">▶ مشاهده ویدئوی معرفی</a></p>`;
+  if (LAB.video && (AIO_CFG.videoHosts || []).some(h => { try { return new URL(LAB.video).hostname.replace(/^www\./, "") === h; } catch (_) { return false; } })) document.getElementById("l-video").innerHTML = `<p><a href="${esc(LAB.video)}" target="_blank" rel="noopener">▶ مشاهده ویدئوی معرفی</a></p>`;
   const showRow = (k, v) => { if (v) { document.getElementById("r-" + k).hidden = false; document.getElementById("s-" + k).textContent = v; } };
   showRow("branches", LAB.branches ? fa(LAB.branches) + " شعبه" : "");
   showRow("hours", LAB.hours || "");

@@ -1020,32 +1020,37 @@ function aio_api_emp_exam(WP_REST_Request $r)
         $ans = (int) ($q['answer'] ?? 0);
         $qs[] = ['q' => $text, 'options' => $opts, 'correct' => min(count($opts), max(1, $ans + 1))];
     }
-    if (count($qs) < 3) return aio_err('حداقل ۳ سؤال کامل (متن + حداقل ۲ گزینه) لازم است.', 422, ['field' => 'questions']);
-    $id = wp_insert_post(['post_type' => 'aio_exam', 'post_status' => 'pending', 'post_author' => $uid, 'post_title' => $title, 'post_content' => aio_clean_textarea($d['desc'] ?? '', 2000)], true);
+    $cfg = aio_exam_cfg();
+    if (count($qs) < $cfg['questions']['min']) return aio_err('حداقل ' . aio_fa($cfg['questions']['min']) . ' سؤال کامل (متن + حداقل ۲ گزینه) لازم است.', 422, ['field' => 'questions']);
+    if (count($qs) > $cfg['questions']['max']) return aio_err('حداکثر ' . aio_fa($cfg['questions']['max']) . ' سؤال مجاز است.', 422, ['field' => 'questions']);
+    $id = wp_insert_post(['post_type' => 'aio_exam', 'post_status' => $cfg['autoPublish'] ? 'publish' : 'pending', 'post_author' => $uid, 'post_title' => $title, 'post_content' => aio_clean_textarea($d['desc'] ?? '', 2000)], true);
     if (is_wp_error($id)) return aio_err('ثبت آزمون ناموفق بود.');
     $dept = sanitize_key($d['dept'] ?? '');
     if ($dept && term_exists($dept, 'aio_dept')) wp_set_object_terms($id, $dept, 'aio_dept');
     $lab = get_posts(['post_type' => 'aio_lab', 'author' => $uid, 'post_status' => 'any', 'numberposts' => 1, 'fields' => 'ids']);
     aio_set_meta($id, 'author_lab', $lab[0] ?? 0);
     aio_set_meta($id, 'level', aio_clean_text($d['level'] ?? 'متوسط', 40));
-    aio_set_meta($id, 'duration', max(3, min(180, (int) ($d['duration'] ?? 15))));
-    aio_set_meta($id, 'pass_score', max(30, min(100, (int) ($d['passScore'] ?? 60))));
-    aio_set_meta($id, 'retake_days', 7);
+    aio_set_meta($id, 'duration', max($cfg['duration']['min'], min($cfg['duration']['max'], (int) ($d['duration'] ?? $cfg['duration']['def']))));
+    aio_set_meta($id, 'pass_score', max($cfg['pass']['min'], min(100, (int) ($d['passScore'] ?? $cfg['pass']['def']))));
+    aio_set_meta($id, 'retake_days', $cfg['retakeDays']);
     aio_set_meta($id, 'price', 0);
     $badge = (string) ($d['badge'] ?? '');
-    aio_set_meta($id, 'badge', in_array($badge, ['🩸', '🛡️', '🧤', '🧬', '🔬', '🎖️', '🏅'], true) ? $badge : '🏅');
+    aio_set_meta($id, 'badge', in_array($badge, $cfg['badges'], true) ? $badge : $cfg['badges'][0]);
     aio_set_meta($id, 'color', '#0d9488');
     aio_set_meta($id, 'bg', '#ccfbf1');
     aio_set_meta($id, 'vertical', 'lab');
     aio_set_meta($id, 'questions', $qs);
     /* تنظیمات گواهی */
-    $valid = (int) ($d['certValid'] ?? 0);
-    aio_set_meta($id, 'cert_valid', (string) (in_array($valid, [0, 12, 24, 36], true) ? $valid : 0));
-    aio_set_meta($id, 'auto_cert', empty($d['autoCert']) ? 0 : 1);
-    aio_set_meta($id, 'holders_top', empty($d['holdersTop']) ? 0 : 1);
-    aio_set_meta($id, 'auto_invite', empty($d['autoInvite']) ? 0 : 1);
-    aio_set_meta($id, 'invite_score', max(50, min(100, (int) ($d['inviteScore'] ?? 90))));
-    return aio_ok(['id' => $id], true);
+    /* تنظیمات گواهی؛ گزینه‌ای که مدیر قفل کرده همیشه مقدار پیش‌فرض را می‌گیرد */
+    $valid = (int) ($d['certValid'] ?? $cfg['validDefault']);
+    aio_set_meta($id, 'cert_valid', (string) (in_array($valid, array_column($cfg['valid'], 'months'), true) ? $valid : $cfg['validDefault']));
+    $flag = fn($k, $in) => ($cfg[$k]['edit'] ? !empty($d[$in]) : $cfg[$k]['def']) ? 1 : 0;
+    aio_set_meta($id, 'auto_cert', $flag('autoCert', 'autoCert'));
+    aio_set_meta($id, 'holders_top', $flag('top', 'holdersTop'));
+    aio_set_meta($id, 'auto_invite', $flag('invite', 'autoInvite'));
+    aio_set_meta($id, 'invite_score', $cfg['invite']['edit'] ? max($cfg['invite']['min'], min(100, (int) ($d['inviteScore'] ?? $cfg['invite']['score']))) : $cfg['invite']['score']);
+    if ($cfg['autoPublish']) do_action('aio_data_changed');
+    return aio_ok(['id' => $id, 'status' => get_post_status($id)], true);
 }
 
 /* ================================================================

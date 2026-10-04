@@ -103,7 +103,7 @@ PATCHES["employer"] = [
      '''<label class="check-item"><input type="checkbox" id="eb-autocert" checked> صدور خودکار گواهی و افزودن به رزومه در صورت قبولی</label>
             <label class="check-item"><input type="checkbox" id="eb-top" checked> نمایش دارندگان گواهی در بالای نتایج بانک رزومه من</label>
             <label class="check-item"><input type="checkbox" id="eb-invite"> ارسال خودکار دعوت‌نامه مصاحبه به قبول‌شدگان با نمره بالای <input type="number" id="eb-invite-score" value="90" min="50" max="100" style="width:64px;display:inline-block;padding:2px 6px" aria-label="حداقل نمره دعوت">٪</label>
-            <p class="muted" style="font-size:12.5px">دعوت خودکار برای جدیدترین آگهی فعال شما (ترجیحاً در همان بخش تخصصی) ارسال می‌شود و در «مدیریت متقاضیان» دیده می‌شود.</p>'''),
+            <p class="muted" id="eb-invite-note" style="font-size:12.5px">دعوت خودکار برای جدیدترین آگهی فعال شما (ترجیحاً در همان بخش تخصصی) ارسال می‌شود و در «مدیریت متقاضیان» دیده می‌شود.</p>'''),
     ('<button class="btn btn-primary btn-lg" onclick="submitExam()">ارسال برای بازبینی و انتشار</button>',
      '<button class="btn btn-primary btn-lg" onclick="submitExam(this)">ارسال برای بازبینی و انتشار</button>'),
     ('<thead><tr><th>عنوان</th><th>سطح</th><th>سؤال</th><th>شرکت‌کننده</th><th>گواهی صادرشده</th><th>وضعیت</th></tr></thead>',

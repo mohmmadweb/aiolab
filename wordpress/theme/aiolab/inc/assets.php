@@ -96,6 +96,7 @@ function aio_js_config(): array
         'role' => aio_current_role(), 'ctx' => (object) aio_ctx(), 'pages' => $pages,
         'logout' => html_entity_decode(wp_logout_url(home_url('/'))), 'lost' => html_entity_decode(wp_lostpassword_url()),
         'gateway' => aio_gateway(), 'paidPosting' => (bool) aio_opt('paid_job_posting', 0),
+        'exam' => aio_exam_cfg(), 'channels' => aio_channels(), 'videoHosts' => aio_video_hosts(),
         'site' => ['name' => get_bloginfo('name'), 'email' => aio_opt('support_email', ''), 'phone' => aio_opt('phone', ''), 'appNote' => aio_opt('app_note', '')],
     ];
 }

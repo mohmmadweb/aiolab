@@ -15,7 +15,7 @@ async function page(ctx, opts = {}) {
   if (!BASE.includes("127.0.0.1")) { const w = p.waitForTimeout.bind(p); p.waitForTimeout = ms => w(ms * 3); p.setDefaultTimeout(60000); }
   /* شبکه‌ی این سرور گاهی جابه‌جا می‌شود (ERR_NETWORK_CHANGED)؛ بارگذاری صفحه تا ۳ بار تکرار شود */
   const goto = p.goto.bind(p);
-  p.goto = async (url, o) => { for (let i = 0; ; i++) { try { return await goto(url, o); } catch (e) { if (i < 2 && /ERR_NETWORK_CHANGED|ERR_CONNECTION_RESET|ERR_CONNECTION_CLOSED/.test(e.message)) { await new Promise(r => setTimeout(r, 2000)); continue; } throw e; } } };
+  p.goto = async (url, o) => { for (let i = 0; ; i++) { try { return await goto(url, o); } catch (e) { if (i < 2 && /ERR_NETWORK_CHANGED|ERR_CONNECTION_RESET|ERR_CONNECTION_CLOSED|ERR_ABORTED/.test(e.message)) { await new Promise(r => setTimeout(r, 2000)); continue; } throw e; } } };
   p.errors = [];
   p.on("pageerror", e => p.errors.push("JS: " + e.message));
   p.on("console", m => { if (m.type() === "error" && !/favicon|ERR_BLOCKED|tile\.openstreetmap/.test(m.text())) p.errors.push("console: " + m.text()); });

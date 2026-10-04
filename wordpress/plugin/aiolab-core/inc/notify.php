@@ -18,6 +18,7 @@ function aio_notify(int $uid, string $text, string $link = '', string $from = '�
         'time' => aio_jdate('Y/m/d H:i'), 'ts' => time(), 'unread' => true]);
     aio_set_umeta($uid, 'notices', array_slice($list, 0, 60));
     if ($email) {
+        do_action('aio_important_notice', $uid, wp_strip_all_tags($text));
         $u = get_userdata($uid);
         if ($u && is_email($u->user_email) && !aio_is_test_email($u->user_email)) {
             aio_mail($u->user_email, wp_trim_words(wp_strip_all_tags($text), 10, '…'), '<p>' . esc_html($text) . '</p>' . ($link ? '<p><a class="btn" href="' . esc_url($link) . '">مشاهده</a></p>' : ''));

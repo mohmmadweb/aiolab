@@ -708,7 +708,7 @@ function aio_api_org_profile(WP_REST_Request $r)
         if (!isset($d[$dk])) continue;
         $v = $url($d[$dk]);
         if ($v === false) return aio_err('لینک‌ها باید با https:// شروع شوند.', 422);
-        if ($dk === 'video' && $v && !preg_match('#^https://(www\.)?aparat\.com/#', $v)) return aio_err('ویدئو فعلاً فقط از آپارات پذیرفته می‌شود.', 422);
+        if ($dk === 'video' && $v && !in_array(strtolower(preg_replace('#^www\.#', '', (string) wp_parse_url($v, PHP_URL_HOST))), aio_video_hosts(), true)) return aio_err('لینک ویدئو فقط از این سایت‌ها پذیرفته می‌شود: ' . implode('، ', aio_video_hosts()), 422);
         aio_set_meta($id, $mk, $v);
     }
     foreach (['instagram', 'linkedin', 'telegram', 'aparat'] as $k) {

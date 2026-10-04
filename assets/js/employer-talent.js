@@ -2,6 +2,9 @@
    آیولب — پنل کارفرما: پروفایل کامل سازمان (گالری، خدمات، اعتباربخشی، ساعات، شبکه‌ها)،
    مدیریت محصولات، و تعریف پوزیشن با نیازمندی‌های ساخت‌یافته + پیش‌نمایش زنده‌ی نیروهای واجد شرایط
    ========================================== */
+/* سایت‌های مجاز ویدئو: وردپرس از «تنظیمات آیولب»، دمو آپارات */
+function videoHosts() { return (window.AIO_CFG && AIO_CFG.videoHosts && AIO_CFG.videoHosts.length) ? AIO_CFG.videoHosts : ["aparat.com"]; }
+function videoOk(u) { try { const h = new URL(u).hostname.replace(/^www\./, ""); return /^https?:$/.test(new URL(u).protocol) && videoHosts().includes(h); } catch (_) { return false; } }
 const EmpTalent = (() => {
   const { e, fa, name, O } = TUI;
   const clone = o => JSON.parse(JSON.stringify(o == null ? {} : o));
@@ -88,7 +91,7 @@ const EmpTalent = (() => {
         <div class="form-field"><label>ایمیل سازمان *</label><input type="email" dir="ltr" maxlength="120" data-k="email" value="${e(D.email || "")}" placeholder="info@example.ir"></div>
         <div class="form-field"><label>وب‌سایت</label><input type="url" dir="ltr" maxlength="200" data-k="website" value="${e(D.website)}" placeholder="https://"></div>
         ${AIO_SOCIALS.filter(([k]) => k !== "website").map(([k, n]) => `<div class="form-field"><label>${n}</label><input type="url" dir="ltr" maxlength="200" data-soc="${k}" value="${e((D.socials || {})[k] && D.socials[k] !== "#" ? D.socials[k] : "")}" placeholder="https://"></div>`).join("")}
-        <div class="form-field"><label>ویدئوی معرفی (لینک آپارات)</label><input type="url" dir="ltr" maxlength="200" data-k="video" value="${e(D.video)}" placeholder="https://www.aparat.com/v/..."></div>
+        <div class="form-field"><label>ویدئوی معرفی (لینک ${e(videoHosts().join(" / "))})</label><input type="url" dir="ltr" maxlength="200" data-k="video" value="${e(D.video)}" placeholder="https://www.aparat.com/v/..."></div>
         <div class="form-field"><label>تعداد شعب / نمایندگی</label><input type="number" min="0" max="999" data-k="branches" data-num value="${D.branches ? e(D.branches) : ""}"></div>
         <div class="form-field"><label>تعداد پرسنل</label><input type="number" min="0" max="99999" data-k="staff" data-num value="${D.staff ? e(D.staff) : ""}"></div>
         <div class="form-field"><label>سال تأسیس (شمسی)</label><input type="number" min="1300" max="${AioDate.thisJYear()}" data-k="founded" data-num value="${D.founded ? e(D.founded) : ""}"></div>
@@ -120,7 +123,7 @@ const EmpTalent = (() => {
       if (b.dataset.save !== undefined) {
         const urls = [D.website, D.video, ...Object.values(D.socials || {})].filter(Boolean);
         if (urls.some(u => !/^https:\/\/[^\s<>"']+$/.test(u))) return toast("لینک‌ها باید با https:// شروع شوند");
-        if (D.video && !/^https:\/\/(www\.)?aparat\.com\//.test(D.video)) return toast("ویدئو فعلاً فقط از آپارات پذیرفته می‌شود");
+        if (D.video && !videoOk(D.video)) return toast("لینک ویدئو فقط از این سایت‌ها پذیرفته می‌شود: " + videoHosts().join("، "));
         const ph = String(D.phone || "").replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[\s-]/g, "");
         if (!/^0\d{9,10}$/.test(ph)) return toast("تلفن سازمان لازم است (با پیش‌شماره، مثلاً ۰۲۱۲۲۲۲۰۰۰۰)");
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(D.email || "")) return toast("ایمیل سازمان لازم است تا متقاضیان و اطلاع‌رسانی‌ها به آن برسند");

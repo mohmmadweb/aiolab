@@ -71,7 +71,7 @@ const BASE = process.env.BASE || "http://127.0.0.1:8798";
     const first = await e.textContent(".tl-pane.on .tl-row >> nth=0").catch(() => "");
     check(/کارجوی تست آزمون/.test(first) && /گواهی آزمون شما/.test(first), "در مرکز تطبیق، ردیف اول دارنده‌ی گواهی با نشان 🎖 است");
     check(!e.errors.length && !s.errors.length, "بدون خطای JS/شبکه " + [...e.errors, ...s.errors].slice(0, 3).join(" | "));
-  } finally {
+  } catch (err) { check(false, "خطای اجرای تست: " + String(err.message).split("\n")[0]); } finally {
     wp(`require_once ABSPATH."wp-admin/includes/user.php"; foreach (["${em}","${sm}"] as $m) { $u = get_user_by("email",$m); if(!$u) continue; foreach (get_posts(["author"=>$u->ID,"post_type"=>["aio_job","aio_lab","aio_application","aio_exam","aio_cert","aio_product"],"post_status"=>"any","numberposts"=>-1,"fields"=>"ids"]) as $id) wp_delete_post($id,true); wp_delete_user($u->ID); } foreach (get_posts(["post_type"=>"aio_application","post_status"=>"any","numberposts"=>-1,"fields"=>"ids","meta_key"=>"_aio_job_id","meta_value"=>${jid || 0}]) as $id) wp_delete_post($id,true); do_action("aio_data_changed"); echo 1;`);
     await b.close();
     done();

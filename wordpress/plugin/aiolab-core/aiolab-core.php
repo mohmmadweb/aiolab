@@ -17,7 +17,7 @@ define('AIO_URL', plugin_dir_url(__FILE__));
 
 foreach ([
     'helpers', 'jalali', 'roles', 'cpt', 'fields', 'schemas', 'settings', 'admin',
-    'reviews', 'notify', 'data', 'me', 'academy', 'payments', 'rest', 'talent', 'pipeline', 'cron', 'comingsoon', 'importer', 'talent-import',
+    'reviews', 'notify', 'channels', 'data', 'me', 'academy', 'payments', 'rest', 'talent', 'pipeline', 'cron', 'comingsoon', 'importer', 'talent-import',
 ] as $f) {
     require_once AIO_DIR . "inc/$f.php";
 }

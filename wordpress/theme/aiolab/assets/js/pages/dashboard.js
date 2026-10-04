@@ -200,10 +200,8 @@ function initAlerts() {
   document.getElementById("na-type").insertAdjacentHTML("beforeend", AIO_JOB_TYPES.map(t => `<option>${t}</option>`).join(""));
   document.getElementById("na-band").insertAdjacentHTML("beforeend", AIO_SALARY_BANDS.map(b => `<option value="${b.id}">${b.name}</option>`).join(""));
   bindProvinceCity("na-prov", "na-city");
-  /* کانال‌های فعال: ایمیل و اعلان سایت؛ پیامک و تلگرام بعداً */
-  document.querySelectorAll(".channels input").forEach(c => {
-    if (c.value === "پیامک" || c.value === "تلگرام") { c.checked = false; c.disabled = true; c.parentElement.title = "به‌زودی"; c.parentElement.style.opacity = ".5"; c.parentElement.insertAdjacentHTML("beforeend", " <small>(به‌زودی)</small>"); }
-  });
+  /* کانال‌ها از «تنظیمات آیولب ← پیامک و ربات»؛ فقط کانال‌های فعال نمایش داده می‌شوند */
+  renderChannels();
 }
 async function createAlert() {
   const d = document.getElementById("na-dept").value, pr = document.getElementById("na-prov").value, city = document.getElementById("na-city").value;
@@ -244,6 +242,28 @@ async function removeAlert(i, btn) {
   await busy(btn, () => MyAlerts.remove(i));
   renderAlerts(); initOnboard(); toast("هشدار حذف شد");
 }
+
+function renderChannels() {
+  const box = document.querySelector(".channels"); if (!box) return;
+  const list = AIO_CFG_.channels || [];
+  box.innerHTML = list.map(c => `<label class="check-item"><input type="checkbox" value="${esc(c.id)}" ${c.bot && !ME().botLinked ? "" : "checked"}> ${esc(c.name)}</label>`).join("")
+    + (list.some(c => c.bot) ? `<div class="bot-link" id="bot-link">${ME().botLinked
+      ? `<small class="muted">✓ ${esc(list.find(c => c.bot).name)} به حساب شما وصل است.</small> <button type="button" class="btn btn-sm btn-ghost" onclick="botUnlink(this)">قطع اتصال</button>`
+      : `<button type="button" class="btn btn-sm btn-outline" onclick="botLink(this)">اتصال ${esc(list.find(c => c.bot).name)}</button> <small class="muted">برای دریافت هشدار در ربات، اول حساب را وصل کنید.</small>`}</div>` : "");
+}
+async function botLink(btn) {
+  const r = await busy(btn, () => API.post("me/bot-link"));
+  const m = aioModal(`<h2>اتصال ربات</h2><p>ربات <b dir="ltr">@${esc(r.username)}</b> را باز کنید و این کد را برایش بفرستید (۳۰ دقیقه اعتبار دارد):</p>
+    <p style="font-size:30px;font-weight:800;letter-spacing:6px;text-align:center" dir="ltr">${esc(r.pin)}</p>
+    <div class="fb-actions"><a class="btn btn-primary" href="${esc(r.link)}" target="_blank" rel="noopener">باز کردن ربات</a>
+    <button type="button" class="btn btn-outline" data-done>وصل کردم</button></div>`);
+  m.querySelector("[data-done]").onclick = async ev => {
+    await busy(ev.target, () => API.get("me"));
+    renderChannels(); m.close();
+    toast(ME().botLinked ? "ربات به حساب شما وصل شد ✓" : "هنوز کدی از ربات دریافت نشده؛ کد را برای ربات بفرستید.");
+  };
+}
+async function botUnlink(btn) { await busy(btn, () => API.post("me/bot-unlink")); toast("اتصال ربات قطع شد"); renderChannels(); }
 
 /* ============ گواهی، MBTI، خودارزیابی ============ */
 function initCerts() {

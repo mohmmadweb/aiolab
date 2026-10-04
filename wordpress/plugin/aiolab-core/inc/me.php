@@ -284,6 +284,7 @@ function aio_build_me(int $uid = 0): ?array
     $file = (int) aio_umeta($uid, 'resume_file', 0);
     $me = [
         'id' => $uid, 'name' => $u->display_name, 'email' => $u->user_email, 'phone' => (string) get_user_meta($uid, 'aio_phone', true),
+        'botLinked' => (string) get_user_meta($uid, 'aio_bot_chat', true) !== '',
         'role' => $role === 'admin' ? 'employer' : $role, 'realRole' => $role, 'roleLabel' => aio_role_label($role),
         'province' => (string) get_user_meta($uid, 'aio_province', true), 'volStatus' => (string) get_user_meta($uid, 'aio_vol_status', true),
         'centerType' => (string) get_user_meta($uid, 'aio_center_type', true),

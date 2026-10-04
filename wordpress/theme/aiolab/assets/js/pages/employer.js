@@ -341,6 +341,20 @@ let ebQs = [];
 function initExamBuilder() {
   document.getElementById("eb-dept").innerHTML = AIO_DEPARTMENTS.map(d => `<option value="${d.id}">${d.name}</option>`).join("");
   document.getElementById("eb-level").innerHTML = AIO_EXAM_LEVELS.map(l => `<option>${l}</option>`).join("");
+  /* گزینه‌ها، پیش‌فرض‌ها و محدوده‌ها از «تنظیمات آیولب ← آزمون و گواهی» */
+  const X = AIO_CFG_.exam, $ = id => document.getElementById(id);
+  if (X) {
+    $("eb-valid").innerHTML = X.valid.map(v => `<option value="${v.months}" ${v.months === X.validDefault ? "selected" : ""}>${esc(v.name)}</option>`).join("");
+    $("eb-badge").innerHTML = X.badges.map(b => `<option>${esc(b)}</option>`).join("");
+    Object.assign($("eb-duration"), { value: X.duration.def, min: X.duration.min, max: X.duration.max });
+    Object.assign($("eb-pass"), { value: X.pass.def, min: X.pass.min, max: 100 });
+    for (const [id, k] of [["eb-autocert", "autoCert"], ["eb-top", "top"], ["eb-invite", "invite"]]) {
+      $(id).checked = X[k].def;
+      $(id).closest("label").style.display = X[k].edit ? "" : "none";
+    }
+    Object.assign($("eb-invite-score"), { value: X.invite.score, min: X.invite.min, max: 100 });
+    const note = $("eb-invite-note"); if (note) note.style.display = X.invite.edit ? "" : "none";
+  }
   addQuestion();
 }
 function renderMyExams() {
@@ -376,17 +390,19 @@ async function submitExam(btn) {
   const title = document.getElementById("eb-title").value.trim();
   const filled = ebQs.filter(q => q.q.trim() && q.options.filter(o => o.trim()).length >= 2);
   if (!title) { toast("عنوان آزمون را وارد کنید"); focusField("eb-title"); return; }
-  if (filled.length < 3) { toast("حداقل ۳ سؤال کامل لازم است (متن سؤال + حداقل ۲ گزینه)"); return; }
+  const qmin = (AIO_CFG_.exam && AIO_CFG_.exam.questions.min) || 3, qmax = (AIO_CFG_.exam && AIO_CFG_.exam.questions.max) || 100;
+  if (filled.length < qmin) { toast(`حداقل ${fa(qmin)} سؤال کامل لازم است (متن سؤال + حداقل ۲ گزینه)`); return; }
+  if (filled.length > qmax) { toast(`حداکثر ${fa(qmax)} سؤال مجاز است`); return; }
   const questions = filled.map(q => {
     const opts = q.options.map((o, k) => [o.trim(), k]).filter(([o]) => o);
     return { q: q.q.trim(), options: opts.map(x => x[0]), answer: Math.max(0, opts.findIndex(x => x[1] === q.answer)) };
   });
-  await busy(btn, () => API.post("employer/exam", { exam: { title, dept: document.getElementById("eb-dept").value, level: document.getElementById("eb-level").value,
+  const r = await busy(btn, () => API.post("employer/exam", { exam: { title, dept: document.getElementById("eb-dept").value, level: document.getElementById("eb-level").value,
     duration: Number(document.getElementById("eb-duration").value), passScore: Number(document.getElementById("eb-pass").value),
     desc: document.getElementById("eb-desc").value, badge: document.getElementById("eb-badge").value, questions,
     certValid: Number(document.getElementById("eb-valid").value), autoCert: document.getElementById("eb-autocert").checked,
     holdersTop: document.getElementById("eb-top").checked, autoInvite: document.getElementById("eb-invite").checked, inviteScore: Number(document.getElementById("eb-invite-score").value) } }));
-  toast(`آزمون «${title}» با ${fa(filled.length)} سؤال برای بازبینی ارسال شد ✓`);
+  toast(r.status === "publish" ? `آزمون «${title}» با ${fa(filled.length)} سؤال منتشر شد ✓` : `آزمون «${title}» با ${fa(filled.length)} سؤال برای بازبینی ارسال شد ✓`);
   document.getElementById("eb-title").value = ""; document.getElementById("eb-desc").value = "";
   ebQs = []; addQuestion(); renderMyExams();
 }
