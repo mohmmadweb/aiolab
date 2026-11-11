@@ -351,25 +351,6 @@ function renderFooter() {
             ${col.links.map(([href, label]) => `<li><a href="${href}">${label}</a></li>`).join("\n            ")}
           </ul>
         </div>`).join("")}
-        <div class="footer-trust">
-          <h4>اپلیکیشن و نمادها</h4>
-          <div class="app-badges">
-            <a href="contact.html" onclick="toast('لینک دانلود در نسخه نهایی فعال می‌شود');return false" class="app-badge">
-              <span>📱</span><div><b>اپلیکیشن اندروید</b><small>دریافت از کافه‌بازار</small></div></a>
-            <a href="contact.html" onclick="toast('لینک دانلود در نسخه نهایی فعال می‌شود');return false" class="app-badge">
-              <span>🍏</span><div><b>نسخه iOS</b><small>نصب مستقیم (PWA)</small></div></a>
-          </div>
-          <div class="trust-badges">
-            <a href="about.html" class="enamad" onclick="toast('نماد اعتماد پس از تکمیل فرآیند ثبت، اینجا فعال می‌شود');return false" title="نماد اعتماد الکترونیکی">
-              <span class="en-mark">e</span>
-              <div><b>نماد اعتماد الکترونیکی</b><small>e-namad · در حال دریافت</small></div>
-            </a>
-            <a href="about.html" class="enamad samandehi" onclick="toast('مجوز ساماندهی در حال دریافت است');return false" title="ساماندهی">
-              <span class="en-mark">✓</span>
-              <div><b>ساماندهی رسانه‌های دیجیتال</b><small>در حال دریافت</small></div>
-            </a>
-          </div>
-        </div>
       </div>
       <div class="footer-bottom">
         <span>© ۱۴۰۵ آیولب — aiolab.ir | تمامی حقوق محفوظ است.</span>
