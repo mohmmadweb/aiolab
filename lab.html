@@ -50,9 +50,31 @@
       <h2>خدمات</h2>
       <ul class="org-services" id="l-services" style="padding:0"></ul>
     </div>
+    <div class="panel" id="p-ceo" hidden></div>
+    <div class="panel" id="p-brands" hidden>
+      <h2>نماینده‌ی رسمی / پخش‌کننده‌ی این برندها</h2>
+      <div class="brand-chips" id="l-brands"></div>
+    </div>
     <div class="panel" id="p-products" hidden>
       <div class="syllabus-head"><div><h2>محصولات</h2></div><a class="btn btn-sm btn-outline" id="l-allprod" href="products.html">همه محصولات</a></div>
+      <div class="job-meta" id="l-pgroups" style="margin-bottom:12px"></div>
       <div class="prod-grid" id="l-products"></div>
+    </div>
+    <div class="panel" id="p-repairs" hidden>
+      <div class="syllabus-head"><div><h2>🔧 خدمات تعمیر و نگهداری</h2></div><button class="btn btn-sm btn-primary" type="button" id="b-repair">درخواست تعمیر</button></div>
+      <div class="table-wrap"><table class="data"><thead><tr><th>گروه</th><th>دستگاه</th><th>برند</th><th>مدل‌ها</th></tr></thead><tbody id="l-repairs"></tbody></table></div>
+    </div>
+    <div class="panel" id="p-files" hidden>
+      <h2>کاتالوگ و فایل‌ها</h2>
+      <ul class="file-list" id="l-files"></ul>
+    </div>
+    <div class="panel" id="p-courses" hidden>
+      <div class="syllabus-head"><div><h2>دوره‌های آموزشی این مجموعه</h2></div><a class="btn btn-sm btn-outline" href="courses.html">آکادمی</a></div>
+      <div class="course-grid" id="l-courses"></div>
+    </div>
+    <div class="panel" id="p-challenges" hidden>
+      <h2>🏆 اسپانسر چالش علمی</h2>
+      <div id="l-challenges"></div>
     </div>
     <!-- امتیاز و رتبه‌بندی -->
     <div class="panel">
@@ -79,6 +101,18 @@
       <h2>فرصت‌های شغلی فعال <span id="l-count" class="chip teal" style="font-size:12px"></span></h2>
       <div class="job-list" id="l-jobs"></div>
     </div>
+
+    <!-- مثل لینکدین: کسانی که در رزومه‌شان این مجموعه را محل کار فعلی یا قبلی ثبت کرده‌اند -->
+    <div class="panel" id="p-people" hidden>
+      <h2>پرسنل این مجموعه در آیولب</h2>
+      <p class="muted" id="l-people-sub"></p>
+      <div class="people-list" id="l-people"></div>
+    </div>
+
+    <div class="panel" id="p-similar" hidden>
+      <h2 id="l-similar-t">مجموعه‌های مشابه</h2>
+      <div class="lab-grid" id="l-similar"></div>
+    </div>
   </main>
   <aside>
     <!-- میانگین حقوق -->
@@ -91,7 +125,8 @@
 
     <div class="side-card">
       <h2 style="font-size:16px;margin-bottom:10px">اطلاعات مجموعه</h2>
-      <div class="row"><span>نوع مرکز</span><b id="s-type"></b></div>
+      <div class="row"><span id="s-type-l">نوع مرکز</span><b id="s-type"></b></div>
+      <div class="row" id="r-docs" hidden><span>مدارک</span><b id="s-docs"></b></div>
       <div class="row"><span>بخش مالکیت</span><b id="s-sector"></b></div>
       <div class="row"><span>دسته سازمان</span><b id="s-kind"></b></div>
       <div class="row"><span>استان / شهر</span><b id="s-city"></b></div>
@@ -103,7 +138,8 @@
       <div class="row" id="r-hours" hidden><span>ساعات کاری</span><b id="s-hours" style="max-width:60%;text-align:left"></b></div>
       <div class="row" id="r-phone" hidden><span>تلفن</span><b id="s-phone" dir="ltr"></b></div>
       <div class="job-meta" id="s-socials" style="margin-top:10px"></div>
-      <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="msgLab()">ارسال پیام</button>
+      <button class="btn btn-primary btn-block" style="margin-top:16px" id="b-quote" hidden>استعلام قیمت از این شرکت</button>
+      <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="msgLab()" id="b-msg">ارسال پیام</button>
     </div>
 
     <!-- موقعیت روی نقشه -->
@@ -126,6 +162,8 @@
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="assets/js/map.js"></script>
+<script src="assets/js/challenges.js"></script>
+<script src="assets/js/marketplace.js"></script>
 <script>
 const METRIC_LABELS = { salary: "حقوق و مزایا", environment: "محیط کاری", learning: "یادگیری و آموزش",
                         management: "مدیریت", worklife: "تعادل کار و زندگی" };
@@ -157,6 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("l-sub").textContent = [L.tagline || L.type, L.city, sectorName(L.sector)].filter(Boolean).join(" · ");
   document.getElementById("l-about").textContent = L.about;
   document.getElementById("l-perks").innerHTML = L.perks.map(p => `<span class="chip teal">${p}</span>`).join("");
+  renderOrgExtras(L, isCo);
 
   const jobs = AIO_JOBS.filter(j => j.labId === L.id);
   document.getElementById("l-count").textContent = fa(jobs.length) + " آگهی";
@@ -165,7 +204,8 @@ document.addEventListener("DOMContentLoaded", () => {
     : '<p style="color:var(--navy-400);font-size:14px">در حال حاضر آگهی فعالی ندارد.</p>';
 
   /* اطلاعات جانبی */
-  document.getElementById("s-type").textContent = L.type;
+  document.getElementById("s-type").textContent = isCo ? (orgCompanyTypes(L).map(t => Tax.name("companyTypes", t)).join("، ") || L.type) : (L.labType ? Tax.name("labTypes", L.labType) : L.type);
+  if (isCo) document.getElementById("s-type-l").textContent = "نوع شرکت";
   document.getElementById("s-sector").textContent = sectorName(L.sector);
   document.getElementById("s-kind").textContent = orgKindName(L.orgKind);
   document.getElementById("s-city").textContent = (provinceById(L.provinceId) || {}).name + " / " + L.city;
@@ -214,6 +254,57 @@ document.addEventListener("DOMContentLoaded", () => {
   /* نقشه */
   renderLabsMap("lab-map", [L]);
 });
+/* بخش‌های تازه‌ی صفحه‌ی سازمان: نوع، نمایندگی، مدیرعامل، تعمیرات، کاتالوگ، مدارک، پرسنل، دوره‌ها، اسپانسری و مشابه‌ها */
+function renderOrgExtras(L, isCo) {
+  const e = TUI.e, $ = id => document.getElementById(id), show = id => $(id).hidden = false;
+  /* نشان‌های نوع */
+  const types = isCo ? orgCompanyTypes(L).map(t => Tax.name("companyTypes", t)) : (L.labType ? [Tax.name("labTypes", L.labType)] : []);
+  $("l-acc").insertAdjacentHTML("afterbegin", types.map(t => `<span style="background:var(--teal-50);color:var(--teal-700);border-color:var(--teal-200)">${e(t)}</span>`).join(""));
+  if ((L.groups || []).length) $("l-acc").insertAdjacentHTML("beforeend", L.groups.map(g => `<span>${e(Tax.name("groups", g))}</span>`).join(""));
+  /* مدیرعامل / مسئول فنی */
+  const C = L.ceo || {};
+  if (C.name) { show("p-ceo"); $("p-ceo").innerHTML = `<h2>${isCo ? "مدیرعامل" : "مدیر / مسئول فنی"}</h2><div class="ceo-card">
+    ${C.img ? `<img src="${e(C.img)}" alt="">` : `<span class="avatar" style="background:${L.color}">${e(C.name.replace(/^(دکتر|مهندس)\s+/, "").charAt(0))}</span>`}
+    <div><b>${e(C.name)}</b><small>${e(C.title || "")}</small><p>${e(C.bio || "")}</p>${C.linkedin ? `<a href="${e(C.linkedin)}" target="_blank" rel="noopener nofollow">لینکدین</a>` : ""}</div></div>`; }
+  /* نمایندگی برندها */
+  if (isCo && (L.represents || []).length) { show("p-brands"); $("l-brands").innerHTML = L.represents.map(b => { const x = Tax.find("brands", b);
+    return `<a class="brand-chip" href="products.html?brand=${encodeURIComponent(b)}"><b dir="auto">${e(x ? x.name : b)}</b>${x && x.country ? `<small>${e(x.country)}</small>` : ""}</a>`; }).join(""); }
+  /* گروه‌بندی محصولات */
+  const prods = aioProducts().filter(p => p.orgId === L.id);
+  const pg = [...new Set(prods.map(p => p.group).filter(Boolean))];
+  if (pg.length > 1) $("l-pgroups").innerHTML = pg.map(g => `<a class="chip" href="products.html?org=${L.id}&group=${g}">${e(Tax.name("groups", g))} (${fa(prods.filter(p => p.group === g).length)})</a>`).join("");
+  /* تعمیرات */
+  if (isCo && (L.repairs || []).length) { show("p-repairs");
+    $("l-repairs").innerHTML = L.repairs.map(r => `<tr><td>${e(Tax.name("groups", r.group))}</td><td>${e(Tax.itemName(r.item))}</td><td dir="auto">${e(Tax.brandName(r.brand))}</td><td dir="ltr">${e(r.models || "")}</td></tr>`).join("");
+    $("b-repair").onclick = () => inquiryDialog({ kind: "repair", toOrg: L.id, repair: L.repairs[0] }); }
+  /* کاتالوگ */
+  if ((L.catalogs || []).length) { show("p-files"); $("l-files").innerHTML = L.catalogs.map((f, i) => `<li class="file-row"><span>📄 <bdi>${e(f.name)}</bdi></span><small class="muted">${e(f.size || "")}</small>
+    ${f.data ? `<a class="btn btn-sm btn-outline" href="${e(f.data)}" download="${e(f.name)}">دانلود</a>` : `<button type="button" class="btn btn-sm btn-outline" onclick="toast('در دمو فایل نمونه است؛ در نسخه‌ی اصلی دانلود می‌شود')">دانلود</button>`}</li>`).join(""); }
+  /* مدارک تأییدشده */
+  const docs = L.documents || [], ok = docs.filter(d => d.status === "verified");
+  if (docs.length) { $("r-docs").hidden = false; $("s-docs").textContent = ok.length ? "✔️ " + fa(ok.length) + " مدرک تأییدشده" : "در حال بررسی"; $("s-docs").title = ok.map(d => d.kind).join("، "); }
+  /* استعلام از شرکت */
+  if (isCo) { $("b-quote").hidden = false; $("b-quote").onclick = () => inquiryDialog({ kind: "quote", toOrg: L.id }); $("b-msg").className = "btn btn-outline btn-block"; $("b-msg").style.marginTop = "8px"; }
+  /* دوره‌های این مجموعه (ارائه‌دهنده = همین سازمان) */
+  const provs = AIO_PROVIDERS.filter(pv => pv.labId === L.id).map(pv => pv.id);
+  const cs = AIO_COURSES.filter(c => provs.includes(c.providerId));
+  if (cs.length) { show("p-courses"); $("l-courses").innerHTML = cs.slice(0, 3).map(c => courseCardHTML(c)).join(""); }
+  /* چالش‌هایی که اسپانسرشان است */
+  if (typeof challenges === "function") { const ch = challenges().filter(c => +c.sponsorOrgId === L.id);
+    if (ch.length) { show("p-challenges"); $("l-challenges").innerHTML = `<div class="ch-grid">${ch.map(challengeCardHTML).join("")}</div>`; } }
+  /* پرسنل (لینکدین‌وار) */
+  const { cur, past } = orgPeople(L.id);
+  if (cur.length || past.length) { show("p-people");
+    $("l-people-sub").textContent = `${fa(cur.length)} نفر شاغل فعلی · ${fa(past.length)} نفر سابقه‌ی کار در این مجموعه`;
+    $("l-people").innerHTML = [...cur, ...past].map(({ c, x }) => `<div class="person"><span class="avatar" style="background:${c.color || "#0d9488"}">${e(c.name.charAt(0))}</span>
+      <div><b>${e(c.name)}</b><small>${e(TUI.name.role(x.role))} · ${x.end ? "سابق" : "فعلی"}${c.otw ? " · آماده به کار" : ""}</small>
+      ${(c.experience || []).filter(y => !y.end && +y.orgId !== L.id).length ? `<small class="muted">هم‌زمان در: ${c.experience.filter(y => !y.end && +y.orgId !== L.id).map(y => y.orgId ? `<a href="lab.html?id=${y.orgId}">${e(y.orgName)}</a>` : e(y.orgName)).join("، ")}</small>` : ""}</div></div>`).join(""); }
+  /* مجموعه‌های مشابه / رقبا */
+  const mine = isCo ? orgCompanyTypes(L) : [L.city];
+  const sim = AIO_LABS.map(l => orgFull(l.id)).filter(o => o.id !== L.id && (o.orgType === "company") === isCo &&
+    (isCo ? orgCompanyTypes(o).some(t => mine.includes(t)) || (o.groups || []).some(g => (L.groups || []).includes(g)) : o.city === L.city || o.labType === L.labType)).slice(0, 3);
+  if (sim.length) { show("p-similar"); $("l-similar-t").textContent = isCo ? "شرکت‌های هم‌حوزه" : "آزمایشگاه‌های مشابه"; $("l-similar").innerHTML = sim.map(labCardHTML).join(""); }
+}
 function msgLab() {
   if (!Auth.user) { location.href = "login.html"; return; }
   toast("پیام‌رسانی داخلی در نسخه بعدی فعال می‌شود (دمو)");

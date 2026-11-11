@@ -31,17 +31,24 @@
 </div>
 <div class="container detail-layout">
   <main>
-    <div class="panel"><div id="pr-media"></div><h2>معرفی محصول</h2><p id="pr-desc"></p></div>
+    <div class="panel"><div id="pr-media"></div><div id="pr-launch"></div><h2>معرفی محصول</h2><p id="pr-desc"></p></div>
     <div class="panel"><h2>مشخصات فنی</h2><div class="table-wrap"><table class="data spec-table"><tbody id="pr-specs"></tbody></table></div></div>
+    <div class="panel" id="p-same" hidden><h2>عرضه‌کنندگان دیگر همین محصول</h2><p class="muted" id="pr-same-sub"></p><div class="prod-grid" id="pr-same"></div></div>
+    <div class="panel" id="p-repair" hidden><h2>تعمیر و سرویس این دستگاه</h2><div id="pr-repair"></div></div>
     <div class="panel"><h2>محصولات دیگر این تأمین‌کننده</h2><div class="prod-grid" id="pr-more"></div></div>
+    <div class="panel" id="p-links"><h2>مرتبط در آیولب</h2><div class="job-meta" id="pr-links"></div></div>
   </main>
   <aside>
     <div class="side-card">
       <span class="pc-cat" id="pr-cat"></span>
       <div class="sc-val" style="margin:8px 0"><b id="pr-price"></b></div>
-      <div class="row"><span>برند</span><b id="pr-brand"></b></div>
-      <div class="row"><span>مدل</span><b id="pr-model"></b></div>
-      <button class="btn btn-primary btn-block" style="margin-top:14px" onclick="inquiry()">استعلام قیمت و شرایط</button>
+      <div class="row"><span>گروه</span><b id="pr-group"></b></div>
+      <div class="row"><span>محصول / دستگاه</span><b id="pr-item"></b></div>
+      <div class="row"><span>برند / سازنده</span><b id="pr-brand" dir="auto"></b></div>
+      <div class="row"><span>مدل</span><b id="pr-model" dir="ltr"></b></div>
+      <div class="row" id="r-supply" hidden><span>نوع عرضه</span><b id="pr-supply"></b></div>
+      <button class="btn btn-primary btn-block" style="margin-top:14px" onclick="inquiry('quote')">استعلام قیمت و شرایط</button>
+      <button class="btn btn-outline btn-block" style="margin-top:8px" id="b-demo" onclick="inquiry('demo')">درخواست دمو / وبینار</button>
     </div>
     <div class="side-card" id="pr-org"></div>
   </aside>
@@ -56,6 +63,7 @@
 <script src="assets/js/talent-ui.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/marketplace.js"></script>
 <script>
 let PR = null;
 document.addEventListener("DOMContentLoaded", () => {
@@ -74,6 +82,37 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("pr-price").textContent = PR.price ? fa(Number(PR.price).toLocaleString("en")).replace(/,/g, "٬") + " تومان" : "استعلام قیمت";
   document.getElementById("pr-brand").textContent = PR.brand || "—";
   document.getElementById("pr-model").textContent = PR.model || "—";
+  document.getElementById("pr-group").textContent = PR.group ? Tax.name("groups", PR.group) : "—";
+  document.getElementById("pr-item").textContent = PR.item ? Tax.itemName(PR.item) : "—";
+  /* نوع عرضه: تولیدکننده / نماینده‌ی رسمی برند / پخش‌کننده */
+  const ct = orgCompanyTypes(org), brandId = (Tax.list("brands").find(b => b.name.toLowerCase() === String(PR.brand || "").toLowerCase()) || {}).id;
+  const supply = ct.includes("manufacturer") && (!brandId || brandId === "parsbiotech" || !(org.represents || []).length) ? "تولید خود شرکت"
+    : (brandId && (org.represents || []).includes(brandId) ? (ct.includes("importer") ? "نماینده‌ی رسمی و واردکننده‌ی " : "پخش‌کننده‌ی رسمی ") + Tax.brandName(brandId) : (ct.length ? Tax.name("companyTypes", ct[0]) : ""));
+  if (supply && org.orgType === "company") { document.getElementById("r-supply").hidden = false; document.getElementById("pr-supply").textContent = supply; }
+  /* ویژگی‌های پارامتریک (تعریف مدیر برای دسته) + مشخصات آزاد */
+  const attrRows = Tax.catFields(PR.cat).filter(f => (PR.attrs || {})[f.key] !== undefined && PR.attrs[f.key] !== "")
+    .map(f => `<tr><td>${TUI.e(f.label)}</td><td>${TUI.e(f.type === "number" ? fa(PR.attrs[f.key]) : PR.attrs[f.key])}${f.unit ? " " + TUI.e(f.unit) : ""}</td></tr>`).join("");
+  document.getElementById("pr-specs").innerHTML = attrRows + ((PR.specs || []).map(([k, v]) => `<tr><td>${TUI.e(k)}</td><td>${TUI.e(v)}</td></tr>`).join("")) || '<tr><td colspan="2" class="muted">مشخصاتی ثبت نشده است.</td></tr>';
+  /* محصول جدید / روز دمو */
+  if (PR.isNew) document.getElementById("pr-launch").innerHTML = `<div class="launch-band"><b>✨ محصول جدید</b>${PR.launched ? ` · عرضه از ${TUI.e(PR.launched)}` : ""}${PR.launchMsg ? ` — ${TUI.e(PR.launchMsg)}` : ""}${PR.webinar ? `<span> · روز دمو / وبینار: ${TUI.e(PR.webinar)}</span>` : ""}</div>`;
+  if (PR.cat === "service") document.getElementById("b-demo").hidden = true;
+  /* همین محصول از شرکت‌های دیگر (مقایسه) */
+  const same = PR.item ? aioProducts().filter(p => p.item === PR.item && p.id !== PR.id) : [];
+  if (same.length) { document.getElementById("p-same").hidden = false; document.getElementById("pr-same-sub").textContent = "«" + Tax.itemName(PR.item) + "» را این شرکت‌ها هم عرضه می‌کنند — مقایسه کنید."; document.getElementById("pr-same").innerHTML = same.map(p => TUI.productCard(p)).join(""); }
+  /* تعمیرکاران همین دستگاه/برند */
+  if (PR.item && (Tax.find("items", PR.item) || {}).kind === "device") {
+    const { hits } = findRepairers({ item: PR.item, brand: brandId || "" });
+    const orgs = [...new Map(hits.map(h => [h.org.id, h])).values()];
+    document.getElementById("p-repair").hidden = false;
+    document.getElementById("pr-repair").innerHTML = (orgs.length ? `<ul class="org-services" style="padding:0">${orgs.map(h => `<li><a href="lab.html?id=${h.org.id}">${TUI.e(h.org.name)}</a> <small class="muted">مدل‌ها: <span dir="ltr">${TUI.e(h.models || "")}</span></small></li>`).join("")}</ul>` : '<p class="muted">هنوز تعمیرکاری برای این دستگاه ثبت نشده است.</p>')
+      + `<a class="btn btn-sm btn-outline" href="products.html?tab=repair&rgroup=${PR.group || ""}&ritem=${PR.item}${brandId ? "&rbrand=" + brandId : ""}">جستجوی کامل تعمیرکار</a>`;
+  }
+  /* اتصال به بقیه‌ی سیستم: آگهی‌ها، دوره‌ها و چالش‌های همین حوزه */
+  const g = PR.group, links = [];
+  if (g && AIO_DEPARTMENTS.some(d => d.id === g)) links.push(`<a class="chip" href="jobs.html?dept=${g}">فرصت‌های شغلی ${TUI.e(Tax.name("groups", g))}</a>`);
+  if (g && AIO_COURSE_CATS.some(c => c.id === g)) links.push(`<a class="chip" href="courses.html?cat=${g}">دوره‌های ${TUI.e(Tax.name("groups", g))}</a>`);
+  links.push(`<a class="chip" href="products.html?group=${g || ""}">محصولات هم‌گروه</a>`, `<a class="chip" href="challenges.html">چالش علمی</a>`);
+  document.getElementById("pr-links").innerHTML = links.join("");
   const more = aioProducts().filter(p => p.orgId === PR.orgId && p.id !== PR.id);
   document.getElementById("pr-more").innerHTML = more.map(p => TUI.productCard(p)).join("") || '<p class="muted">محصول دیگری ثبت نشده است.</p>';
   document.getElementById("pr-org").innerHTML = `<h2 style="font-size:16px;margin-bottom:10px">تأمین‌کننده</h2>
@@ -81,10 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <div><b>${TUI.e(org.name || "")} ${org.verified ? "✔️" : ""}</b><div class="muted" style="font-size:12.5px">${TUI.e(org.city || "")}${org.tagline ? " · " + TUI.e(org.tagline) : ""}</div></div></div>
     <a class="btn btn-outline btn-block" style="margin-top:12px" href="lab.html?id=${org.id}">مشاهده پروفایل ${org.orgType === "company" ? "شرکت" : "مرکز"}</a>`;
 });
-function inquiry() {
-  if (!Auth.user) { Store.set("after_login", currentPath() + location.search); location.href = "login.html"; return; }
-  toast("درخواست استعلام برای «" + PR.name + "» به تأمین‌کننده ارسال شد ✓");
-}
+function inquiry(kind) { inquiryDialog({ kind: kind || "quote", toOrg: PR.orgId, productId: PR.id }); }
 </script>
 </body>
 </html>

@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل آموزش | آیولب</title>
+<meta name="description" content="پنل مدرسان و مراکز آموزشی آیولب: پروفایل مدرس یا آموزشگاه، ساخت و مدیریت دوره، برنامه‌ی کلاس‌های حضوری و زنده، دانشجویان و تسویه درآمد.">
+<meta name="theme-color" content="#0d9488">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://demo.aiolab.ir/teach.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="پنل آموزش | آیولب">
+<meta property="og:description" content="پنل مدرسان و مراکز آموزشی آیولب: پروفایل مدرس یا آموزشگاه، ساخت و مدیریت دوره، برنامه‌ی کلاس‌های حضوری و زنده، دانشجویان و تسویه درآمد.">
+<meta property="og:url" content="https://demo.aiolab.ir/teach.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>body{background:var(--navy-50)}</style>
+</head>
+<body data-page="teach.html">
+
+<header id="site-header" class="site-header"></header>
+
+<!-- ورود با نقشی غیر از «آموزش» -->
+<div class="container tch-gate" id="tch-gate" hidden>
+  <div class="panel">
+    <div style="font-size:40px">🎓</div>
+    <h1 class="dash-title" style="margin:8px 0">پنل آموزش ویژه‌ی مدرسان و مراکز آموزشی است</h1>
+    <p style="color:var(--navy-500);margin-bottom:18px">با حساب فعلی (<b id="gate-role"></b>) وارد شده‌اید. برای تدریس در آیولب یک حساب «آموزش» بسازید؛ آزمایشگاه‌ها و شرکت‌ها هم می‌توانند از پنل خود دوره بسازند.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <a class="btn btn-primary" href="register.html?role=teacher">ساخت حساب آموزش</a>
+      <a class="btn btn-outline" id="gate-back" href="dashboard.html">بازگشت به پنل من</a>
+      <a class="btn btn-ghost" href="course-builder.html">ساخت دوره از همین حساب</a>
+    </div>
+  </div>
+</div>
+
+<div class="container dash-layout" id="tch-layout">
+  <aside class="dash-side">
+    <div class="dash-profile">
+      <div class="avatar tch-photo" id="p-avatar" style="margin:0 auto 10px">آ</div>
+      <b id="p-name">...</b>
+      <span id="p-acct" class="tch-acct"></span>
+    </div>
+    <nav class="dash-nav" id="dash-nav">
+      <a href="#overview" class="active" data-sec="overview"></a>
+      <a href="#profile" data-sec="profile"></a>
+      <a href="#courses" data-sec="courses"></a>
+      <a href="#schedule" data-sec="schedule"></a>
+      <a href="#students" data-sec="students"></a>
+      <a href="#earnings" data-sec="earnings"></a>
+      <a href="#business" data-sec="business"></a>
+      <button class="danger" onclick="Auth.logout()"></button>
+    </nav>
+  </aside>
+
+  <main class="dash-main">
+
+    <!-- ===== پیشخوان ===== -->
+    <section id="sec-overview" class="active">
+      <h1 class="dash-title" id="ov-title">پنل آموزش</h1>
+      <div class="dash-cards" id="ov-stats"></div>
+      <div class="progress-card" id="ov-profile"></div>
+      <div class="panel">
+        <h2>کارهای بعدی</h2>
+        <div class="steps-grid four" id="ov-steps" style="margin-top:6px"></div>
+      </div>
+      <div class="panel">
+        <div class="syllabus-head"><div><h2>کلاس‌های پیش‌رو</h2><p>نزدیک‌ترین نوبت‌های حضوری و زنده‌ی دوره‌های شما</p></div><a class="btn btn-sm btn-outline" href="#schedule" onclick="go(event,'schedule')">برنامه کامل</a></div>
+        <div id="ov-sessions"></div>
+      </div>
+    </section>
+
+    <!-- ===== پروفایل ===== -->
+    <section id="sec-profile">
+      <h1 class="dash-title" id="pf-title">پروفایل مدرس</h1>
+      <p class="dash-sub" id="pf-sub"></p>
+      <div id="pf-form"></div>
+    </section>
+
+    <!-- ===== دوره‌ها ===== -->
+    <section id="sec-courses">
+      <h1 class="dash-title">دوره‌های من</h1>
+      <p class="dash-sub">دوره را در پنج گام بسازید (ویدئو، متن، اسلاید / پاورپوینت، تمرین، آزمون و گواهی). پس از بازبینی کارشناسان علمی، در آکادمی منتشر می‌شود.</p>
+      <div class="dash-cards" id="crs-stats"></div>
+      <div class="panel">
+        <div class="syllabus-head"><div><h2>دوره‌های ساخته‌شده</h2><p>پیش‌نویس‌ها، در انتظار بازبینی و منتشرشده</p></div>
+          <a class="btn btn-primary" href="course-builder.html">+ ساخت دوره جدید</a></div>
+        <div id="my-created"></div>
+      </div>
+    </section>
+
+    <!-- ===== برنامه کلاس‌ها ===== -->
+    <section id="sec-schedule">
+      <h1 class="dash-title">برنامه کلاس‌های حضوری و زنده</h1>
+      <p class="dash-sub">همه‌ی نوبت‌های برگزاری دوره‌های شما؛ همین جدول (محل، روز، ساعت، مبلغ و مدرس) در «آکادمی ← نمای جدول» به آزمایشگاه‌ها و کارجویان نشان داده می‌شود.</p>
+      <div id="sch-table"></div>
+      <div class="tch-note" style="margin-top:14px">برای افزودن یا ویرایش نوبت، دوره را باز کنید و در گام «قیمت و گواهی» بخش «زمان و محل برگزاری» را تکمیل کنید. نوبت فقط برای شیوه‌های «آنلاین زنده»، «ترکیبی» و «حضوری» فعال است.</div>
+    </section>
+
+    <!-- ===== دانشجویان ===== -->
+    <section id="sec-students">
+      <h1 class="dash-title">دانشجویان</h1>
+      <p class="dash-sub">ثبت‌نام‌ها، پیشرفت و نوبت انتخابی هر فراگیر. <span class="chip">داده‌ی نمونه</span></p>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>فراگیر</th><th>دوره</th><th>نوبت / شیوه</th><th>تاریخ ثبت‌نام</th><th>پیشرفت</th><th>گواهی</th></tr></thead>
+          <tbody id="stu-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== درآمد ===== -->
+    <section id="sec-earnings">
+      <h1 class="dash-title">سفارش‌ها و درآمد</h1>
+      <p class="dash-sub">سهم ارائه‌دهنده ۷۰ تا ۹۰٪ مبلغ هر ثبت‌نام است و ماهانه تسویه می‌شود (سرویس R18 — <a href="pricing.html">تعرفه‌ها</a>). <span class="chip">داده‌ی نمونه</span></p>
+      <div class="dash-cards" id="earn-stats"></div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>دوره</th><th>تعداد ثبت‌نام</th><th>مبلغ کل</th><th>سهم آیولب</th><th>سهم شما</th><th>وضعیت تسویه</th></tr></thead>
+          <tbody id="earn-body"></tbody>
+        </table>
+      </div>
+      <div class="panel" style="margin-top:16px">
+        <h2>اطلاعات تسویه</h2>
+        <div class="form-grid">
+          <div class="form-field"><label>نام صاحب حساب</label><input type="text" id="pay-owner" maxlength="80"></div>
+          <div class="form-field"><label>شماره شبا</label><input type="text" id="pay-iban" dir="ltr" maxlength="26" placeholder="IR000000000000000000000000"></div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:12px" onclick="savePayout()">ذخیره اطلاعات تسویه</button>
+      </div>
+    </section>
+
+    <!-- ===== آموزش سازمانی ===== -->
+    <section id="sec-business">
+      <h1 class="dash-title">آموزش سازمانی (آزمایشگاه‌ها و شرکت‌ها)</h1>
+      <p class="dash-sub">آزمایشگاه‌ها و شرکت‌ها با «حساب سازمانی» دوره‌های شما را برای پرسنل خود می‌خرند و پیشرفت هر کارمند را می‌بینند.</p>
+      <div class="panel">
+        <h2>چطور کار می‌کند؟</h2>
+        <div class="steps-grid four" style="margin-top:6px">
+          <div class="step-card"><div class="num">۱</div><h3>انتشار دوره</h3><p>دوره‌ی شما در آکادمی و جدول دوره‌ها نمایش داده می‌شود.</p></div>
+          <div class="step-card"><div class="num">۲</div><h3>خرید گروهی</h3><p>آزمایشگاه یا شرکت از <a href="employer.html#training">پنل خود ← دوره‌های آموزشی</a> پرسنل را ثبت‌نام می‌کند.</p></div>
+          <div class="step-card"><div class="num">۳</div><h3>کارگاه در محل</h3><p>برای دوره‌های حضوری می‌توانید نوبت اختصاصی در محل مرکز تعریف کنید.</p></div>
+          <div class="step-card"><div class="num">۴</div><h3>گواهی و گزارش</h3><p>گواهی مشترک شما و آیولب روی رزومه‌ی هر کارمند می‌نشیند.</p></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>پیشنهاد دوره‌ی اختصاصی به سازمان‌ها</h2>
+        <p style="margin-bottom:12px">کارگاه یا دوره‌ای که می‌توانید در محل آزمایشگاه یا شرکت برگزار کنید را معرفی کنید؛ پس از تأیید، در پیشنهادهای «آموزش پرسنل مرکز» به سازمان‌ها نشان داده می‌شود.</p>
+        <div class="form-grid">
+          <div class="form-field"><label>عنوان کارگاه</label><input type="text" id="org-title" maxlength="90" placeholder="مثلاً: کارگاه QC بخش بیوشیمی در محل آزمایشگاه"></div>
+          <div class="form-field"><label>حوزه</label><select id="org-cat"></select></div>
+          <div class="form-field"><label>مدت (ساعت)</label><input type="number" id="org-hours" min="1" max="200" placeholder="8"></div>
+          <div class="form-field"><label>هزینه برای هر سازمان (تومان)</label><input type="number" id="org-price" min="0" step="100000" placeholder="خالی = توافقی"></div>
+          <div class="form-field full"><label>شهرهایی که می‌توانید در آن‌ها برگزار کنید</label><input type="text" id="org-cities" maxlength="160" placeholder="مثلاً: تهران، کرج، قم"></div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:12px" onclick="saveOrgOffer()">ثبت پیشنهاد</button>
+        <div id="org-offers" style="margin-top:14px"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/talent-data.js"></script>
+<script src="assets/js/match.js"></script>
+<script src="assets/js/talent-ui.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/academy-extra.js"></script>
+<script>
+const NAV_ITEMS = [
+  ["overview", "پیشخوان", "home"],
+  ["profile", "پروفایل", "doc"],
+  ["courses", "دوره‌های من", "grad"],
+  ["schedule", "برنامه کلاس‌ها", "clock"],
+  ["students", "دانشجویان", "users"],
+  ["earnings", "سفارش‌ها و درآمد", "chart"],
+  ["business", "آموزش سازمانی", "building"]
+];
+const ACCTS = { personal: "مدرس (حساب شخصی)", business: "آموزشگاه / مرکز آموزشی (حساب سازمانی)" };
+const BIZ_KINDS = ["آموزشگاه تخصصی", "دانشگاه / دانشکده", "آزمایشگاه (واحد آموزش)", "شرکت (آموزش کاربری محصول)", "انجمن علمی"];
+const e = s => String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+let U, P;
+
+document.addEventListener("DOMContentLoaded", () => {
+  U = requireLogin(); if (!U) return;
+  if (U.role !== "teacher") {
+    document.getElementById("tch-layout").hidden = true;
+    document.getElementById("tch-gate").hidden = false;
+    document.getElementById("gate-role").textContent = U.role === "employer" ? (U.org === "company" ? "شرکت" : "آزمایشگاه") : "کارجو";
+    document.getElementById("gate-back").href = U.role === "employer" ? "employer.html" : "dashboard.html";
+    return;
+  }
+  P = Object.assign(defaultProfile(), TeacherProfile.get() || {});
+  const nav = document.getElementById("dash-nav");
+  nav.querySelectorAll("a").forEach((a, i) => {
+    const [sec, label, icon] = NAV_ITEMS[i];
+    a.innerHTML = (ICONS[icon] || "") + " " + label;
+    a.onclick = ev => go(ev, sec);
+  });
+  nav.querySelector("button").innerHTML = ICONS.logout + " خروج از حساب";
+  document.getElementById("org-cat").innerHTML = AIO_COURSE_CATS.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
+  document.getElementById("pay-owner").value = (Store.get("teacher_payout", {}) || {}).owner || "";
+  document.getElementById("pay-iban").value = (Store.get("teacher_payout", {}) || {}).iban || "";
+  renderAll();
+  if (location.hash) showSec(location.hash.slice(1));
+});
+
+function acct() { return Auth.user && Auth.user.acct === "business" ? "business" : "personal"; }
+function defaultProfile() {
+  return { name: Auth.user.name, title: "", bio: "", cats: [], city: "", years: "", history: "", linkedin: "", photo: "",
+           centerName: Auth.user.name, kind: BIZ_KINDS[0], licenses: "", address: "", phone: "", website: "", staff: [] };
+}
+function go(ev, sec) { if (ev) ev.preventDefault(); showSec(sec); history.replaceState(null, "", "#" + sec); }
+function showSec(sec) {
+  if (!document.getElementById("sec-" + sec)) sec = "overview";
+  document.querySelectorAll(".dash-main > section").forEach(s => s.classList.toggle("active", s.id === "sec-" + sec));
+  document.querySelectorAll("#dash-nav a").forEach(a => a.classList.toggle("active", a.dataset.sec === sec));
+  window.scrollTo({ top: 0 });
+}
+function renderAll() { renderSide(); renderOverview(); renderProfile(); renderCourses(); renderSchedule(); renderStudents(); renderEarnings(); renderOrgOffers(); }
+
+/* ---------- دوره‌های من (پیش‌نویس‌ها) ---------- */
+const myDrafts = () => MyCreated.all();
+const myCourses = () => myDrafts().map(d => draftAsCourse(JSON.parse(JSON.stringify(d))));
+const displayName = () => acct() === "business" ? (P.centerName || U.name) : (P.name || U.name);
+
+function renderSide() {
+  const av = document.getElementById("p-avatar");
+  av.style.background = P.photo ? `url(${P.photo}) center/cover` : "var(--teal-600)";
+  av.textContent = P.photo ? "" : displayName().replace("دکتر ", "").charAt(0);
+  document.getElementById("p-name").textContent = displayName();
+  document.getElementById("p-acct").textContent = acct() === "business" ? "حساب سازمانی" : "مدرس";
+}
+
+function profilePct() {
+  const f = acct() === "business" ? [P.centerName, P.kind, P.city, P.address, P.phone, P.licenses, P.cats.length, P.staff.length, P.bio]
+                                   : [P.name, P.title, P.bio, P.cats.length, P.city, P.years, P.linkedin, P.photo];
+  return Math.round(f.filter(Boolean).length / f.length * 100);
+}
+
+function renderOverview() {
+  const list = myDrafts(), sess = upcomingSessions(0, myCourses()), stu = sampleStudents(), earn = sampleEarnings();
+  document.getElementById("ov-title").textContent = (acct() === "business" ? "پنل آموزشگاه — " : "پنل مدرس — ") + displayName();
+  document.getElementById("ov-stats").innerHTML = `
+    <div class="dash-stat"><b>${fa(list.length)}</b><span>دوره ساخته‌شده</span></div>
+    <div class="dash-stat"><b>${fa(stu.length)}</b><span>دانشجو (نمونه)</span></div>
+    <div class="dash-stat"><b>${fa(Math.round(earn.reduce((s, r) => s + r.mine, 0) / 1e6 * 10) / 10)}</b><span>میلیون تومان سهم شما (نمونه)</span></div>
+    <div class="dash-stat"><b>${list.length ? "۴٫۸" : "—"}</b><span>امتیاز فراگیران</span></div>`;
+  const pct = profilePct();
+  document.getElementById("ov-profile").innerHTML = `<b style="font-size:16px">تکمیل پروفایل ${acct() === "business" ? "آموزشگاه" : "مدرس"}: ${fa(pct)}٪</b>
+    <div class="bar"><i style="width:${pct}%"></i></div>
+    <small>پروفایل کامل در صفحه‌ی دوره‌ها و جدول کلاس‌ها نمایش داده می‌شود. <a href="#profile" onclick="go(event,'profile')">تکمیل پروفایل ←</a></small>`;
+  const steps = [
+    ["تکمیل پروفایل", acct() === "business" ? "نام مرکز، مجوزها، نشانی و مدرسان" : "عنوان تخصصی، بیوگرافی، حوزه‌ها و عکس", `<a href="#profile" onclick="go(event,'profile')">رفتن به پروفایل</a>`, pct >= 80],
+    ["ساخت اولین دوره", "ویدئو، متن، اسلاید و آزمون در پنج گام", `<a href="course-builder.html">ساخت دوره</a>`, list.length > 0],
+    ["زمان و محل کلاس‌ها", "برای دوره‌های حضوری/زنده نوبت تعریف کنید", `<a href="#schedule" onclick="go(event,'schedule')">برنامه کلاس‌ها</a>`, sess.length > 0],
+    ["ارسال برای انتشار", "بازبینی علمی تا ۳ روز کاری", `<a href="#courses" onclick="go(event,'courses')">دوره‌های من</a>`, list.some(c => c.status !== "draft")]
+  ];
+  document.getElementById("ov-steps").innerHTML = steps.map(([t, d, a, ok], i) => `<div class="step-card"><div class="num">${ok ? "✓" : fa(i + 1)}</div><h3>${t}</h3><p>${d}</p><p style="margin-top:6px">${a}</p></div>`).join("");
+  document.getElementById("ov-sessions").innerHTML = sessionsTableHTML(sess.slice(0, 4).map(r => Object.assign(r, { action: editAction(r) })),
+    { empty: "هنوز کلاس حضوری یا زنده‌ای تعریف نکرده‌اید." });
+}
+
+/* ---------- پروفایل (شخصی / سازمانی) ---------- */
+function renderProfile() {
+  const biz = acct() === "business";
+  document.getElementById("pf-title").textContent = biz ? "پروفایل آموزشگاه / مرکز آموزشی" : "پروفایل مدرس";
+  document.getElementById("pf-sub").textContent = biz
+    ? "اطلاعات مرکز آموزشی شما روی صفحه‌ی دوره‌ها به‌عنوان «ارائه‌دهنده» نمایش داده می‌شود."
+    : "این اطلاعات در بخش «مدرسان» صفحه‌ی هر دوره و فهرست مدرسان آکادمی نمایش داده می‌شود.";
+  const catPick = `<div class="chips-pick">${AIO_COURSE_CATS.map(c => `<button type="button" class="cp ${P.cats.includes(c.id) ? "on" : ""}" onclick="toggleCat('${c.id}',this)">${c.name}</button>`).join("")}</div>`;
+  const city = `<select data-p="city"><option value="">انتخاب شهر…</option>${AIO_CITIES.map(c => `<option ${P.city === c ? "selected" : ""}>${c}</option>`).join("")}</select>`;
+  const acctSel = `<div class="form-field full"><label>نوع حساب آموزش</label><div style="display:flex;gap:18px;flex-wrap:wrap">
+      ${Object.entries(ACCTS).map(([k, v]) => `<label class="check-item inline"><input type="radio" name="acct" value="${k}" ${acct() === k ? "checked" : ""} onchange="switchAcct('${k}')"> ${v}</label>`).join("")}</div></div>`;
+  const personal = `
+      <div class="panel"><div class="form-grid">${acctSel}
+        <div class="form-field full" style="display:flex;gap:14px;align-items:center">
+          <div class="tch-photo" style="background:${P.photo ? `url(${P.photo}) center/cover` : "var(--teal-600)"}">${P.photo ? "" : e((P.name || "؟").replace("دکتر ", "").charAt(0))}</div>
+          <div><label class="btn btn-outline btn-sm">📷 ${P.photo ? "تعویض عکس" : "افزودن عکس"}<input type="file" accept="image/jpeg,image/png,image/webp" hidden onchange="pickPhoto(this)"></label>
+          ${P.photo ? `<button type="button" class="btn btn-sm btn-ghost" onclick="P.photo='';renderProfile();renderSide()">حذف</button>` : ""}</div></div>
+        <div class="form-field"><label>نام و نام خانوادگی *</label><input type="text" data-p="name" maxlength="80" value="${e(P.name)}"></div>
+        <div class="form-field"><label>عنوان تخصصی *</label><input type="text" data-p="title" maxlength="90" value="${e(P.title)}" placeholder="مثلاً: دکترای بیوشیمی بالینی · مسئول فنی"></div>
+        <div class="form-field full"><label>بیوگرافی کوتاه *</label><textarea rows="4" maxlength="800" data-p="bio" placeholder="سابقه، تخصص و سبک تدریس">${e(P.bio)}</textarea></div>
+        <div class="form-field full"><label>حوزه‌های تدریس</label>${catPick}</div>
+        <div class="form-field"><label>شهر</label>${city}</div>
+        <div class="form-field"><label>سال‌های سابقه‌ی تدریس</label><input type="number" min="0" max="60" data-p="years" value="${e(P.years)}"></div>
+        <div class="form-field full"><label>سابقه‌ی تدریس و همکاری‌ها</label><textarea rows="3" maxlength="800" data-p="history" placeholder="دانشگاه‌ها، آزمایشگاه‌ها و کارگاه‌هایی که در آن‌ها تدریس کرده‌اید">${e(P.history)}</textarea></div>
+        <div class="form-field full"><label>لینکدین</label><input type="url" dir="ltr" maxlength="200" data-p="linkedin" value="${e(P.linkedin)}" placeholder="https://www.linkedin.com/in/..."></div>
+      </div></div>`;
+  const business = `
+      <div class="panel"><div class="form-grid">${acctSel}
+        <div class="form-field"><label>نام مرکز *</label><input type="text" data-p="centerName" maxlength="90" value="${e(P.centerName)}"></div>
+        <div class="form-field"><label>نوع مرکز *</label><select data-p="kind">${BIZ_KINDS.map(k => `<option ${P.kind === k ? "selected" : ""}>${k}</option>`).join("")}</select></div>
+        <div class="form-field full"><label>معرفی مرکز</label><textarea rows="3" maxlength="800" data-p="bio">${e(P.bio)}</textarea></div>
+        <div class="form-field full"><label>مجوزها و اعتبارنامه‌ها</label><input type="text" data-p="licenses" maxlength="200" value="${e(P.licenses)}" placeholder="مثلاً: مجوز آموزش آزاد فنی‌وحرفه‌ای، عضو انجمن علوم آزمایشگاهی"></div>
+        <div class="form-field full"><label>حوزه‌های آموزشی</label>${catPick}</div>
+        <div class="form-field"><label>شهر *</label>${city}</div>
+        <div class="form-field"><label>تلفن *</label><input type="tel" dir="ltr" maxlength="20" data-p="phone" value="${e(P.phone)}" placeholder="02122220000"></div>
+        <div class="form-field full"><label>نشانی</label><input type="text" maxlength="200" data-p="address" value="${e(P.address)}"></div>
+        <div class="form-field full"><label>وب‌سایت</label><input type="url" dir="ltr" maxlength="200" data-p="website" value="${e(P.website)}" placeholder="https://"></div>
+      </div></div>
+      <div class="panel"><h2>مدرسان مرکز</h2>
+        <p style="margin-bottom:10px">مدرسانی که برای مرکز شما تدریس می‌کنند؛ در سازنده‌ی دوره قابل انتخاب‌اند.</p>
+        <div class="list-edit tch-list">${P.staff.map((s, i) => `<div class="le-row"><input placeholder="نام مدرس" value="${e(s.name)}" oninput="P.staff[${i}].name=this.value"><input placeholder="عنوان / تخصص" value="${e(s.title)}" oninput="P.staff[${i}].title=this.value"><button type="button" onclick="P.staff.splice(${i},1);renderProfile()">✕</button></div>`).join("")
+          || '<p style="font-size:12.5px;color:var(--navy-400)">هنوز مدرسی اضافه نشده است.</p>'}</div>
+        <button type="button" class="btn btn-sm btn-outline" style="margin-top:10px" onclick="P.staff.push({name:'',title:''});renderProfile()">+ مدرس</button>
+      </div>`;
+  document.getElementById("pf-form").innerHTML = (biz ? business : personal) + `
+    <div class="panel"><h2>پیش‌نمایش در آکادمی</h2><div class="instr-grid" style="max-width:320px">${previewCard()}</div></div>
+    <div style="display:flex;justify-content:flex-end"><button type="button" class="btn btn-primary btn-lg" onclick="saveProfile()">ذخیره پروفایل</button></div>`;
+  document.querySelectorAll("#pf-form [data-p]").forEach(el => el.addEventListener("input", () => { P[el.dataset.p] = el.value; }));
+  document.querySelectorAll("#pf-form select[data-p]").forEach(el => el.addEventListener("change", () => { P[el.dataset.p] = el.value; }));
+}
+function previewCard() {
+  const biz = acct() === "business", n = displayName();
+  return `<div class="instr-card">
+    <div class="avatar" style="background:${P.photo && !biz ? `url(${P.photo}) center/cover` : "var(--teal-600)"}">${P.photo && !biz ? "" : e(n.replace("دکتر ", "").charAt(0))}</div>
+    <b>${e(n)}</b><span>${e(biz ? P.kind : (P.title || "عنوان تخصصی"))}</span><span>${e(P.city || "")}</span>
+    <div class="im"><span>${fa(myDrafts().length)} دوره</span><span>${P.cats.map(c => courseCat(c).name).slice(0, 2).join("، ") || "حوزه‌ها"}</span></div></div>`;
+}
+function toggleCat(id, b) { P.cats = P.cats.includes(id) ? P.cats.filter(x => x !== id) : [...P.cats, id]; b.classList.toggle("on"); }
+function switchAcct(k) { Auth.login(U.name, "teacher", Object.assign({}, Auth.user, { acct: k })); U = Auth.user; renderAll(); toast("نوع حساب: " + ACCTS[k]); }
+function pickPhoto(input) {
+  const f = input.files && input.files[0]; if (!f) return;
+  if (!/^image\//.test(f.type)) return toast("فقط تصویر");
+  const fr = new FileReader();
+  fr.onload = () => { const im = new Image(); im.onload = () => {
+    const k = Math.min(1, 320 / im.width), c = document.createElement("canvas");
+    c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+    c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); P.photo = c.toDataURL("image/jpeg", 0.8); renderProfile(); renderSide(); };
+    im.src = fr.result; };
+  fr.readAsDataURL(f);
+}
+function saveProfile() {
+  const biz = acct() === "business";
+  if (biz) {
+    if (!(P.centerName || "").trim() || !P.city) return toast("نام مرکز و شهر لازم است");
+    const ph = String(P.phone || "").replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[\s-]/g, "");
+    if (!/^0\d{9,10}$/.test(ph)) return toast("تلفن مرکز را با پیش‌شماره وارد کنید");
+    P.phone = ph;
+    P.staff = P.staff.filter(s => (s.name || "").trim());
+  } else if (!(P.name || "").trim() || !(P.title || "").trim() || !(P.bio || "").trim()) return toast("نام، عنوان تخصصی و بیوگرافی لازم است");
+  if ([P.linkedin, P.website].some(u => u && !/^https:\/\/[^\s<>"']+$/.test(u))) return toast("لینک‌ها باید با https:// شروع شوند");
+  try { TeacherProfile.set(P); } catch (_) { return toast("حافظه‌ی مرورگر پر است؛ عکس کوچک‌تری انتخاب کنید"); }
+  renderAll(); toast("پروفایل ذخیره شد ✓");
+}
+
+/* ---------- دوره‌های من ---------- */
+function renderCourses() {
+  const list = myDrafts(), st = { draft: "پیش‌نویس", pending: "در انتظار بازبینی", published: "منتشرشده" };
+  const n = k => list.filter(c => c.status === k).length;
+  document.getElementById("crs-stats").innerHTML = `
+    <div class="dash-stat"><b>${fa(list.length)}</b><span>دوره ساخته‌شده</span></div>
+    <div class="dash-stat"><b>${fa(n("pending"))}</b><span>در انتظار بازبینی</span></div>
+    <div class="dash-stat"><b>${fa(n("published"))}</b><span>منتشرشده</span></div>
+    <div class="dash-stat"><b>${fa(n("draft"))}</b><span>پیش‌نویس</span></div>`;
+  document.getElementById("my-created").innerHTML = list.length ? list.map(c => {
+    const d = draftAsCourse(JSON.parse(JSON.stringify(c))), lessons = d.syllabus.flatMap(m => m.lessons);
+    const types = Object.entries(AIO_LESSON_TYPES).map(([k, t]) => [t, lessons.filter(l => l.type === k).length]).filter(([, x]) => x).map(([t, x]) => `${t.icon} ${fa(x)}`).join(" ");
+    return `<div class="created-row">
+      <div><b>${e(c.title || "بدون عنوان")} <span class="status-pill ${c.status}">${st[c.status]}</span></b>
+        <small>${courseCat(d.cat).name} · ${courseFormat(d.format).short} · ${fa(d.syllabus.length)} ماژول · ${fa(lessons.length)} درس ${types ? "(" + types + ")" : ""} · ${fa(courseSessions(d).length)} نوبت · ${coursePrice(d)}</small></div>
+      <div class="cr-act">
+        <a class="btn btn-sm btn-outline" href="course.html?draft=${c.id}">پیش‌نمایش</a>
+        <a class="btn btn-sm btn-primary" href="course-builder.html?id=${c.id}">ویرایش</a>
+      </div></div>`;
+  }).join("") : `<div class="empty-inline">هنوز دوره‌ای نساخته‌اید. «ساخت دوره جدید» را بزنید؛ پیش‌نویس‌ها همین‌جا ذخیره می‌شوند.</div>`;
+}
+
+/* ---------- برنامه کلاس‌ها ---------- */
+const editAction = r => `<a class="btn btn-sm btn-outline" href="course-builder.html?id=${r.course.id}&step=4">ویرایش نوبت</a>`;
+function renderSchedule() {
+  const rows = upcomingSessions(0, myCourses()).map(r => Object.assign(r, { action: editAction(r) }));
+  document.getElementById("sch-table").innerHTML = sessionsTableHTML(rows, { href: "#", empty: "هنوز نوبتی ثبت نشده است. در سازنده‌ی دوره، شیوه‌ی برگزاری را «حضوری»، «ترکیبی» یا «آنلاین زنده» کنید و نوبت‌ها را وارد کنید." });
+  document.querySelectorAll("#sch-table .sx-title").forEach((a, i) => a.href = "course.html?draft=" + rows[i].course.id + "#sessions");
+}
+
+/* ---------- دانشجویان و درآمد (نمونه) ---------- */
+function sampleStudents() {
+  const titles = myDrafts().map(c => c.title).filter(Boolean);
+  const t = i => titles.length ? titles[i % titles.length] : "دوره‌ی نمونه‌ی شما";
+  return [
+    ["مریم رضایی", 0, "تهران · حضوری", "۱۴۰۵/۰۸/۰۲", 64, false], ["حسین کریمی", 0, "آنلاین زنده", "۱۴۰۵/۰۷/۲۸", 100, true],
+    ["زهرا احمدی", 1, "کرج · حضوری", "۱۴۰۵/۰۸/۱۰", 30, false], ["علی موسوی", 0, "خودآموز", "۱۴۰۵/۰۷/۱۵", 88, false],
+    ["آزمایشگاه نور (۴ نفر)", 1, "حساب سازمانی · در محل مرکز", "۱۴۰۵/۰۸/۱۲", 45, false]
+  ].map(([n, i, s, d, p, c]) => ({ name: n, course: t(i), session: s, date: d, pct: p, cert: c }));
+}
+function renderStudents() {
+  document.getElementById("stu-body").innerHTML = sampleStudents().map(r => `<tr>
+    <td><b>${e(r.name)}</b></td><td>${e(r.course)}</td><td>${e(r.session)}</td><td>${r.date}</td>
+    <td><div class="bar" style="height:6px;background:var(--navy-100);border-radius:9px;overflow:hidden;min-width:80px"><i style="display:block;height:100%;width:${r.pct}%;background:var(--teal-600)"></i></div><small>${fa(r.pct)}٪</small></td>
+    <td>${r.cert ? '<span class="chip teal">صادر شد</span>' : "—"}</td></tr>`).join("");
+}
+function sampleEarnings() {
+  const list = myCourses().filter(c => c.price);
+  const base = list.length ? list : [{ title: "دوره‌ی نمونه‌ی شما", price: 1800000 }];
+  return base.map((c, i) => { const n = [12, 7, 4, 3][i % 4], total = n * c.price, fee = Math.round(total * 0.2);
+    return { title: c.title || "بدون عنوان", n, total, fee, mine: total - fee, st: i ? "در انتظار تسویه ماه بعد" : "تسویه شد" }; });
+}
+function renderEarnings() {
+  const rows = sampleEarnings(), sum = k => rows.reduce((s, r) => s + r[k], 0);
+  document.getElementById("earn-stats").innerHTML = `
+    <div class="dash-stat"><b>${fa(sum("n"))}</b><span>ثبت‌نام پولی</span></div>
+    <div class="dash-stat"><b>${fa(sum("total"))}</b><span>مبلغ کل (تومان)</span></div>
+    <div class="dash-stat"><b>${fa(sum("mine"))}</b><span>سهم شما (تومان)</span></div>
+    <div class="dash-stat"><b>۸۰٪</b><span>سهم ارائه‌دهنده</span></div>`;
+  document.getElementById("earn-body").innerHTML = rows.map(r => `<tr><td><b>${e(r.title)}</b></td><td>${fa(r.n)}</td><td>${fa(r.total)}</td><td>${fa(r.fee)}</td><td><b>${fa(r.mine)}</b></td><td><span class="chip ${r.st === "تسویه شد" ? "teal" : ""}">${r.st}</span></td></tr>`).join("");
+}
+function savePayout() {
+  const iban = document.getElementById("pay-iban").value.replace(/\s/g, "").toUpperCase();
+  if (iban && !/^IR\d{24}$/.test(iban)) return toast("شماره شبا باید با IR و ۲۴ رقم باشد");
+  Store.set("teacher_payout", { owner: document.getElementById("pay-owner").value.trim(), iban });
+  toast("اطلاعات تسویه ذخیره شد ✓");
+}
+
+/* ---------- آموزش سازمانی ---------- */
+function saveOrgOffer() {
+  const t = document.getElementById("org-title").value.trim();
+  if (t.length < 6) return toast("عنوان کارگاه را بنویسید");
+  const price = document.getElementById("org-price").value;
+  Store.push("teach_org_offers", { title: t, cat: document.getElementById("org-cat").value, hours: Number(document.getElementById("org-hours").value) || null,
+    price: price === "" ? null : Number(price), cities: document.getElementById("org-cities").value.trim(), status: "pending" });
+  ["org-title", "org-hours", "org-price", "org-cities"].forEach(id => document.getElementById(id).value = "");
+  renderOrgOffers(); toast("پیشنهاد ثبت شد ✓ پس از تأیید به آزمایشگاه‌ها و شرکت‌ها نشان داده می‌شود");
+}
+function renderOrgOffers() {
+  const list = Store.get("teach_org_offers", []);
+  document.getElementById("org-offers").innerHTML = list.length ? `<div class="table-wrap"><table class="data"><thead><tr><th>کارگاه</th><th>حوزه</th><th>مدت</th><th>هزینه</th><th>شهرها</th><th>وضعیت</th><th></th></tr></thead><tbody>${list.map((o, i) => `<tr>
+      <td><b>${e(o.title)}</b></td><td>${courseCat(o.cat).name || "—"}</td><td>${o.hours ? fa(o.hours) + " ساعت" : "—"}</td><td>${o.price == null ? "توافقی" : fa(o.price) + " تومان"}</td><td>${e(o.cities || "—")}</td>
+      <td><span class="status-pill pending">در انتظار تأیید</span></td><td><button class="btn btn-sm btn-ghost" style="color:var(--rose-500)" onclick="delOffer(${i})">حذف</button></td></tr>`).join("")}</tbody></table></div>` : "";
+}
+function delOffer(i) { const a = Store.get("teach_org_offers", []); a.splice(i, 1); Store.set("teach_org_offers", a); renderOrgOffers(); }
+</script>
+</body>
+</html>

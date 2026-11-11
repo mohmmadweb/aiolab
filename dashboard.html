@@ -35,11 +35,13 @@
     <nav class="dash-nav" id="dash-nav">
       <a href="#overview" class="active" data-sec="overview"></a>
       <a href="#resume" data-sec="resume"></a>
+      <a href="#otwad" data-sec="otwad"></a>
       <a href="#matches" data-sec="matches"></a>
       <a href="#applications" data-sec="applications"></a>
       <a href="#alerts" data-sec="alerts"></a>
       <a href="#courses" data-sec="courses"></a>
       <a href="#certs" data-sec="certs"></a>
+      <a href="#challenges" data-sec="challenges"></a>
       <a href="#saved" data-sec="saved"></a>
       <a href="#career" data-sec="career"></a>
       <a href="#services" data-sec="services"></a>
@@ -89,6 +91,20 @@
       <h1 class="dash-title">رزومه حرفه‌ای من</h1>
       <p class="dash-sub">رزومه‌ی آیولب آیتمی است: به‌جای نوشتن متن، از فهرست‌های استاندارد انتخاب کنید تا کارفرمایان دقیق پیدایتان کنند و موتور تطبیق، پوزیشن‌های مناسب را به شما پیشنهاد دهد.</p>
       <div id="resume-builder"></div>
+    </section>
+
+    <!-- ===== آگهی آماده به کار (همراه رزومه) ===== -->
+    <section id="sec-otwad">
+      <h1 class="dash-title">آگهی آماده به کار</h1>
+      <p class="dash-sub">اعلام کنید آماده‌ی همکاری هستید؛ این آگهی همراه رزومه‌ی شما در بخش «پرسنل آماده به کار» پنل آزمایشگاه‌ها و شرکت‌ها دیده می‌شود.</p>
+      <div id="otw-ad"></div>
+    </section>
+
+    <!-- ===== چالش‌های علمی من ===== -->
+    <section id="sec-challenges">
+      <h1 class="dash-title">چالش‌های علمی من</h1>
+      <p class="dash-sub">سؤال هفتگی و ماهانه؛ سه پاسخ برتر با نام و پروفایل روی سایت نمایش داده می‌شود. <a href="challenges.html">چالش‌های باز</a></p>
+      <div id="my-challenges"></div>
     </section>
 
     <!-- ===== پیشنهادهای شغلی (تطبیق) ===== -->
@@ -274,16 +290,19 @@
 <script src="assets/js/talent-ui.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/challenges.js"></script>
 <script src="assets/js/resume-builder.js"></script>
 <script>
 const NAV_ITEMS = [
   ["overview", "پیشخوان", "home"],
   ["resume", "رزومه حرفه‌ای من", "doc"],
+  ["otwad", "آگهی آماده به کار", "send"],
   ["matches", "پوزیشن‌های مناسب من", "path"],
   ["applications", "درخواست‌های من", "send"],
   ["alerts", "هشدارهای شغلی", "bell"],
   ["courses", "دوره‌های من", "grad"],
   ["certs", "گواهی و خودارزیابی", "shield"],
+  ["challenges", "چالش‌های علمی من", "trophy"],
   ["saved", "آگهی‌های ذخیره‌شده", "bookmark"],
   ["career", "مسیر ارتقاء شغلی", "path"],
   ["services", "خدمات ویژه من", "briefcase"],
@@ -330,6 +349,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderOTW();
   initOnboard();
+  renderOtwAd();
+  if (typeof ChallengeMine !== "undefined") ChallengeMine.mount(document.getElementById("my-challenges"));
   initAlerts();
   initCerts();
   initSeekerServices();
@@ -481,6 +502,33 @@ function renderOTW() {
   b.classList.toggle("off", !on);
   b.innerHTML = `<span class="dot"></span> ${on ? "آماده به کار" : "غیرفعال — برای دیده‌شدن روشن کنید"}`;
   b.setAttribute("aria-pressed", String(on));
+}
+
+/* آگهی آماده به کار: نقش‌ها، شهرها، زمان آمادگی و پیام کوتاه + محل(های) کار فعلی از رزومه */
+function renderOtwAd() {
+  const host = document.getElementById("otw-ad"); if (!host) return;
+  const r = loadResume(), on = Store.get("otw", false);
+  const ad = Object.assign({ roles: r.targetRoles || [], cities: r.city ? [r.city] : [], availability: r.availability || "now", note: "" }, Store.get("otw_ad", {}));
+  const cur = (r.experience || []).filter(x => !x.end);
+  host.innerHTML = `<div class="panel"><div class="form-grid">
+      <div class="form-field full"><label>نقش‌هایی که آماده‌ی همکاری در آن هستید</label>${TUI.picker({ multi: true, options: TUI.O.roles(), value: ad.roles, addLabel: "نقش", onChange: v => ad.roles = v })}</div>
+      <div class="form-field full"><label>شهرها</label>${TUI.picker({ multi: true, options: TUI.O.cities(), value: ad.cities, addLabel: "شهر", onChange: v => ad.cities = v })}</div>
+      <div class="form-field"><label>زمان آمادگی</label>${TUI.picker({ options: TUI.O.availability(), value: ad.availability, onChange: v => ad.availability = v })}</div>
+      <div class="form-field full"><label>پیام کوتاه به کارفرما</label><textarea rows="2" maxlength="200" id="otw-note" placeholder="مثلاً: ۶ سال کار مستقل با Sysmex XN؛ شیفت عصر را ترجیح می‌دهم">${TUI.e(ad.note)}</textarea></div>
+    </div>
+    <p class="muted" style="font-size:13px">محل کار فعلی شما (از رزومه): ${cur.length ? cur.map(x => x.orgId ? `<a href="lab.html?id=${x.orgId}">${TUI.e(x.orgName)}</a>` : TUI.e(x.orgName)).join("، ") + " — اگر هم‌زمان در چند جا کار می‌کنید، همه را در سوابق رزومه با «تا امروز» ثبت کنید." : 'ثبت نشده — در <a href="#resume" onclick="showSec(\'resume\')">رزومه</a> سابقه‌ی فعلی را با «تا امروز» اضافه کنید.'}</p>
+    <div class="fb-actions"><button type="button" class="btn btn-primary" id="otw-save">${on ? "به‌روزرسانی آگهی" : "انتشار آگهی آماده به کار"}</button>
+      ${on ? '<button type="button" class="btn btn-ghost" id="otw-off">برداشتن آگهی</button>' : ""}<span class="chip ${on ? "teal" : ""}">${on ? "فعال — کارفرمایان می‌بینند" : "غیرفعال"}</span></div></div>`;
+  host.querySelector("#otw-save").onclick = () => {
+    ad.note = host.querySelector("#otw-note").value.trim();
+    if (!ad.roles.length) return toast("حداقل یک نقش انتخاب کنید");
+    Store.set("otw_ad", ad); Store.set("otw", true);
+    /* رزومه هم با آمادگی هم‌گام شود تا تطبیق و بانک رزومه یکی باشند */
+    const rs = Store.get("resume", null); if (rs) { rs.otw = true; rs.availability = ad.availability; Store.set("resume", rs); }
+    renderOTW(); initOnboard(); renderOtwAd(); toast("آگهی آماده به کار منتشر شد ✓ همراه رزومه برای آزمایشگاه‌ها و شرکت‌ها دیده می‌شود");
+  };
+  const off = host.querySelector("#otw-off");
+  if (off) off.onclick = () => { Store.set("otw", false); const rs = Store.get("resume", null); if (rs) { rs.otw = false; Store.set("resume", rs); } renderOTW(); initOnboard(); renderOtwAd(); toast("آگهی برداشته شد"); };
 }
 
 function toggleOTW() {

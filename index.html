@@ -114,6 +114,9 @@
   <div class="container hero-inner">
     <h1>مسیر شغلی تو در <em>آزمایشگاه</em>، از همین‌جا شروع می‌شود</h1>
     <p class="sub">آیولب، پلتفرم تخصصی کاریابی پرسنل آزمایشگاه‌های تشخیص طبی و پژوهشی؛ کارجو رزومه حرفه‌ای می‌سازد، آزمایشگاه نیروی متخصص پیدا می‌کند.</p>
+    <div class="hero-personas">
+      <a href="#personas">👤 کارجو</a><a href="register.html?role=lab">🏥 آزمایشگاه هستم</a><a href="register.html?role=company">🏭 شرکت هستم</a><a href="register.html?role=teacher">🎓 مدرس / آموزشگاه</a>
+    </div>
 
     <form class="search-box" onsubmit="goSearch(event)">
       <div class="field">
@@ -214,6 +217,32 @@
     </div>
   </div>
 </div>
+
+<!-- ================= چهار پرسونا ================= -->
+<section class="section" id="personas">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>آیولب برای همه‌ی اهالی آزمایشگاه</h2>
+        <p>کارجو، آزمایشگاه، شرکت یا مدرس — هرکدام مسیر و پنل خودشان را دارند و همه به هم وصل‌اند</p>
+      </div>
+    </div>
+    <div class="persona-grid" id="persona-grid"></div>
+  </div>
+</section>
+
+<!-- ================= پیش‌نمایش همه‌چیز ================= -->
+<section class="section alt" id="pulse">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>این روزها در آیولب</h2>
+        <p>پیش‌نمایشی از چالش علمی، محصولات تازه، کلاس‌های پیش‌رو و پرسنل آماده به کار</p>
+      </div>
+    </div>
+    <div class="pulse-grid" id="pulse-grid"></div>
+  </div>
+</section>
 
 <!-- ================= CATEGORIES ================= -->
 <section class="section" id="categories">
@@ -332,6 +361,28 @@
   </div>
 </section>
 
+<!-- ================= شرکت‌ها، محصولات و تعمیرکاران ================= -->
+<section class="section" id="companies">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>شرکت‌ها، محصولات و تعمیرکاران</h2>
+        <p>تولیدی، وارداتی، پخش و خدماتی — محصول را با جزئیات فنی پیدا کنید یا تعمیرکار دستگاهتان را بیابید</p>
+      </div>
+      <a class="more" href="companies.html">همه شرکت‌ها ←</a>
+    </div>
+    <div class="ctype-strip" id="home-ctypes"></div>
+    <div class="lab-grid" id="home-companies"></div>
+    <form class="mk-search home-repair" onsubmit="goRepair(event)">
+      <b>🔧 تعمیرکار دستگاهتان را پیدا کنید:</b>
+      <select id="hr-group" aria-label="گروه"><option value="">گروه</option></select>
+      <select id="hr-brand" aria-label="برند"><option value="">برند</option></select>
+      <input type="text" id="hr-model" dir="ltr" placeholder="مدل (مثلاً 912)" aria-label="مدل">
+      <button class="btn btn-primary">پیدا کن</button>
+    </form>
+  </div>
+</section>
+
 <!-- ================= SERVICES ================= -->
 <section class="section" id="services">
   <div class="container">
@@ -420,7 +471,75 @@
 <script src="assets/js/talent-ui.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/challenges.js"></script>
+<script src="assets/js/marketplace.js"></script>
+<script src="assets/js/academy-extra.js"></script>
 <script>
+/* ---------- چهار پرسونا: هر کارت = کارهای اصلی همان نقش + ورود به پنلش ---------- */
+const PERSONAS = [
+  { id: "seeker", icon: "users", color: "#0d9488", bg: "#ccfbf1", title: "کارجو", sub: "پرسنل، دانشجو و تازه‌کار آزمایشگاه",
+    links: [["dashboard.html#resume", "ثبت رزومه با رزومه‌ساز"], ["dashboard.html#otwad", "آگهی «آماده به کار»"], ["jobs.html", "فرصت‌های شغلی"],
+            ["labs.html", "آزمایشگاه‌ها و شرکت‌ها"], ["courses.html", "دوره‌های آموزشی"], ["exams.html", "آزمون رسمی و گواهی"], ["challenges.html", "چالش علمی هفتگی و ماهانه"]],
+    cta: ["register.html", "ثبت‌نام کارجو"] },
+  { id: "lab", icon: "flask", color: "#0369a1", bg: "#e0f2fe", title: "آزمایشگاه", sub: "تشخیص طبی، بیمارستانی، پژوهشی",
+    links: [["employer.html#post", "آگهی استخدام و نتیجه‌ی آگهی"], ["employer.html#otw", "پرسنل آماده به کار"], ["products.html", "جستجوی محصول با جزئیات فنی"],
+            ["products.html?tab=repair", "یافتن تعمیرکار دستگاه"], ["ranking.html", "آزمایشگاه‌ها و رقبا"], ["courses.html?view=table", "جدول دوره‌ها برای پرسنل"], ["employer.html#sponsor", "اسپانسری چالش علمی"]],
+    cta: ["register.html?role=lab", "ثبت آزمایشگاه"] },
+  { id: "company", icon: "building", color: "#6d28d9", bg: "#ede9fe", title: "شرکت", sub: "تولیدی، وارداتی، پخش و خدماتی (تعمیر)",
+    links: [["employer.html#orgprofile", "پروفایل، نمایندگی، کاتالوگ و مدارک"], ["employer.html#products", "محصولات با ویژگی‌های فنی"], ["employer.html#launch", "معرفی دستگاه جدید به آزمایشگاه‌ها"],
+            ["employer.html#inquiries", "استعلام و درخواست تعمیر آزمایشگاه‌ها"], ["employer.html#post", "استخدام نیرو"], ["advertise.html", "تبلیغات"], ["employer.html#sponsor", "اسپانسری مسابقه‌ی علمی"]],
+    cta: ["register.html?role=company", "ثبت شرکت"] },
+  { id: "teacher", icon: "grad", color: "#b45309", bg: "#fef3c7", title: "آموزش", sub: "مدرس شخصی یا آموزشگاه",
+    links: [["course-builder.html", "ساخت دوره: فیلم، متن، پاورپوینت"], ["teach.html#sessions", "کلاس حضوری با محل، روز و مبلغ"], ["course-builder.html", "آزمون پایان دوره و گواهی"],
+            ["teach.html#students", "دانشجویان و درآمد"], ["courses.html", "آکادمی آیولب"]],
+    cta: ["register.html?role=teacher", "ثبت مدرس / آموزشگاه"] }
+];
+function renderPersonas() {
+  const me = Auth.persona;
+  document.getElementById("persona-grid").innerHTML = PERSONAS.map(p => `
+    <div class="persona-card ${me === p.id ? "me" : ""}" style="--pc:${p.color};--pbg:${p.bg}">
+      <div class="pc-top"><span class="pc-ic">${ICONS[p.icon]}</span><div><h3>${p.title}</h3><small>${p.sub}</small></div>${me === p.id ? '<span class="chip teal">شما</span>' : ""}</div>
+      <ul>${p.links.map(([h, t]) => `<li><a href="${h}">${t}</a></li>`).join("")}</ul>
+      <a class="btn ${me === p.id ? "btn-primary" : "btn-outline"} btn-block" href="${me === p.id ? personaHome().href : p.cta[0]}">${me === p.id ? "ورود به " + personaHome().label : p.cta[1]}</a>
+    </div>`).join("");
+}
+/* ---------- پیش‌نمایش: چالش، محصولات تازه، کلاس‌های پیش‌رو، پرسنل آماده به کار ---------- */
+function renderPulse() {
+  const e = TUI.e, cards = [];
+  const open = typeof openChallenges === "function" ? openChallenges() : [];
+  cards.push(`<div class="pulse-card"><div class="pulse-h"><b>🏆 چالش علمی</b><a href="challenges.html">همه ←</a></div>
+    ${open.length ? `<div class="ch-grid one">${challengeCardHTML(open[0])}</div>` : '<p class="muted">چالش بازی نیست؛ نتایج را ببینید.</p>'}
+    ${typeof pastChallenges === "function" && pastChallenges().find(c => (c.winners || []).length) ? `<small class="muted">برنده‌ی اول چالش قبل: <b>${e(pastChallenges().find(c => (c.winners || []).length).winners[0].name)}</b></small>` : ""}</div>`);
+  const fresh = filterProducts({ isNew: true }).slice(0, 2);
+  cards.push(`<div class="pulse-card"><div class="pulse-h"><b>✨ محصولات تازه</b><a href="products.html?new=1">همه ←</a></div>
+    <div class="prod-grid two">${fresh.map(p => TUI.productCard(p)).join("") || '<p class="muted">محصول تازه‌ای نیست.</p>'}</div></div>`);
+  const ses = typeof upcomingSessions === "function" ? upcomingSessions(3) : [];
+  cards.push(`<div class="pulse-card"><div class="pulse-h"><b>📅 کلاس‌های حضوری و زنده</b><a href="courses.html?view=table">جدول کامل ←</a></div>
+    ${ses.length ? `<ul class="pulse-list">${ses.map(({ course: c, session: s }) => `<li><a href="course.html?id=${c.id}"><b>${e(c.title)}</b></a><small>${e([s.city, s.days, s.start].filter(Boolean).join(" · "))}</small></li>`).join("")}</ul>` : '<p class="muted">کلاس پیش‌رویی ثبت نشده است.</p>'}</div>`);
+  const otw = otwPeople();
+  cards.push(`<div class="pulse-card"><div class="pulse-h"><b>🟢 پرسنل آماده به کار</b><a href="employer.html#otw">مشاهده ←</a></div>
+    <div class="otw-mini">${otw.slice(0, 5).map(c => `<span class="avatar" title="${e(TUI.candSummary(c))}" style="background:${c.color || "#0d9488"}">${e(c.name.charAt(0))}</span>`).join("")}</div>
+    <p class="muted" style="margin:8px 0 0">${fa(otw.length)} نفر همین حالا آماده‌ی همکاری‌اند؛ ${fa(otw.filter(c => (c.experience || []).some(x => !x.end)).length)} نفر شاغل‌اند و دنبال موقعیت بهتر.</p>
+    <a class="btn btn-sm btn-outline" style="margin-top:10px" href="dashboard.html#otwad">آگهی آماده به کار من</a></div>`);
+  document.getElementById("pulse-grid").innerHTML = cards.join("");
+}
+/* ---------- شرکت‌ها و تعمیرکاران ---------- */
+function renderCompanies() {
+  const cos = AIO_LABS.map(l => orgFull(l.id)).filter(o => o.orgType === "company");
+  document.getElementById("home-ctypes").innerHTML = Tax.list("companyTypes").map(t =>
+    `<a class="ctype" href="companies.html?type=${t.id}"><b>${TUI.e(t.name)}</b><small>${fa(cos.filter(o => orgCompanyTypes(o).includes(t.id)).length)} شرکت</small></a>`).join("");
+  document.getElementById("home-companies").innerHTML = cos.slice(0, 4).map(labCardHTML).join("");
+  document.getElementById("hr-group").insertAdjacentHTML("beforeend", Tax.list("groups").map(g => `<option value="${g.id}">${TUI.e(g.name)}</option>`).join(""));
+  document.getElementById("hr-brand").insertAdjacentHTML("beforeend", Tax.list("brands").map(b => `<option value="${b.id}">${TUI.e(b.name)}</option>`).join(""));
+}
+function goRepair(ev) {
+  ev.preventDefault();
+  const q = new URLSearchParams({ tab: "repair" });
+  [["rgroup", "hr-group"], ["rbrand", "hr-brand"], ["model", "hr-model"]].forEach(([k, id]) => { const v = document.getElementById(id).value.trim(); if (v) q.set(k, v); });
+  location.href = "products.html?" + q.toString();
+}
+document.addEventListener("DOMContentLoaded", () => { renderPersonas(); renderPulse(); renderCompanies(); });
+
 const ADV = [
   ["a-type", AIO_JOB_TYPES], ["a-shift", AIO_SHIFTS], ["a-exp", AIO_EXPERIENCES],
   ["a-degree", AIO_DEGREES], ["a-field", AIO_FIELDS_STUDY], ["a-gender", AIO_GENDERS],

@@ -37,9 +37,15 @@
 <div class="container detail-layout">
   <main>
     <nav class="crs-tabs">
-      <a href="#about" class="on">درباره دوره</a><a href="#outcomes">دستاوردها</a><a href="#syllabus">سرفصل</a>
+      <a href="#about" class="on">درباره دوره</a><a href="#sessions" id="tab-sessions" hidden>زمان و محل</a><a href="#outcomes">دستاوردها</a><a href="#syllabus">سرفصل</a>
       <a href="#instructors">مدرسان</a><a href="#reviews">نظرات</a><a href="#faq">سؤالات</a>
     </nav>
+
+    <div class="panel" id="sessions" hidden>
+      <h2>زمان و محل برگزاری</h2>
+      <p id="c-sess-sub" style="margin-bottom:12px"></p>
+      <div id="c-sessions"></div>
+    </div>
 
     <div class="panel" id="outcomes">
       <h2>در این دوره چه چیزی یاد می‌گیرید؟</h2>
@@ -103,6 +109,7 @@
 <script src="assets/js/talent-ui.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/academy-extra.js"></script>
 <script>
 let C;
 const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5L20 7"/></svg>';
@@ -153,6 +160,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("c-prereq").innerHTML = C.prereq.map(a => `<li>${a}</li>`).join("") || "<li>این دوره پیش‌نیاز ندارد.</li>";
 
   renderSyllabus();
+  renderSessions();
+  if (location.hash === "#sessions" && courseSessions(C).length) setTimeout(() => document.getElementById("sessions").scrollIntoView({ block: "start" }), 150);
 
   document.getElementById("c-instructors").innerHTML = C.instructorIds.map(id => {
     const i = instructor(id);
@@ -265,6 +274,23 @@ function renderEnroll() {
     ${paths.length ? `<div class="ec-path">این دوره بخشی از ${paths.map(p => `<a href="path.html?id=${p.id}">${p.title}</a>`).join(" و ")} است.</div>` : ""}
     ${C.relatedExamId ? `<div class="ec-path">🎖️ آزمون مرتبط: <a href="exam.html?id=${C.relatedExamId}">${AIO_EXAMS.find(e => e.id === C.relatedExamId).title}</a></div>` : ""}
     <button class="btn btn-ghost btn-block btn-sm" style="margin-top:10px" onclick="navigator.clipboard&&navigator.clipboard.writeText(location.href);toast('لینک دوره کپی شد ✓')">🔗 اشتراک‌گذاری</button>`;
+}
+/* نوبت‌های برگزاری — فراگیر در یک نوبت مشخص (شهر/مکان/روز) ثبت‌نام می‌کند */
+function renderSessions() {
+  const list = courseSessions(C);
+  document.getElementById("sessions").hidden = !list.length;
+  document.getElementById("tab-sessions").hidden = !list.length;
+  if (!list.length) return;
+  const draft = typeof C.id === "string";
+  document.getElementById("c-sess-sub").textContent = draft
+    ? "ثبت‌نام در نوبت‌ها پس از بازبینی و انتشار دوره فعال می‌شود."
+    : `${fa(list.length)} نوبت برگزاری · ${courseFormat(C.format).name} — نوبت مناسب خود را انتخاب و ثبت‌نام کنید.`;
+  document.getElementById("c-sessions").innerHTML = sessionsTableHTML(list.map((s, i) => ({
+    course: C, session: s, index: i,
+    action: draft ? '<span class="chip">پس از انتشار</span>'
+      : (typeof MySessions !== "undefined" && MySessions.has(C.id, i)) ? '<span class="sx-booked">✓ ثبت‌نام شده</span>'
+      : `<button class="btn btn-sm btn-primary" onclick="enrollSession(${C.id},${i});renderSessions();renderEnroll()">ثبت‌نام در این نوبت</button>`
+  })), { href: "#sessions" });
 }
 function wish() { const on = MyWishlist.toggle(C.id); toast(on ? "به علاقه‌مندی‌ها اضافه شد ✓" : "از علاقه‌مندی‌ها حذف شد"); renderEnroll(); }
 </script>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>پنل مدیریت سایت | آیولب</title>
+<meta name="description" content="پنل مدیریت آیولب: تعریف نوع شرکت و آزمایشگاه، گروه و دسته‌ی محصول، ویژگی‌های پارامتریک، برندها، تأیید پیشنهادها و مدارک، و مدیریت چالش‌های علمی.">
+<meta name="theme-color" content="#0d9488">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://demo.aiolab.ir/admin.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="پنل مدیریت سایت | آیولب">
+<meta property="og:description" content="پنل مدیریت آیولب: طبقه‌بندی پویا، تأیید پیشنهادها و مدارک، و مدیریت چالش‌های علمی.">
+<meta property="og:url" content="https://demo.aiolab.ir/admin.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>body{background:var(--navy-50)}</style>
+</head>
+<body data-page="admin.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="container dash-layout">
+  <aside class="dash-side">
+    <div class="dash-profile">
+      <div class="avatar" style="border-radius:16px;background:var(--navy-700)">م</div>
+      <b>مدیر سایت</b>
+      <span>پنل مدیریت آیولب</span>
+    </div>
+    <nav class="dash-nav" id="dash-nav"></nav>
+  </aside>
+
+  <main class="dash-main">
+    <div class="demo-note" style="margin-bottom:16px">🧪 <b>دمو:</b> این پنل در دمو برای همه باز است و تغییرات فقط در همین مرورگر ذخیره می‌شود. در نسخه‌ی اصلی همین بخش‌ها در «تنظیمات آیولب» پیشخوان وردپرس و فقط برای مدیر سایت است.</div>
+    <section id="sec-overview" class="active">
+      <h1 class="dash-title">پیشخوان مدیریت</h1>
+      <p class="dash-sub">همه‌ی فهرست‌های پایه‌ی فرم‌ها و فیلترهای سایت از اینجا تعریف می‌شوند؛ تغییر هر مورد، بلافاصله در فرم ثبت‌نام، پنل شرکت/آزمایشگاه، جستجوی محصول و صفحه‌ی سازمان‌ها دیده می‌شود.</p>
+      <div class="dash-cards" id="ov-cards"></div>
+      <div id="ov-todo"></div>
+    </section>
+    <section id="sec-companyTypes"><h1 class="dash-title">نوع شرکت</h1><p class="dash-sub">مثل تولیدی، وارداتی، توزیع و خدماتی. برای هر نوع تعیین کنید پروفایل شرکت کدام بخش‌ها را بپرسد.</p><div data-ed="companyTypes"></div></section>
+    <section id="sec-labTypes"><h1 class="dash-title">نوع آزمایشگاه / مرکز</h1><div data-ed="labTypes"></div></section>
+    <section id="sec-groups"><h1 class="dash-title">گروه‌های محصول (حوزه‌ها)</h1><p class="dash-sub">مثل بیوشیمی، هورمون، هماتولوژی. شناسه‌ی هم‌نام با بخش‌های شغلی و دسته‌ی دوره‌ها، محصول را به آگهی‌ها و دوره‌های همان حوزه وصل می‌کند.</p><div data-ed="groups"></div></section>
+    <section id="sec-categories"><h1 class="dash-title">دسته‌های محصول و ویژگی‌های هر دسته</h1><p class="dash-sub">ویژگی‌های هر دسته (مثلاً «روش اندازه‌گیری»، «ظرفیت») در فرم محصول شرکت‌ها می‌آید؛ ویژگی‌های «انتخابی» فیلتر جستجوی آزمایشگاه‌ها هم می‌شوند.</p><div id="cat-ed"></div></section>
+    <section id="sec-items"><h1 class="dash-title">تعریف محصولات و دستگاه‌ها</h1><p class="dash-sub">زیر هر گروه: نام آزمایش/کیت (مثل TSH، قند) یا دستگاه (مثل اتوآنالایزر). دستگاه‌ها در «خدمات تعمیر» و «یافتن تعمیرکار» استفاده می‌شوند.</p><div data-ed="items"></div></section>
+    <section id="sec-brands"><h1 class="dash-title">برندها و سازندگان</h1><p class="dash-sub">برای «نماینده‌ی کدام شرکت»، برند محصول و «تعمیر چه برندی».</p><div data-ed="brands"></div></section>
+    <section id="sec-docKinds"><h1 class="dash-title">انواع مدارک</h1><div data-ed="docKinds"></div></section>
+    <section id="sec-proposals"><h1 class="dash-title">پیشنهادهای کاربران</h1><p class="dash-sub">برند، محصول یا دستگاهی که شرکت‌ها در فرم‌ها اضافه کرده‌اند و هنوز در فهرست رسمی نیست.</p><div id="prop-list"></div></section>
+    <section id="sec-documents"><h1 class="dash-title">بررسی مدارک سازمان‌ها</h1><p class="dash-sub">پس از تأیید، نشان «مدارک تأییدشده» روی صفحه‌ی شرکت یا مرکز نمایش داده می‌شود.</p><div id="doc-list"></div></section>
+    <section id="sec-challenges"><h1 class="dash-title">چالش‌های علمی، داوری و اسپانسرها</h1><div id="ch-admin"></div></section>
+  </main>
+</div>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/talent-data.js"></script>
+<script src="assets/js/match.js"></script>
+<script src="assets/js/talent-ui.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/challenges.js"></script>
+<script src="assets/js/marketplace.js"></script>
+<script>
+const e = s => TUI.e(s);
+const NAV_ITEMS = [
+  ["overview", "پیشخوان", "home"], ["companyTypes", "نوع شرکت", "building"], ["labTypes", "نوع آزمایشگاه", "flask"],
+  ["groups", "گروه‌های محصول", "filter"], ["categories", "دسته‌ها و ویژگی‌ها", "settings"], ["items", "تعریف محصول / دستگاه", "machine"],
+  ["brands", "برندها و سازندگان", "star"], ["docKinds", "انواع مدارک", "doc"], ["proposals", "پیشنهادهای کاربران", "comment"],
+  ["documents", "بررسی مدارک", "shield"], ["challenges", "چالش علمی و اسپانسری", "trophy"]
+];
+const ASKS = [["products", "محصولات"], ["brands", "نماینده‌ی کدام برندها"], ["repairs", "خدمات تعمیر"]];
+const KINDS = [["test", "آزمایش / کیت"], ["device", "دستگاه"], ["supply", "مصرفی"], ["software", "نرم‌افزار"], ["service", "خدمت"]];
+/* طرح هر فهرست: ستون‌ها و نوع ورودی */
+const SCHEMA = {
+  companyTypes: [{ k: "name", l: "عنوان", w: 2 }, { k: "desc", l: "توضیح کوتاه", w: 3 }, { k: "asks", l: "پروفایل بپرسد", t: "checks", o: ASKS, w: 3 }],
+  labTypes: [{ k: "name", l: "عنوان", w: 4 }],
+  groups: [{ k: "name", l: "عنوان", w: 4 }],
+  items: [{ k: "name", l: "نام", w: 3 }, { k: "group", l: "گروه", t: "select", o: () => Tax.list("groups").map(g => [g.id, g.name]), w: 2 }, { k: "kind", l: "نوع", t: "select", o: KINDS, w: 2 }],
+  brands: [{ k: "name", l: "نام برند / سازنده", w: 3 }, { k: "country", l: "کشور", w: 2 }],
+  docKinds: [{ k: "_", l: "عنوان", w: 4 }]
+};
+/* تعداد استفاده‌ی هر مورد (پیش از حذف هشدار می‌دهد) */
+function usage(key, x) {
+  const orgs = AIO_LABS.map(l => orgFull(l.id)), prods = aioProducts();
+  if (key === "companyTypes") return orgs.filter(o => orgCompanyTypes(o).includes(x.id)).length;
+  if (key === "labTypes") return orgs.filter(o => o.labType === x.id).length;
+  if (key === "groups") return prods.filter(p => p.group === x.id).length + orgs.filter(o => (o.groups || []).includes(x.id)).length;
+  if (key === "items") return prods.filter(p => p.item === x.id).length + aioRepairs().filter(r => r.item === x.id).length;
+  if (key === "brands") return prods.filter(p => String(p.brand || "").toLowerCase() === x.name.toLowerCase()).length + orgs.filter(o => (o.represents || []).includes(x.id)).length + aioRepairs().filter(r => r.brand === x.id).length;
+  if (key === "categories") return prods.filter(p => p.cat === x.id).length;
+  return 0;
+}
+const slug = (name, list) => { let b = String(name).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "x" + Date.now().toString(36); let id = b, i = 2; while (list.some(x => x.id === id)) id = b + "-" + i++; return id; };
+
+/* ویرایشگر عمومی فهرست: افزودن، ویرایش درجا، جابه‌جایی، حذف، ذخیره، بازگشت به پیش‌فرض */
+function listEditor(host, key) {
+  const sch = SCHEMA[key], isStr = sch[0].k === "_";
+  let rows = JSON.parse(JSON.stringify(Tax.list(key))).map(x => isStr ? { _: x } : x), dirty = false;
+  const cell = (c, x, i) => {
+    const v = x[c.k];
+    if (c.t === "select") { const o = typeof c.o === "function" ? c.o() : c.o; return `<select data-i="${i}" data-k="${c.k}">${o.map(([a, b]) => `<option value="${e(a)}" ${a === v ? "selected" : ""}>${e(b)}</option>`).join("")}</select>`; }
+    if (c.t === "checks") return `<div class="adm-checks">${c.o.map(([a, b]) => `<label class="check-item inline"><input type="checkbox" data-i="${i}" data-k="${c.k}" value="${a}" ${(v || []).includes(a) ? "checked" : ""}> ${e(b)}</label>`).join("")}</div>`;
+    return `<input type="text" maxlength="120" data-i="${i}" data-k="${c.k}" value="${e(v == null ? "" : v)}">`;
+  };
+  function draw() {
+    host.innerHTML = `<div class="panel adm-list"><div class="adm-row adm-head">${sch.map(c => `<span style="flex:${c.w}">${e(c.l)}</span>`).join("")}<span class="adm-use">استفاده</span><span class="adm-act"></span></div>
+      ${rows.map((x, i) => `<div class="adm-row">${sch.map(c => `<div style="flex:${c.w}">${cell(c, x, i)}</div>`).join("")}
+        <span class="adm-use">${isStr ? "" : fa(usage(key, x))}</span>
+        <span class="adm-act"><button type="button" data-mv="${i}:-1" ${i ? "" : "disabled"} aria-label="بالا">↑</button><button type="button" data-mv="${i}:1" ${i < rows.length - 1 ? "" : "disabled"} aria-label="پایین">↓</button><button type="button" class="danger" data-rm="${i}" aria-label="حذف">×</button></span></div>`).join("")}
+      <div class="fb-actions"><button type="button" class="tp-add" data-add>+ مورد جدید</button><span style="flex:1"></span>
+        <button type="button" class="btn btn-sm btn-ghost" data-reset>بازگشت به پیش‌فرض</button><button type="button" class="btn btn-sm btn-primary" data-save ${dirty ? "" : "disabled"}>ذخیره</button></div></div>`;
+  }
+  host.oninput = host.onchange = ev => {
+    const t = ev.target; if (t.dataset.i === undefined) return;
+    const x = rows[+t.dataset.i];
+    if (t.type === "checkbox") { const a = new Set(x[t.dataset.k] || []); t.checked ? a.add(t.value) : a.delete(t.value); x[t.dataset.k] = [...a]; }
+    else x[t.dataset.k] = t.value;
+    if (!dirty) { dirty = true; host.querySelector("[data-save]").disabled = false; }
+  };
+  host.onclick = ev => {
+    const b = ev.target.closest("button"); if (!b) return;
+    if (b.dataset.add !== undefined) { const n = isStr ? { _: "" } : Object.fromEntries(sch.map(c => [c.k, c.t === "checks" ? [] : (c.t === "select" ? ((typeof c.o === "function" ? c.o() : c.o)[0] || [""])[0] : "")])); rows.push(n); dirty = true; draw(); host.querySelector(".adm-row:last-of-type input")?.focus(); }
+    if (b.dataset.rm) { const x = rows[+b.dataset.rm], n = isStr ? 0 : usage(key, x); if (n && !confirm(`«${x.name}» در ${fa(n)} جا استفاده شده است. حذف شود؟ (داده‌های قبلی همان مقدار را نگه می‌دارند)`)) return; rows.splice(+b.dataset.rm, 1); dirty = true; draw(); }
+    if (b.dataset.mv) { const [i, d] = b.dataset.mv.split(":").map(Number); [rows[i], rows[i + d]] = [rows[i + d], rows[i]]; dirty = true; draw(); }
+    if (b.dataset.reset !== undefined) { if (!confirm("فهرست به مقدار پیش‌فرض برگردد؟")) return; Tax.reset(key); location.reload(); }
+    if (b.dataset.save !== undefined) {
+      const clean = rows.filter(x => String(isStr ? x._ : x.name).trim());
+      if (isStr) { Tax.save(key, clean.map(x => x._.trim())); }
+      else { const out = []; clean.forEach(x => { if (!x.id) x.id = slug(x.name, out.concat(clean.filter(y => y.id))); out.push(x); }); Tax.save(key, out); AIO_TAX[key] = out; }
+      if (isStr) AIO_TAX[key] = clean.map(x => x._.trim());
+      rows = JSON.parse(JSON.stringify(Tax.list(key))).map(x => isStr ? { _: x } : x); dirty = false; draw(); overview();
+      toast("ذخیره شد ✓ فرم‌ها و فیلترهای سایت به‌روز شدند");
+    }
+  };
+  draw();
+}
+
+/* دسته‌ها + ویژگی‌های پارامتریک هر دسته */
+function categoryEditor(host) {
+  let cats = JSON.parse(JSON.stringify(Tax.list("categories"))), open = null;
+  const TYPES = [["text", "متن"], ["number", "عدد"], ["select", "انتخابی (فیلترپذیر)"]];
+  function draw() {
+    host.innerHTML = cats.map((c, i) => `<div class="panel adm-cat">
+      <div class="adm-row"><div style="flex:3"><input type="text" maxlength="60" data-c="${i}" data-k="name" value="${e(c.name)}" aria-label="نام دسته"></div>
+        <div style="flex:1"><input type="color" data-c="${i}" data-k="color" value="${e(c.color || "#0d9488")}" aria-label="رنگ"></div>
+        <span class="adm-use">${fa(usage("categories", c))} محصول</span>
+        <span class="adm-act"><button type="button" data-open="${i}">${open === i ? "بستن" : "ویژگی‌ها (" + fa((c.fields || []).length) + ")"}</button><button type="button" class="danger" data-rmc="${i}" aria-label="حذف دسته">×</button></span></div>
+      ${open === i ? `<div class="adm-fields"><div class="adm-row adm-head"><span style="flex:2">عنوان ویژگی</span><span style="flex:2">نوع</span><span style="flex:1">واحد</span><span style="flex:4">گزینه‌ها (با ، جدا کنید)</span><span class="adm-act"></span></div>
+        ${(c.fields || []).map((f, j) => `<div class="adm-row"><div style="flex:2"><input type="text" maxlength="60" data-f="${i}:${j}" data-k="label" value="${e(f.label)}"></div>
+          <div style="flex:2"><select data-f="${i}:${j}" data-k="type">${TYPES.map(([a, b]) => `<option value="${a}" ${a === f.type ? "selected" : ""}>${b}</option>`).join("")}</select></div>
+          <div style="flex:1"><input type="text" maxlength="30" data-f="${i}:${j}" data-k="unit" value="${e(f.unit || "")}"></div>
+          <div style="flex:4"><input type="text" data-f="${i}:${j}" data-k="options" value="${e((f.options || []).join("، "))}" ${f.type === "select" ? "" : "disabled placeholder='فقط برای نوع انتخابی'"}></div>
+          <span class="adm-act"><button type="button" class="danger" data-rmf="${i}:${j}" aria-label="حذف ویژگی">×</button></span></div>`).join("")}
+        <button type="button" class="tp-add" data-addf="${i}">+ ویژگی تازه</button></div>` : ""}
+    </div>`).join("") + `<div class="fb-actions"><button type="button" class="tp-add" data-addc>+ دسته‌ی تازه</button><span style="flex:1"></span>
+      <button type="button" class="btn btn-sm btn-ghost" data-reset>بازگشت به پیش‌فرض</button><button type="button" class="btn btn-sm btn-primary" data-save>ذخیره‌ی دسته‌ها و ویژگی‌ها</button></div>`;
+  }
+  host.oninput = host.onchange = ev => {
+    const t = ev.target;
+    if (t.dataset.c) cats[+t.dataset.c][t.dataset.k] = t.value;
+    if (t.dataset.f) { const [i, j] = t.dataset.f.split(":").map(Number), f = cats[i].fields[j];
+      if (t.dataset.k === "options") f.options = t.value.split(/[،,]/).map(x => x.trim()).filter(Boolean);
+      else { f[t.dataset.k] = t.value; if (t.dataset.k === "type" && ev.type === "change") draw(); } }
+  };
+  host.onclick = ev => {
+    const b = ev.target.closest("button"); if (!b) return;
+    if (b.dataset.open) { open = open === +b.dataset.open ? null : +b.dataset.open; draw(); }
+    if (b.dataset.addc !== undefined) { cats.push({ id: "", name: "دسته‌ی جدید", icon: "flask", color: "#0d9488", bg: "#ccfbf1", fields: [] }); open = cats.length - 1; draw(); }
+    if (b.dataset.rmc) { const c = cats[+b.dataset.rmc], n = usage("categories", c); if (n && !confirm(`${fa(n)} محصول در «${c.name}» است. حذف شود؟`)) return; cats.splice(+b.dataset.rmc, 1); open = null; draw(); }
+    if (b.dataset.addf) { const c = cats[+b.dataset.addf]; c.fields = c.fields || []; c.fields.push({ key: "", label: "", type: "text" }); draw(); }
+    if (b.dataset.rmf) { const [i, j] = b.dataset.rmf.split(":").map(Number); cats[i].fields.splice(j, 1); draw(); }
+    if (b.dataset.reset !== undefined) { if (!confirm("دسته‌ها به مقدار پیش‌فرض برگردند؟")) return; Tax.reset("categories"); location.reload(); }
+    if (b.dataset.save !== undefined) {
+      cats.forEach(c => { if (!c.id) c.id = slug(c.name, cats.filter(x => x.id)); c.bg = c.bg || "#f1f5f9";
+        c.fields = (c.fields || []).filter(f => f.label.trim()); c.fields.forEach(f => { if (!f.key) f.key = slug(f.label, c.fields.filter(x => x.key).map(x => ({ id: x.key }))); }); });
+      Tax.save("categories", cats); toast("دسته‌ها و ویژگی‌ها ذخیره شد ✓ فرم محصول و فیلترهای جستجو به‌روز شدند"); draw(); overview();
+    }
+  };
+  draw();
+}
+
+/* پیشنهادهای کاربران → تأیید = افزودن به فهرست رسمی */
+function proposals() {
+  const host = document.getElementById("prop-list"), all = Tax.proposals();
+  const KIND = { brands: "برند", items: "محصول / دستگاه", groups: "گروه" };
+  const pend = all.filter(p => p.status === "pending");
+  host.innerHTML = pend.length ? `<div class="table-wrap"><table class="data"><thead><tr><th>نوع</th><th>مقدار</th><th>پیشنهاددهنده</th><th></th></tr></thead><tbody>
+    ${pend.map(p => `<tr><td>${KIND[p.kind] || p.kind}</td><td><b>${e(p.item.name)}</b>${p.item.group ? ` <small class="muted">(${e(Tax.name("groups", p.item.group))})</small>` : ""}</td><td>${e(p.by || "—")}</td>
+      <td style="white-space:nowrap"><button class="btn btn-sm btn-primary" data-ok="${p.id}">تأیید و افزودن</button> <button class="btn btn-sm btn-ghost" data-no="${p.id}">رد</button></td></tr>`).join("")}</tbody></table></div>`
+    : '<div class="empty-inline">پیشنهاد تازه‌ای نیست. وقتی شرکتی در فرم‌ها برند یا دستگاه تازه اضافه کند، اینجا می‌آید.</div>';
+  host.onclick = ev => {
+    const b = ev.target.closest("[data-ok],[data-no]"); if (!b) return;
+    const id = +(b.dataset.ok || b.dataset.no), p = all.find(x => x.id === id);
+    p.status = b.dataset.ok ? "approved" : "rejected";
+    if (b.dataset.ok) { const list = Tax.list(p.kind).slice(); if (!list.some(x => x.name === p.item.name)) list.push(Object.assign({}, p.item, { id: p.item.id || slug(p.item.name, list) })); Tax.save(p.kind, list); }
+    localStorage.setItem("aio_tax_proposals", JSON.stringify(all));
+    toast(b.dataset.ok ? "به فهرست رسمی افزوده شد ✓" : "رد شد"); proposals(); overview();
+  };
+}
+
+/* مدارک همه‌ی سازمان‌ها */
+function documents() {
+  const host = document.getElementById("doc-list");
+  const rows = AIO_LABS.map(l => orgFull(l.id)).flatMap(o => (o.documents || []).map((d, i) => ({ o, d, i })));
+  host.innerHTML = rows.length ? `<div class="table-wrap"><table class="data"><thead><tr><th>سازمان</th><th>نوع مدرک</th><th>فایل</th><th>وضعیت</th><th></th></tr></thead><tbody>
+    ${rows.map(({ o, d, i }) => `<tr><td><a href="lab.html?id=${o.id}">${e(o.name)}</a></td><td>${e(d.kind || "")}</td><td>${d.data ? `<a href="${e(d.data)}" download="${e(d.name)}">${e(d.name)}</a>` : e(d.name)}</td>
+      <td><span class="chip ${d.status === "verified" ? "teal" : (d.status === "rejected" ? "rose" : "amber")}">${d.status === "verified" ? "تأییدشده" : (d.status === "rejected" ? "ردشده" : "در انتظار")}</span></td>
+      <td style="white-space:nowrap">${d.status !== "verified" ? `<button class="btn btn-sm btn-primary" data-v="${o.id}:${i}:verified">تأیید</button>` : ""} ${d.status !== "rejected" ? `<button class="btn btn-sm btn-ghost" data-v="${o.id}:${i}:rejected">رد</button>` : ""}</td></tr>`).join("")}</tbody></table></div>`
+    : '<div class="empty-inline">مدرکی آپلود نشده است.</div>';
+  host.onclick = ev => {
+    const b = ev.target.closest("[data-v]"); if (!b) return;
+    const [id, i, st] = b.dataset.v.split(":"), o = orgFull(+id), cur = Store.get("org_" + id, {});
+    cur.documents = (o.documents || []).map((d, j) => j === +i ? Object.assign({}, d, { status: st }) : d);
+    Store.set("org_" + id, cur); toast(st === "verified" ? "مدرک تأیید شد ✓ نشان روی صفحه‌ی سازمان آمد" : "مدرک رد شد"); documents(); overview();
+  };
+}
+
+function overview() {
+  const pend = Tax.proposals().filter(p => p.status === "pending").length;
+  const docs = AIO_LABS.map(l => orgFull(l.id)).flatMap(o => o.documents || []).filter(d => !d.status || d.status === "pending").length;
+  const spons = typeof sponsorRequests !== "undefined" ? sponsorRequests.all().filter(r => r.status === "pending").length : 0;
+  document.getElementById("ov-cards").innerHTML = [
+    [Tax.list("companyTypes").length, "نوع شرکت"], [Tax.list("groups").length, "گروه محصول"], [Tax.list("items").length, "تعریف محصول/دستگاه"], [Tax.list("brands").length, "برند"]
+  ].map(([n, t]) => `<div class="dash-stat"><b>${fa(n)}</b><span>${t}</span></div>`).join("");
+  document.getElementById("ov-todo").innerHTML = `<div class="panel"><h2>کارهای در انتظار</h2><ul class="steps-check">
+    <li class="${pend ? "" : "ok"}"><a href="#proposals" data-go="proposals">${pend ? "○" : "✓"} ${fa(pend)} پیشنهاد برند/محصول از شرکت‌ها</a></li>
+    <li class="${docs ? "" : "ok"}"><a href="#documents" data-go="documents">${docs ? "○" : "✓"} ${fa(docs)} مدرک در انتظار بررسی</a></li>
+    <li class="${spons ? "" : "ok"}"><a href="#challenges" data-go="challenges">${spons ? "○" : "✓"} ${fa(spons)} درخواست اسپانسری چالش</a></li></ul></div>`;
+}
+
+function showSec(sec) {
+  document.querySelectorAll(".dash-main > section").forEach(s => s.classList.toggle("active", s.id === "sec-" + sec));
+  document.querySelectorAll("#dash-nav a").forEach(a => a.classList.toggle("active", a.dataset.sec === sec));
+  window.scrollTo({ top: 0 });
+}
+document.addEventListener("DOMContentLoaded", () => {
+  const nav = document.getElementById("dash-nav");
+  nav.innerHTML = NAV_ITEMS.map(([s, l, ic]) => `<a href="#${s}" data-sec="${s}">${ICONS[ic] || ""} ${l}</a>`).join("");
+  document.addEventListener("click", ev => {
+    const a = ev.target.closest("#dash-nav a, [data-go]"); if (!a) return;
+    ev.preventDefault(); const s = a.dataset.sec || a.dataset.go; showSec(s); history.replaceState(null, "", "#" + s);
+  });
+  document.querySelectorAll("[data-ed]").forEach(h => listEditor(h, h.dataset.ed));
+  categoryEditor(document.getElementById("cat-ed"));
+  proposals(); documents(); overview();
+  if (typeof ChallengeAdmin !== "undefined") ChallengeAdmin.mount(document.getElementById("ch-admin"));
+  showSec(location.hash ? location.hash.slice(1) : "overview");
+});
+</script>
+</body>
+</html>

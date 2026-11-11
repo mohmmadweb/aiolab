@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>محصولات و تجهیزات آزمایشگاهی | آیولب</title>
-<meta name="description" content="کاتالوگ محصولات شرکت‌ها و آزمایشگاه‌های عضو آیولب: دستگاه و آنالایزر، کیت و معرف، مواد مصرفی، تجهیزات و خدمات فنی.">
+<meta name="description" content="جستجوی پارامتریک و یافتن تعمیرکار — کاتالوگ محصولات شرکت‌ها و آزمایشگاه‌های عضو آیولب: دستگاه و آنالایزر، کیت و معرف، مواد مصرفی، تجهیزات و خدمات فنی.">
 <meta name="theme-color" content="#0d9488">
 <meta name="robots" content="noindex, nofollow">
 <link rel="canonical" href="https://demo.aiolab.ir/products.html">
@@ -31,15 +31,45 @@
 </div>
 <section class="section" style="padding-top:24px">
   <div class="container">
-    <div class="lab-filters">
-      <input type="text" id="p-q" placeholder="نام محصول، برند یا مدل…" aria-label="جستجوی محصول">
-      <select id="p-cat" aria-label="دسته"><option value="">همه دسته‌ها</option></select>
-      <select id="p-org" aria-label="تأمین‌کننده"><option value="">همه تأمین‌کنندگان</option></select>
-      <select id="p-sort" aria-label="مرتب‌سازی"><option value="">جدیدترین</option><option value="price">ارزان‌ترین</option><option value="name">نام</option></select>
-      <label class="check-item inline"><input type="checkbox" id="p-price"> فقط دارای قیمت</label>
+    <div class="mk-tabs" role="tablist">
+      <button type="button" role="tab" data-tab="products" class="on">محصولات و تجهیزات</button>
+      <button type="button" role="tab" data-tab="repair">🔧 یافتن تعمیرکار</button>
     </div>
-    <p class="muted" id="p-count" style="margin:6px 0 14px"></p>
-    <div class="prod-grid" id="p-grid"></div>
+
+    <!-- جستجوی پارامتریک محصول: همه‌ی فیلترها از طبقه‌بندی پویا -->
+    <div id="tab-products">
+      <div class="lab-filters">
+        <input type="text" id="p-q" placeholder="نام محصول، برند یا مدل…" aria-label="جستجوی محصول">
+        <select id="p-group" aria-label="گروه"><option value="">همه‌ی گروه‌ها</option></select>
+        <select id="p-item" aria-label="تعریف محصول"><option value="">همه‌ی محصولات / دستگاه‌ها</option></select>
+        <select id="p-cat" aria-label="دسته"><option value="">همه دسته‌ها</option></select>
+        <select id="p-brand" aria-label="برند / سازنده"><option value="">همه‌ی برندها</option></select>
+        <select id="p-ctype" aria-label="نوع عرضه‌کننده"><option value="">همه‌ی انواع شرکت</option></select>
+        <select id="p-org" aria-label="تأمین‌کننده"><option value="">همه تأمین‌کنندگان</option></select>
+        <select id="p-sort" aria-label="مرتب‌سازی"><option value="">جدیدترین</option><option value="price">ارزان‌ترین</option><option value="name">نام</option></select>
+        <label class="check-item inline"><input type="checkbox" id="p-new"> فقط محصولات جدید</label>
+        <label class="check-item inline"><input type="checkbox" id="p-price"> فقط دارای قیمت</label>
+      </div>
+      <div class="lab-filters mk-attrs" id="p-attrs" hidden></div>
+      <p class="muted" id="p-count" style="margin:6px 0 14px"></p>
+      <div class="prod-grid" id="p-grid"></div>
+    </div>
+
+    <!-- چه کسی این دستگاه را تعمیر می‌کند؟ -->
+    <div id="tab-repair" hidden>
+      <div class="panel mk-repair-form">
+        <h2>چه کسی دستگاه شما را تعمیر می‌کند؟</h2>
+        <p class="muted">گروه، دستگاه، برند و مدل را انتخاب کنید (مثلاً بیوشیمی ← اتوآنالایزر ← Hitachi ← ۹۱۲).</p>
+        <div class="lab-filters">
+          <select id="r-group" aria-label="گروه"><option value="">همه‌ی گروه‌ها</option></select>
+          <select id="r-item" aria-label="دستگاه"><option value="">همه‌ی دستگاه‌ها</option></select>
+          <select id="r-brand" aria-label="برند"><option value="">همه‌ی برندها</option></select>
+          <input type="text" id="r-model" dir="ltr" placeholder="مدل (مثلاً 912)" aria-label="مدل">
+        </div>
+      </div>
+      <p class="muted" id="r-count" style="margin:6px 0 14px"></p>
+      <div id="r-list"></div>
+    </div>
   </div>
 </section>
 
@@ -52,28 +82,93 @@
 <script src="assets/js/talent-ui.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/marketplace.js"></script>
 <script>
+const $ = id => document.getElementById(id);
+const opts = (list, sel) => list.map(x => `<option value="${TUI.e(x[0])}" ${String(x[0]) === String(sel || "") ? "selected" : ""}>${TUI.e(x[1])}</option>`).join("");
+const Q = new URLSearchParams(location.search);
+const REQ = []; /* زمینه‌ی دکمه‌های «درخواست تعمیر» */
+document.addEventListener("click", ev => { const b = ev.target.closest("[data-ri]"); if (b) inquiryDialog(REQ[+b.dataset.ri]); });
+
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("p-cat").insertAdjacentHTML("beforeend", AIO_PRODUCT_CATS.map(c => `<option value="${c.id}">${c.name}</option>`).join(""));
+  const groups = Tax.list("groups").map(g => [g.id, g.name]);
+  $("p-group").insertAdjacentHTML("beforeend", opts(groups, Q.get("group")));
+  $("r-group").insertAdjacentHTML("beforeend", opts(groups, Q.get("rgroup")));
+  $("p-cat").insertAdjacentHTML("beforeend", opts(AIO_PRODUCT_CATS.map(c => [c.id, c.name]), Q.get("cat")));
+  /* برندها: فهرست مدیر + برندهای ثبت‌شده روی محصولات */
+  const brands = [...Tax.list("brands").map(b => [b.id, b.name])];
+  aioProducts().forEach(p => { if (p.brand && !brands.some(b => b[1].toLowerCase() === p.brand.toLowerCase())) brands.push([p.brand, p.brand]); });
+  $("p-brand").insertAdjacentHTML("beforeend", opts(brands, Q.get("brand")));
+  $("r-brand").insertAdjacentHTML("beforeend", opts(Tax.list("brands").map(b => [b.id, b.name]), Q.get("rbrand")));
+  $("p-ctype").insertAdjacentHTML("beforeend", opts(Tax.list("companyTypes").map(t => [t.id, t.name]), Q.get("ctype")));
   const orgIds = [...new Set(aioProducts().map(p => p.orgId))];
-  document.getElementById("p-org").insertAdjacentHTML("beforeend", orgIds.map(id => orgFull(id)).filter(Boolean).map(o => `<option value="${o.id}">${o.name}</option>`).join(""));
-  const q = new URLSearchParams(location.search);
-  if (q.get("cat")) document.getElementById("p-cat").value = q.get("cat");
-  if (q.get("org")) document.getElementById("p-org").value = q.get("org");
-  document.querySelectorAll(".lab-filters input, .lab-filters select").forEach(el => el.addEventListener("input", render));
-  render();
+  $("p-org").insertAdjacentHTML("beforeend", opts(orgIds.map(id => orgFull(id)).filter(Boolean).map(o => [o.id, o.name]), Q.get("org")));
+  if (Q.get("q")) $("p-q").value = Q.get("q");
+  if (Q.get("new")) $("p-new").checked = true;
+  if (Q.get("model")) $("r-model").value = Q.get("model");
+  fillItems("p", Q.get("item")); fillItems("r", Q.get("ritem"));
+  drawAttrs();
+
+  document.querySelectorAll("#tab-products .lab-filters input, #tab-products .lab-filters select").forEach(el => el.addEventListener("input", ev => {
+    if (ev.target.id === "p-group") fillItems("p");
+    if (ev.target.id === "p-cat") drawAttrs();
+    render();
+  }));
+  document.querySelectorAll("#tab-repair input, #tab-repair select").forEach(el => el.addEventListener("input", ev => {
+    if (ev.target.id === "r-group") fillItems("r");
+    renderRepair();
+  }));
+  document.querySelectorAll(".mk-tabs button").forEach(b => b.onclick = () => setTab(b.dataset.tab));
+  setTab(Q.get("tab") === "repair" ? "repair" : "products");
 });
+
+function setTab(t) {
+  document.querySelectorAll(".mk-tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === t));
+  $("tab-products").hidden = t !== "products"; $("tab-repair").hidden = t !== "repair";
+  const u = new URL(location.href); if (t === "repair") u.searchParams.set("tab", "repair"); else u.searchParams.delete("tab"); history.replaceState(null, "", u);
+  t === "repair" ? renderRepair() : render();
+}
+/* تعریف محصول وابسته به گروه؛ در تب تعمیر فقط دستگاه‌ها */
+function fillItems(px, sel) {
+  const g = $(px + "-group").value;
+  const items = Tax.itemsOf(g).filter(i => px === "p" || i.kind === "device");
+  $(px + "-item").innerHTML = `<option value="">${px === "p" ? "همه‌ی محصولات / دستگاه‌ها" : "همه‌ی دستگاه‌ها"}</option>` + opts(items.map(i => [i.id, i.name + (g ? "" : " — " + Tax.name("groups", i.group))]), sel);
+}
+/* فیلترهای پارامتریک همان دسته (تعریف‌شده در پنل مدیریت) */
+function drawAttrs() {
+  const fields = Tax.catFields($("p-cat").value).filter(f => f.type === "select");
+  $("p-attrs").hidden = !fields.length;
+  $("p-attrs").innerHTML = fields.map(f => `<select data-attr="${TUI.e(f.key)}" aria-label="${TUI.e(f.label)}"><option value="">${TUI.e(f.label)}: همه</option>${f.options.map(o => `<option>${TUI.e(o)}</option>`).join("")}</select>`).join("");
+  $("p-attrs").querySelectorAll("select").forEach(el => el.addEventListener("input", render));
+}
 function render() {
-  const t = document.getElementById("p-q").value.trim().toLowerCase(), cat = document.getElementById("p-cat").value,
-        org = document.getElementById("p-org").value, sort = document.getElementById("p-sort").value, priced = document.getElementById("p-price").checked;
-  let list = aioProducts().filter(p => (!t || (p.name + " " + (p.brand || "") + " " + (p.model || "")).toLowerCase().includes(t))
-    && (!cat || p.cat === cat) && (!org || String(p.orgId) === org) && (!priced || p.price));
+  const attrs = {}; $("p-attrs").querySelectorAll("[data-attr]").forEach(s => { if (s.value) attrs[s.dataset.attr] = s.value; });
+  const list = filterProducts({ q: $("p-q").value, group: $("p-group").value, item: $("p-item").value, cat: $("p-cat").value, brand: $("p-brand").value,
+    ctype: $("p-ctype").value, org: $("p-org").value, isNew: $("p-new").checked, price: $("p-price").checked, attrs });
+  const sort = $("p-sort").value;
   if (sort === "price") list.sort((a, b) => (a.price || 1e15) - (b.price || 1e15));
   else if (sort === "name") list.sort((a, b) => a.name.localeCompare(b.name, "fa"));
-  else list.sort((a, b) => b.id - a.id);
-  document.getElementById("p-count").textContent = fa(list.length) + " محصول";
-  document.getElementById("p-grid").innerHTML = list.map(p => TUI.productCard(p)).join("")
+  else list.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0) || b.id - a.id);
+  $("p-count").textContent = fa(list.length) + " محصول";
+  $("p-grid").innerHTML = list.map(p => TUI.productCard(p)).join("")
     || '<div class="empty-state" style="grid-column:1/-1"><b>محصولی پیدا نشد</b>فیلترها را تغییر دهید.</div>';
+}
+function renderRepair() {
+  const f = { group: $("r-group").value, item: $("r-item").value, brand: $("r-brand").value, model: $("r-model").value };
+  const { hits, services } = findRepairers(f);
+  REQ.length = 0;
+  const byOrg = new Map();
+  hits.forEach(r => { const k = r.org.id; if (!byOrg.has(k)) byOrg.set(k, { org: r.org, rows: [] }); byOrg.get(k).rows.push(r); });
+  $("r-count").textContent = fa(byOrg.size) + " شرکت تعمیرکار" + (services.length ? " · " + fa(services.length) + " خدمت ثبت‌شده" : "");
+  const e = TUI.e;
+  $("r-list").innerHTML = [...byOrg.values()].map(({ org, rows }) => `<div class="panel rep-card">
+      <div class="rep-head"><a href="lab.html?id=${org.id}" class="rep-org"><span class="job-logo" style="background:${org.color}">${e(org.name.replace("شرکت ", "").charAt(0))}</span>
+        <span><b>${e(org.name)}${org.verified ? " ✔️" : ""}</b><small>${e(org.city)} · ${orgCompanyTypes(org).map(t => e(Tax.name("companyTypes", t))).join("، ")}</small></span></a>
+        <button type="button" class="btn btn-primary btn-sm" data-ri="${REQ.push({ kind: "repair", toOrg: org.id, repair: Object.assign({}, f, { item: f.item || rows[0].item, brand: f.brand || rows[0].brand }) }) - 1}">درخواست تعمیر</button></div>
+      <table class="data"><thead><tr><th>گروه</th><th>دستگاه</th><th>برند</th><th>مدل‌ها</th></tr></thead><tbody>
+      ${rows.map(r => `<tr><td>${e(Tax.name("groups", r.group))}</td><td>${e(Tax.itemName(r.item))}</td><td dir="auto">${e(Tax.brandName(r.brand))}</td><td dir="ltr">${e(r.models || "")}</td></tr>`).join("")}</tbody></table></div>`).join("")
+    + (services.length ? `<h2 style="font-size:17px;margin:18px 0 10px">خدمات فنی ثبت‌شده</h2><div class="prod-grid">${services.map(p => TUI.productCard(p)).join("")}</div>` : "")
+    || '<div class="empty-state"><b>تعمیرکاری با این مشخصات ثبت نشده است</b>مدل را خالی بگذارید یا برند را تغییر دهید. شرکت‌های خدماتی می‌توانند از پنل، دستگاه‌هایی را که تعمیر می‌کنند اضافه کنند.</div>';
 }
 </script>
 </body>

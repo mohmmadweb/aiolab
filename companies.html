@@ -49,6 +49,9 @@
       <select id="f-city" aria-label="شهر" title="شهر"></select>
       <select id="f-sector" aria-label="بخش مالکیت" title="بخش مالکیت"><option value="">همه بخش‌ها (دولتی/خصوصی…)</option></select>
       <select id="f-kind" aria-label="نوع سازمان" title="نوع سازمان"><option value="">همه انواع سازمان</option></select>
+      <select id="f-type" aria-label="نوع شرکت" title="نوع شرکت"><option value="">همه‌ی انواع شرکت</option></select>
+      <select id="f-group" aria-label="حوزه / گروه محصول" title="حوزه / گروه محصول"><option value="">همه‌ی حوزه‌ها</option></select>
+      <select id="f-brand" aria-label="نماینده‌ی برند" title="نماینده‌ی برند"><option value="">نماینده‌ی هر برندی</option></select>
       <select id="f-sort" aria-label="مرتب‌سازی" title="مرتب‌سازی">
         <option value="rating">بیشترین امتیاز</option>
         <option value="salary">بیشترین میانگین حقوق</option>
@@ -120,6 +123,14 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("f-kind").insertAdjacentHTML("beforeend",
     AIO_ORG_KINDS.filter(s => KINDS_OF[ORG_TYPE].includes(s.id)).map(s => `<option value="${s.id}">${s.name}</option>`).join(""));
 
+  /* فیلترهای پویا: نوع شرکت/مرکز، حوزه و برند — از پنل مدیریت */
+  const addOpts = (id, list) => { const el = document.getElementById(id); if (el) el.insertAdjacentHTML("beforeend", list.map(x => `<option value="${x.id}">${TUI.e(x.name)}</option>`).join("")); };
+  addOpts("f-type", Tax.list(ORG_TYPE === "company" ? "companyTypes" : "labTypes"));
+  addOpts("f-group", Tax.list("groups"));
+  addOpts("f-brand", Tax.list("brands"));
+  const Q = new URLSearchParams(location.search);
+  ["type", "group", "brand"].forEach(k => { const el = document.getElementById("f-" + k); if (el && Q.get(k)) el.value = Q.get(k); });
+
   document.querySelectorAll(".lab-filters input, .lab-filters select")
     .forEach(el => el.addEventListener("input", render));
 
@@ -134,6 +145,9 @@ function currentFilters() {
     city: document.getElementById("f-city").value,
     sector: document.getElementById("f-sector").value,
     kind: document.getElementById("f-kind").value,
+    type: document.getElementById("f-type").value,
+    group: document.getElementById("f-group").value,
+    brand: (document.getElementById("f-brand") || {}).value || "",
     verified: document.getElementById("f-verified").checked,
     sort: document.getElementById("f-sort").value
   };
@@ -147,6 +161,9 @@ function render() {
     (!f.city || l.city === f.city) &&
     (!f.sector || l.sector === f.sector) &&
     (!f.kind || l.orgKind === f.kind) &&
+    (!f.type || (ORG_TYPE === "company" ? orgCompanyTypes(l).includes(f.type) : l.labType === f.type)) &&
+    (!f.group || (l.groups || []).includes(f.group)) &&
+    (!f.brand || (l.represents || []).includes(f.brand)) &&
     (!f.verified || l.verified));
 
   const jobsOf = l => AIO_JOBS.filter(j => j.labId === l.id).length;
@@ -157,7 +174,7 @@ function render() {
 
   currentList = list;
   document.getElementById("lab-count").textContent = fa(list.length);
-  document.getElementById("lab-grid").innerHTML = list.map(l => labCardHTML(l).replace('<span class="open-jobs">', `${(l.accreditations || []).length ? `<div class="org-badges">${l.accreditations.slice(0, 2).map(a => `<span>${a}</span>`).join("")}</div>` : ""}${aioProducts().some(p => p.orgId === l.id) ? `<span class="chip" style="margin-top:6px">${fa(aioProducts().filter(p => p.orgId === l.id).length)} محصول</span>` : ""}<span class="open-jobs">`)).join("");
+  document.getElementById("lab-grid").innerHTML = list.map(l => labCardHTML(l).replace('<span class="open-jobs">', `${(l.accreditations || []).length ? `<div class="org-badges">${l.accreditations.slice(0, 2).map(a => `<span>${a}</span>`).join("")}</div>` : ""}${ORG_TYPE === "company" && orgCompanyTypes(l).length ? `<div class="job-meta" style="margin-top:6px">${orgCompanyTypes(l).map(t => `<span class="chip teal">${TUI.e(Tax.name("companyTypes", t).split(" (")[0].split(" — ")[0])}</span>`).join("")}</div>` : ""}${aioProducts().some(p => p.orgId === l.id) ? `<span class="chip" style="margin-top:6px">${fa(aioProducts().filter(p => p.orgId === l.id).length)} محصول</span>` : ""}<span class="open-jobs">`)).join("");
   document.getElementById("empty").style.display = list.length ? "none" : "block";
 
   document.getElementById("map-side").innerHTML = list.map(l => `
@@ -198,6 +215,7 @@ function resetLabFilters() {
   document.getElementById("f-prov").value = "";
   document.getElementById("f-sector").value = "";
   document.getElementById("f-kind").value = "";
+  ["f-type", "f-group", "f-brand"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
   document.getElementById("f-verified").checked = false;
   bindProvinceCity("f-prov", "f-city", render);
   render();

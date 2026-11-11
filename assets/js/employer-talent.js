@@ -8,6 +8,8 @@ function videoOk(u) { try { const h = new URL(u).hostname.replace(/^www\./, "");
 const EmpTalent = (() => {
   const { e, fa, name, O } = TUI;
   const clone = o => JSON.parse(JSON.stringify(o == null ? {} : o));
+  /* طبقه‌بندی پویا (talent-data.js در دمو؛ در وردپرس از تنظیمات) — اگر نباشد فرم‌ها مثل قبل کار می‌کنند */
+  const hasTax = typeof Tax !== "undefined";
 
   /* تصویر انتخابی → JPEG کوچک‌شده (دمو در حافظه‌ی مرورگر نگه می‌دارد؛ نسخه‌ی اصلی در رسانه‌ی وردپرس) */
   function readImage(file, max) {
@@ -22,6 +24,17 @@ const EmpTalent = (() => {
       fr.readAsDataURL(file);
     });
   }
+  /* کاتالوگ و مدارک: PDF یا تصویر تا ۱۰ مگابایت؛ دمو فایل‌های کوچک را در حافظه نگه می‌دارد و برای بقیه فقط نام/حجم */
+  function readFileMeta(file) {
+    return new Promise((ok, bad) => {
+      if (!/^(application\/pdf|image\/(jpeg|png|webp))$/.test(file.type)) return bad("فقط فایل PDF یا تصویر (JPG، PNG، WebP)");
+      if (file.size > 10 * 1024 * 1024) return bad("حداکثر حجم هر فایل ۱۰ مگابایت است");
+      const mb = file.size / 1048576;
+      const meta = { name: file.name.slice(0, 120), size: fa(mb >= 1 ? mb.toFixed(1) : Math.max(1, Math.round(file.size / 1024))) + (mb >= 1 ? " مگابایت" : " کیلوبایت") };
+      if (file.size > 1.5 * 1024 * 1024) return ok(meta);
+      const fr = new FileReader(); fr.onload = () => ok(Object.assign(meta, { data: fr.result })); fr.onerror = () => bad("فایل خوانده نشد"); fr.readAsDataURL(file);
+    });
+  }
   const safeSet = (k, v) => { try { localStorage.setItem("aio_" + k, JSON.stringify(v)); return true; } catch (_) { throw new Error("حافظه‌ی مرورگر پر است؛ تعداد یا حجم تصاویر را کم کنید (در نسخه‌ی اصلی محدودیتی نیست)"); } };
 
   /* آداپتور ذخیره‌سازی: دمو = حافظه‌ی مرورگر؛ وردپرس = API سرور (window.EMP_ADAPTER) */
@@ -33,6 +46,7 @@ const EmpTalent = (() => {
     publicUrl: id => "lab.html?id=" + id,
     saveOrg: async (id, data) => { safeSet("org_" + id, data); },
     image: async (file, purpose, max) => ({ img: await readImage(file, max) }),
+    file: async (file, purpose) => readFileMeta(file),
     products: orgId => aioProducts().filter(p => p.orgId === orgId),
     newProductId: () => Date.now(),
     saveProduct: async p => { const list = Store.get("products", []), i = list.findIndex(x => x.id === p.id); if (i >= 0) list[i] = p; else list.push(p); safeSet("products", list); return p; },
@@ -54,19 +68,71 @@ const EmpTalent = (() => {
     const id = myOrgId(), o = A.org(id);
     if (!o) { host.innerHTML = '<div class="empty-inline">ابتدا سازمان خود را در بخش «ثبت سازمان روی نقشه» ثبت کنید.</div>'; return; }
     const D = Object.assign({ orgType: "lab", tagline: "", about: "", services: [], accreditations: [], hoursSpec: { days: [0, 1, 2, 3, 4], from: 8, to: 17, h24: false },
-      phone: "", email: "", website: "", socials: {}, video: "", branches: "", staff: "", founded: "", gallery: [] }, clone(o));
+      phone: "", email: "", website: "", socials: {}, video: "", branches: "", staff: "", founded: "", gallery: [],
+      labType: "", companyTypes: [], groups: [], represents: [], repairs: [], ceo: {}, catalogs: [], documents: [] }, clone(o));
+    if (!D.companyTypes.length && typeof orgCompanyTypes === "function") D.companyTypes = orgCompanyTypes(D).slice();
+    D.ceo = D.ceo || {};
     /* لینک‌های نمونه‌ی «#» معتبر نیستند و نباید جلوی ذخیره را بگیرند */
     D.socials = Object.fromEntries(Object.entries(D.socials || {}).filter(([, v]) => /^https:\/\//.test(v)));
     const hours = h => h.h24 ? "شبانه‌روزی" : (h.days.length ? (h.days.length > 2 && h.days.every((d, i) => i === 0 || d === h.days[i - 1] + 1) ? AIO_WEEKDAYS[h.days[0]] + " تا " + AIO_WEEKDAYS[h.days[h.days.length - 1]] : h.days.map(d => AIO_WEEKDAYS[d]).join("، ")) + " " + fa(h.from) + " تا " + fa(h.to) : "");
     const hsel = (k, v) => `<select data-h="${k}">${Array.from({ length: 25 }, (_, i) => `<option value="${i}" ${+v === i ? "selected" : ""}>${fa(i)}:۰۰</option>`).join("")}</select>`;
+    /* ---------- نوع، حوزه، نمایندگی، تعمیرات، مدیرعامل، کاتالوگ و مدارک (همه از طبقه‌بندی پویا) ---------- */
+    const tOpts = (k, extra) => { const o = Tax.list(k).map(x => [x.id, x.name + (x.country ? " — " + x.country : "")]); (extra || []).filter(v => v && !o.some(x => x[0] === v)).forEach(v => o.push([v, v + " (پیشنهادی)"])); return o; };
+    const asks = () => D.companyTypes.flatMap(t => (Tax.find("companyTypes", t) || {}).asks || []);
+    const byName = () => (A.org(id) || {}).name || "";
+    function typePanels() {
+      if (!hasTax) return "";
+      const isCo = D.orgType === "company", need = asks();
+      const groupItems = g => Tax.itemsOf(g).filter(i => i.kind === "device").map(i => [i.id, i.name]);
+      let h = `<div class="panel"><h2>${isCo ? "نوع و حوزه‌ی فعالیت شرکت" : "نوع مرکز و بخش‌های فعال"}</h2>
+        <p class="muted" style="font-size:13px">فهرست‌ها را مدیر سایت تعریف می‌کند. اگر برند یا دستگاهی در فهرست نیست، نامش را در جستجو بنویسید و «افزودن» را بزنید؛ برای تأیید به مدیر سایت می‌رود.</p>
+        <div class="form-grid">
+        ${isCo ? `<div class="form-field full"><label>نوع شرکت * (می‌تواند چند مورد باشد)</label>${TUI.picker({ multi: true, options: tOpts("companyTypes"), value: D.companyTypes, addLabel: "نوع شرکت", onChange: v => { D.companyTypes = v; draw(); } })}
+            <small class="muted">${D.companyTypes.map(t => e((Tax.find("companyTypes", t) || {}).desc || "")).filter(Boolean).join(" · ")}</small></div>`
+          : `<div class="form-field"><label>نوع مرکز</label>${TUI.picker({ options: tOpts("labTypes"), value: D.labType, onChange: v => D.labType = v })}</div>`}
+        <div class="form-field full"><label>${isCo ? "گروه‌های محصول / حوزه‌ی فعالیت" : "بخش‌های فعال آزمایشگاه"}</label>${TUI.picker({ multi: true, options: tOpts("groups"), value: D.groups, addLabel: "گروه", onChange: v => D.groups = v })}</div>
+        ${isCo && need.includes("brands") ? `<div class="form-field full"><label>نماینده‌ی کدام شرکت‌ها / برندها؟</label>${TUI.picker({ multi: true, allowNew: true, options: tOpts("brands", D.represents), value: D.represents, addLabel: "برند / شرکت", onChange: v => D.represents = v, onNew: v => Tax.propose("brands", { id: v, name: v }, byName()) })}</div>` : ""}
+        </div></div>`;
+      if (isCo && need.includes("repairs")) {
+        h += `<div class="panel"><h2>خدمات تعمیر و نگهداری</h2>
+          <p class="muted" style="font-size:13px">بگویید چه دستگاهی از چه برندی را تعمیر می‌کنید؛ آزمایشگاه‌ها در «یافتن تعمیرکار» دقیقاً با همین‌ها جستجو می‌کنند (مثال: بیوشیمی ← اتوآنالایزر ← Hitachi ← ۹۱۲).</p>
+          ${D.repairs.map((r, i) => `<div class="rep-row">
+            <div class="form-field"><label>گروه</label>${TUI.picker({ options: tOpts("groups"), value: r.group, onChange: v => { r.group = v; r.item = ""; draw(); } })}</div>
+            <div class="form-field"><label>دستگاه</label>${TUI.picker({ allowNew: true, options: [...groupItems(r.group), ...(r.item && !Tax.find("items", r.item) ? [[r.item, r.item + " (پیشنهادی)"]] : [])], value: r.item, onChange: v => r.item = v, onNew: v => Tax.propose("items", { id: v, name: v, group: r.group, kind: "device" }, byName()) })}</div>
+            <div class="form-field"><label>برند</label>${TUI.picker({ allowNew: true, options: tOpts("brands", [r.brand]), value: r.brand, onChange: v => r.brand = v, onNew: v => Tax.propose("brands", { id: v, name: v }, byName()) })}</div>
+            <div class="form-field"><label>مدل‌ها</label><input type="text" dir="ltr" maxlength="120" data-rep="${i}" value="${e(r.models || "")}" placeholder="912, 917"></div>
+            <button type="button" class="btn btn-sm btn-ghost danger" data-rmrep="${i}" aria-label="حذف ردیف">×</button></div>`).join("") || '<div class="empty-inline">هنوز خدمتی ثبت نشده است.</div>'}
+          <button type="button" class="tp-add" data-addrep style="margin-top:8px">+ دستگاه / برند تازه</button></div>`;
+      }
+      const C = D.ceo;
+      h += `<div class="panel"><h2>${isCo ? "معرفی مدیرعامل" : "معرفی مدیر / مسئول فنی"} <small class="muted" style="font-weight:400">(اختیاری)</small></h2><div class="form-grid">
+          <div class="form-field"><label>نام</label><input type="text" maxlength="80" data-ceo="name" value="${e(C.name || "")}"></div>
+          <div class="form-field"><label>سمت</label><input type="text" maxlength="60" data-ceo="title" value="${e(C.title || "")}" placeholder="${isCo ? "مدیرعامل" : "مسئول فنی"}"></div>
+          <div class="form-field full"><label>معرفی کوتاه</label><textarea rows="2" maxlength="400" data-ceo="bio">${e(C.bio || "")}</textarea></div>
+          <div class="form-field"><label>لینکدین</label><input type="url" dir="ltr" maxlength="200" data-ceo="linkedin" value="${e(C.linkedin || "")}" placeholder="https://"></div>
+          <div class="form-field"><label>عکس</label><label class="btn btn-outline btn-sm">📷 انتخاب عکس<input type="file" accept="image/jpeg,image/png,image/webp" data-ceoimg hidden></label>${C.img ? ' <span class="chip teal">عکس دارد</span> <button type="button" class="btn btn-sm btn-ghost" data-rmceoimg>حذف عکس</button>' : ""}</div>
+        </div></div>`;
+      const fileRow = (f, i, k) => `<li class="file-row"><span>📄 <bdi>${e(f.name)}</bdi></span><small class="muted">${e(f.size || "")}${f.kind ? " · " + e(f.kind) : ""}</small>${k === "documents" ? `<span class="chip ${f.status === "verified" ? "teal" : ""}">${f.status === "verified" ? "تأییدشده" : "در انتظار بررسی"}</span>` : ""}<button type="button" class="btn btn-sm btn-ghost danger" data-rmfile="${k}:${i}">حذف</button></li>`;
+      h += `<div class="panel"><h2>${isCo ? "کاتالوگ محصولات و فایل‌ها" : "بروشور و فهرست خدمات"}</h2>
+          <p class="muted" style="font-size:13px">PDF یا تصویر، هر فایل تا ۱۰ مگابایت؛ در صفحه‌ی عمومی برای دانلود نمایش داده می‌شود.</p>
+          <ul class="file-list">${D.catalogs.map((f, i) => fileRow(f, i, "catalogs")).join("")}</ul>
+          ${D.catalogs.length < 10 ? `<label class="btn btn-outline btn-sm">⬆ آپلود فایل<input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple data-fup="catalogs" hidden></label>` : ""}</div>
+        <div class="panel"><h2>مدارک و احراز</h2>
+          <p class="muted" style="font-size:13px">مدارک فقط برای مدیر سایت دیده می‌شود؛ پس از بررسی، نشان «مدارک تأییدشده» روی صفحه‌ی ${isCo ? "شرکت" : "مرکز"} می‌آید.</p>
+          <ul class="file-list">${D.documents.map((f, i) => fileRow(f, i, "documents")).join("")}</ul>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select data-dockind aria-label="نوع مدرک">${Tax.list("docKinds").map(k => `<option>${e(k)}</option>`).join("")}</select>
+          <label class="btn btn-outline btn-sm">⬆ آپلود مدرک<input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" data-fup="documents" hidden></label></div></div>`;
+      return h;
+    }
     function draw() {
       host.innerHTML = `
       <div class="panel"><div class="form-grid">
         <div class="form-field"><label>سازمانی که مدیریت می‌کنید</label>${TUI.picker({ options: A.orgs(), value: id, onChange: v => { A.setOrgId(+v); orgProfile(host); if (window.EmpProducts) EmpProducts(); } })}</div>
-        <div class="form-field"><label>نوع سازمان</label>${TUI.picker({ options: O.orgTypes(), value: D.orgType, onChange: v => D.orgType = v })}</div>
+        <div class="form-field"><label>نوع سازمان</label>${TUI.picker({ options: O.orgTypes(), value: D.orgType, onChange: v => { D.orgType = v; draw(); } })}</div>
         <div class="form-field full"><label>شعار / معرفی یک‌خطی</label><input type="text" maxlength="90" data-k="tagline" value="${e(D.tagline)}"></div>
         <div class="form-field full"><label>درباره سازمان</label><textarea rows="4" maxlength="1500" data-k="about">${e(D.about)}</textarea></div>
       </div></div>
+      ${typePanels()}
 
       <div class="panel"><h2>گالری تصاویر (اسلایدر صفحه‌ی سازمان)</h2>
         <p class="muted" style="font-size:13px">تا ۱۰ تصویر؛ ترتیب همان ترتیب اسلایدر است. برای هر تصویر یک عنوان کوتاه بنویسید.</p>
@@ -103,11 +169,23 @@ const EmpTalent = (() => {
       if (t.dataset.k) D[t.dataset.k] = t.dataset.num !== undefined ? (t.value === "" ? "" : +t.value) : t.value;
       if (t.dataset.soc) D.socials = Object.assign({}, D.socials, { [t.dataset.soc]: t.value.trim() });
       if (t.dataset.gal) D.gallery[+t.dataset.gal].t = t.value;
+      if (t.dataset.ceo) D.ceo[t.dataset.ceo] = t.value;
+      if (t.dataset.rep) D.repairs[+t.dataset.rep].models = t.value;
       if (t.dataset.h) { D.hoursSpec[t.dataset.h] = +t.value; host.querySelector("[data-hours]").textContent = "نمایش: " + hours(D.hoursSpec); }
     };
     host.onchange = async ev => {
       const t = ev.target;
       if (t.dataset.h24 !== undefined) { D.hoursSpec.h24 = t.checked; host.querySelector("[data-hours]").textContent = "نمایش: " + hours(D.hoursSpec); }
+      if (t.dataset.ceoimg !== undefined && t.files[0]) {
+        try { D.ceo.img = (await A.image(t.files[0], "ceo:" + id, 400)).img; draw(); } catch (err) { fail(err); }
+      }
+      if (t.dataset.fup) {
+        const k = t.dataset.fup, kind = (host.querySelector("[data-dockind]") || {}).value;
+        for (const f of [...t.files].slice(0, 10 - D[k].length)) {
+          try { D[k].push(Object.assign(await A.file(f, k + ":" + id), k === "documents" ? { kind, status: "pending" } : {})); } catch (err) { fail(err); }
+        }
+        draw();
+      }
       if (t.dataset.up !== undefined) {
         for (const f of [...t.files].slice(0, 10 - D.gallery.length)) {
           try { D.gallery.push(Object.assign({ t: f.name.replace(/\.[^.]+$/, "").slice(0, 60) }, await A.image(f, "gallery:" + id, 1280))); } catch (err) { fail(err); }
@@ -116,19 +194,26 @@ const EmpTalent = (() => {
       }
     };
     host.onclick = ev => {
-      const b = ev.target.closest("[data-day],[data-rmg],[data-mv],[data-save]"); if (!b) return;
+      const b = ev.target.closest("[data-day],[data-rmg],[data-mv],[data-save],[data-addrep],[data-rmrep],[data-rmfile],[data-rmceoimg]"); if (!b) return;
+      if (b.dataset.addrep !== undefined) { D.repairs.push({ group: (D.groups || [])[0] || "", item: "", brand: "", models: "" }); draw(); return; }
+      if (b.dataset.rmrep) { D.repairs.splice(+b.dataset.rmrep, 1); draw(); return; }
+      if (b.dataset.rmfile) { const [k, i] = b.dataset.rmfile.split(":"); D[k].splice(+i, 1); draw(); return; }
+      if (b.dataset.rmceoimg !== undefined) { delete D.ceo.img; draw(); return; }
       if (b.dataset.day) { const d = +b.dataset.day, a = D.hoursSpec.days; D.hoursSpec.days = a.includes(d) ? a.filter(x => x !== d) : [...a, d].sort(); b.classList.toggle("on"); host.querySelector("[data-hours]").textContent = "نمایش: " + hours(D.hoursSpec); }
       if (b.dataset.rmg) { D.gallery.splice(+b.dataset.rmg, 1); draw(); }
       if (b.dataset.mv) { const [i, d] = b.dataset.mv.split(":").map(Number); const g = D.gallery; [g[i], g[i + d]] = [g[i + d], g[i]]; draw(); }
       if (b.dataset.save !== undefined) {
-        const urls = [D.website, D.video, ...Object.values(D.socials || {})].filter(Boolean);
+        if (D.orgType === "company" && hasTax && !D.companyTypes.length) return toast("نوع شرکت را انتخاب کنید (تولیدی، وارداتی، توزیع یا خدماتی)");
+        D.repairs = (D.repairs || []).filter(r => r.item && r.brand);
+        const urls = [D.website, D.video, D.ceo && D.ceo.linkedin, ...Object.values(D.socials || {})].filter(Boolean);
         if (urls.some(u => !/^https:\/\/[^\s<>"']+$/.test(u))) return toast("لینک‌ها باید با https:// شروع شوند");
         if (D.video && !videoOk(D.video)) return toast("لینک ویدئو فقط از این سایت‌ها پذیرفته می‌شود: " + videoHosts().join("، "));
         const ph = String(D.phone || "").replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d)).replace(/[\s-]/g, "");
         if (!/^0\d{9,10}$/.test(ph)) return toast("تلفن سازمان لازم است (با پیش‌شماره، مثلاً ۰۲۱۲۲۲۲۰۰۰۰)");
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(D.email || "")) return toast("ایمیل سازمان لازم است تا متقاضیان و اطلاع‌رسانی‌ها به آن برسند");
         D.phone = ph;
-        const keep = ["orgType", "tagline", "about", "services", "accreditations", "hoursSpec", "phone", "email", "website", "socials", "video", "branches", "staff", "founded", "gallery"];
+        const keep = ["orgType", "tagline", "about", "services", "accreditations", "hoursSpec", "phone", "email", "website", "socials", "video", "branches", "staff", "founded", "gallery",
+          "labType", "companyTypes", "groups", "represents", "repairs", "ceo", "catalogs", "documents"];
         const out = {}; keep.forEach(k => out[k] = D[k]); out.hours = hours(D.hoursSpec);
         b.classList.add("is-busy");
         A.saveOrg(id, out).then(() => toast("پروفایل سازمان ذخیره شد ✓ صفحه‌ی عمومی به‌روز است"), fail).finally(() => b.classList.remove("is-busy"));
@@ -147,13 +232,23 @@ const EmpTalent = (() => {
     }
     function form(d) {
       return `<div class="panel rb-form"><div class="form-grid">
-        <div class="form-field"><label>دسته *</label>${TUI.picker({ options: O.productCats(), value: d.cat || "", onChange: v => d.cat = v })}</div>
+        <div class="form-field"><label>دسته *</label>${TUI.picker({ options: O.productCats(), value: d.cat || "", onChange: v => { d.cat = v; draw(); } })}</div>
+        ${hasTax ? `<div class="form-field"><label>گروه (حوزه)</label>${TUI.picker({ options: Tax.list("groups").map(g => [g.id, g.name]), value: d.group || "", onChange: v => { d.group = v; d.item = ""; draw(); } })}</div>
+        <div class="form-field"><label>تعریف محصول (مثلاً TSH، اتوآنالایزر)</label>${TUI.picker({ allowNew: true, placeholder: d.group ? "انتخاب یا افزودن" : "اول گروه را انتخاب کنید",
+          options: [...Tax.itemsOf(d.group).map(i => [i.id, i.name]), ...(d.item && !Tax.find("items", d.item) ? [[d.item, d.item + " (پیشنهادی)"]] : [])], value: d.item || "",
+          onChange: v => d.item = v, onNew: v => Tax.propose("items", { id: v, name: v, group: d.group, kind: d.cat === "analyzer" || d.cat === "equipment" ? "device" : "test" }, (A.org(myOrgId()) || {}).name) })}</div>` : ""}
         <div class="form-field"><label>نام محصول *</label><input type="text" maxlength="120" data-p="name" value="${e(d.name || "")}"></div>
-        <div class="form-field"><label>برند</label><input type="text" maxlength="60" data-p="brand" value="${e(d.brand || "")}"></div>
+        <div class="form-field"><label>برند / سازنده</label><input type="text" maxlength="60" data-p="brand" value="${e(d.brand || "")}" list="brand-list" placeholder="از فهرست انتخاب یا تایپ کنید">
+          ${hasTax ? `<datalist id="brand-list">${Tax.list("brands").map(b => `<option value="${e(b.name)}">${e(b.country || "")}</option>`).join("")}</datalist>` : ""}</div>
         <div class="form-field"><label>مدل</label><input type="text" maxlength="60" data-p="model" dir="ltr" value="${e(d.model || "")}"></div>
         <div class="form-field"><label>قیمت (تومان) — خالی = استعلامی</label><input type="number" min="0" data-p="price" data-num value="${e(d.price || "")}"></div>
         <div class="form-field"><label>تصویر</label><label class="btn btn-outline btn-sm">📷 انتخاب تصویر<input type="file" accept="image/jpeg,image/png,image/webp" data-pimg hidden></label>${d.img ? ' <span class="chip teal">تصویر دارد</span> <button type="button" class="btn btn-sm btn-ghost" data-noimg>حذف تصویر</button>' : ""}</div>
         <div class="form-field full"><label>توضیحات</label><textarea rows="3" maxlength="1000" data-p="desc">${e(d.desc || "")}</textarea></div>
+        ${hasTax && Tax.catFields(d.cat).length ? `<div class="form-field full"><label>ویژگی‌های ${e(Tax.name("categories", d.cat))} <small class="muted">(فیلدها را مدیر سایت برای هر دسته تعریف می‌کند؛ آزمایشگاه‌ها با همین‌ها فیلتر می‌کنند)</small></label>
+          <div class="form-grid">${Tax.catFields(d.cat).map(f => `<div class="form-field"><label>${e(f.label)}${f.unit ? ` (${e(f.unit)})` : ""}</label>${f.type === "select"
+            ? `<select data-attr="${e(f.key)}"><option value="">—</option>${(f.options || []).map(o => `<option ${String((d.attrs || {})[f.key]) === o ? "selected" : ""}>${e(o)}</option>`).join("")}</select>`
+            : `<input type="${f.type === "number" ? "number" : "text"}" ${f.type === "number" ? 'min="0" data-num' : ""} maxlength="80" data-attr="${e(f.key)}" value="${e((d.attrs || {})[f.key] == null ? "" : d.attrs[f.key])}">`}</div>`).join("")}</div></div>` : ""}
+        <div class="form-field full"><label class="check-item inline"><input type="checkbox" data-isnew ${d.isNew ? "checked" : ""}> این محصول/دستگاه <b>تازه وارد بازار</b> شده است (برچسب «جدید» و نمایش در بخش محصولات جدید)</label></div>
         <div class="form-field full"><label>مشخصات فنی</label>
           ${(d.specs || []).map((s, i) => `<div style="display:flex;gap:8px;margin-bottom:6px"><input type="text" maxlength="40" data-spec="${i}:0" value="${e(s[0])}" placeholder="ویژگی (مثلاً ظرفیت)"><input type="text" maxlength="80" data-spec="${i}:1" value="${e(s[1])}" placeholder="مقدار"><button type="button" class="btn btn-sm btn-ghost danger" data-rmspec="${i}">×</button></div>`).join("")}
           <button type="button" class="tp-add" data-addspec>+ ردیف مشخصات</button></div>
@@ -173,8 +268,11 @@ const EmpTalent = (() => {
       const t = ev.target; if (!edit) return;
       if (t.dataset.p) edit[t.dataset.p] = t.dataset.num !== undefined ? (t.value === "" ? null : +t.value) : t.value;
       if (t.dataset.spec) { const [i, k] = t.dataset.spec.split(":").map(Number); edit.specs[i][k] = t.value; }
+      if (t.dataset.attr) { edit.attrs = edit.attrs || {}; edit.attrs[t.dataset.attr] = t.dataset.num !== undefined ? (t.value === "" ? "" : +t.value) : t.value; }
+      if (t.dataset.isnew !== undefined) { edit.isNew = t.checked; if (t.checked && !edit.launched) edit.launched = "امروز"; }
     };
     host.onchange = async ev => {
+      if (edit && (ev.target.dataset.attr || ev.target.dataset.isnew !== undefined)) return host.oninput(ev);
       if (ev.target.dataset.pimg === undefined || !edit) return;
       try { Object.assign(edit, await A.image(ev.target.files[0], "product", 900)); draw(); } catch (err) { fail(err); }
     };
@@ -190,6 +288,8 @@ const EmpTalent = (() => {
       else if (b.dataset.ok !== undefined) {
         if (!edit.cat || !(edit.name || "").trim()) return toast("دسته و نام محصول لازم است");
         edit.specs = (edit.specs || []).filter(s => s[0].trim() && s[1].trim());
+        if (hasTax && edit.brand && !Tax.list("brands").some(b => b.name === edit.brand.trim())) Tax.propose("brands", { id: edit.brand.trim(), name: edit.brand.trim() }, (A.org(myOrgId()) || {}).name);
+        if (edit.attrs) Object.keys(edit.attrs).forEach(k => { if (edit.attrs[k] === "") delete edit.attrs[k]; });
         b.classList.add("is-busy");
         A.saveProduct(edit).then(() => { edit = null; draw(); toast("محصول ذخیره شد ✓"); }, fail).finally(() => b.classList.remove("is-busy"));
       }

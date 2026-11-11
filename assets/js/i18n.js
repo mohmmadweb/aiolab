@@ -43,7 +43,7 @@ const DICT = {
     "svc.free": "رایگان",
     "price.title": "تعرفه‌ها و اشتراک‌ها",
 
-    "act.login": "ورود کارجو",
+    "act.login": "ورود / ثبت‌نام",
     "act.employer": "ثبت آگهی استخدام",
     "act.dashboard": "داشبورد من",
     "act.employerPanel": "پنل کارفرما",

@@ -95,7 +95,7 @@
     <section class="b-step" data-step="3">
       <div class="panel">
         <div class="syllabus-head">
-          <div><h2>سرفصل ماژولی *</h2><p id="b-syl-sum">هر ماژول چند درس دارد: ویدئو، مطالعه، تمرین عملی، پروژه یا آزمون ماژول. حداقل ۱ ماژول با ۲ درس.</p></div>
+          <div><h2>سرفصل ماژولی *</h2><p id="b-syl-sum">هر ماژول چند درس دارد: ویدئو، مطالعه، اسلاید / پاورپوینت، تمرین عملی، پروژه یا آزمون ماژول. حداقل ۱ ماژول با ۲ درس.</p></div>
           <button class="btn btn-sm btn-ghost" onclick="loadTemplate()">📋 بارگذاری الگوی پیشنهادی</button>
         </div>
         <div id="b-syllabus"></div>
@@ -124,12 +124,14 @@
         </div>
       </div>
       <div class="panel" id="b-schedule">
-        <h2>زمان‌بندی (دوره‌های زنده و حضوری)</h2>
-        <div class="form-grid">
-          <div class="form-field"><label>تاریخ شروع</label><input type="text" data-k="nextStart" placeholder="۱۴۰۵/۰۷/۰۱"></div>
-          <div class="form-field"><label>ظرفیت (نفر)</label><input type="number" data-k="seats" min="1" placeholder="20"></div>
-          <div class="form-field full"><label>محل برگزاری / لینک کلاس</label><input type="text" data-k="venue" placeholder="مثلاً: کرج، آزمایشگاه مرجع البرز — یا لینک کلاس آنلاین"></div>
-        </div>
+        <h2>زمان و محل برگزاری *</h2>
+        <p style="margin-bottom:12px">برای دوره‌های زنده، ترکیبی و حضوری، هر نوبت برگزاری را جدا وارد کنید (شهر، مکان، روزها، ساعت، تاریخ شروع و ظرفیت). این اطلاعات در جدول دوره‌ها و صفحه‌ی دوره نمایش داده می‌شود و فراگیر می‌تواند در یک نوبت مشخص ثبت‌نام کند.</p>
+        <div id="b-sessions"></div>
+        <button class="btn btn-sm btn-outline" onclick="addSession()">+ نوبت برگزاری</button>
+      </div>
+      <div class="panel" id="b-schedule-self">
+        <h2>زمان و محل برگزاری</h2>
+        <p style="margin:0">این دوره «خودآموز» است و فراگیر هر زمان می‌تواند شروع کند. اگر کلاس زنده یا کارگاه حضوری دارید، در گام ۱ «شیوه برگزاری» را تغییر دهید تا بتوانید نوبت‌ها را وارد کنید.</p>
       </div>
       <div class="b-actions"><button class="btn btn-outline" onclick="goStep(3)">← قبلی</button><button class="btn btn-primary" onclick="goStep(5)">گام بعد: پرسش‌ها و ارسال →</button></div>
     </section>
@@ -179,6 +181,7 @@
 <script src="assets/js/talent-ui.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/academy-extra.js"></script>
 <script>
 const STEPS = ["اطلاعات پایه", "دستاوردها و مهارت‌ها", "سرفصل", "قیمت و گواهی", "پرسش‌ها و ارسال"];
 let D, step = 1, U;
@@ -188,6 +191,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const id = qs("id");
   D = (id && MyCreated.get(id)) || newDraft();
   if (U.role === "employer") document.getElementById("b-mylist").href = "employer.html#training";
+  if (U.role === "teacher") document.getElementById("b-mylist").href = "teach.html#courses";
+  /* پیش‌نویس‌های قدیمی: فیلدهای تکی زمان‌بندی → یک نوبت */
+  if (!Array.isArray(D.sessions)) D.sessions = (D.nextStart || D.venue) ? [{ city: "", venue: D.venue || "", address: "", days: "", time: "", start: D.nextStart || "", seats: D.seats || null, online: false }] : [];
+  document.getElementById("b-format").addEventListener("change", e => { D.format = e.target.value; if (D.format !== "self" && !D.sessions.length) D.sessions.push(emptySession()); renderSessions(); });
 
   /* selects */
   document.getElementById("b-cat").innerHTML = AIO_COURSE_CATS.map(c => `<option value="${c.id}">${c.name}</option>`).join("");
@@ -213,7 +220,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("b-pricemode").value = D.price ? "paid" : "free";
   D.instructorIds.forEach(id => { const cb = document.querySelector(`#b-instr input[value="${id}"]`); if (cb) cb.checked = true; });
 
-  renderStepper(); renderLists(); renderSyllabus(); renderNewInstr(); renderFaq(); renderProviderName(); priceMode(); certMode(); renderPreview();
+  renderStepper(); renderLists(); renderSyllabus(); renderNewInstr(); renderFaq(); renderProviderName(); priceMode(); certMode(); renderSessions(); renderPreview();
   document.getElementById("b-skill-sugg").innerHTML = AIO_TRENDING_SKILLS.slice(0, 6).map(s => `<a href="courses.html?skill=${encodeURIComponent(s)}" onclick="addSkill('${s}');return false" style="color:var(--teal-700);margin-inline-end:8px">${s}</a>`).join("");
   document.getElementById("b-title").textContent = D.title ? "ویرایش: " + D.title : "ساخت دوره جدید";
   const hs = Number(qs("step")); if (hs) goStep(hs);
@@ -222,7 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
 function newDraft() {
   return { id: "d" + Date.now().toString(36), status: "draft", ownerName: Auth.user.name,
     title: "", subtitle: "", type: "course", cat: "hematology", level: "مقدماتی", format: "self", lang: "فارسی", weeks: 4,
-    providerId: "mine", providerName: Auth.user.role === "seeker" ? "" : Auth.user.name, instructorIds: [], newInstructors: [],
+    providerId: "mine", providerName: Auth.user.role === "seeker" ? "" : Auth.user.name, instructorIds: [], newInstructors: [], sessions: [],
     outcomes: ["", "", ""], skills: [], audience: [""], prereq: [], syllabus: [], price: null, oldPrice: null, cert: true,
     certType: "گواهی مهارت آیولب", relatedExamId: "", nextStart: "", seats: null, venue: "", faq: [], highlightReq: false, allowReviews: true, terms: false };
 }
@@ -244,7 +251,7 @@ function stepOk(n) {
   if (n === 1) return c.title && c.subtitle && c.instr && c.provider;
   if (n === 2) return c.outcomes && c.skills;
   if (n === 3) return c.syllabus && c.quiz;
-  if (n === 4) return c.price;
+  if (n === 4) return c.price && c.schedule;
   if (n === 5) return !!D.terms;
   return false;
 }
@@ -257,7 +264,8 @@ function checks() {
     outcomes: D.outcomes.filter(o => o.trim()).length >= 3, skills: D.skills.length >= 3,
     syllabus: D.syllabus.length >= 1 && D.syllabus.every(m => m.title.trim() && m.lessons.filter(l => l.t.trim()).length >= 2) && lessons.length >= 2,
     quiz: D.type === "guided" || lessons.some(l => l.type === "quiz"),
-    price: D.price === 0 || D.price > 0
+    price: D.price === 0 || D.price > 0,
+    schedule: D.format === "self" || (D.sessions || []).some(x => (x.online || (x.city || "").trim()) && (x.start || "").trim())
   };
 }
 
@@ -307,10 +315,13 @@ function renderSyllabus() {
         <select onchange="D.syllabus[${mi}].lessons[${li}].type=this.value;renderSyllabus();touch()">${LTYPES.map(([id, t]) => `<option value="${id}" ${l.type === id ? "selected" : ""}>${t.icon} ${t.name}</option>`).join("")}</select>
         <input type="number" min="1" value="${l.min}" title="دقیقه" oninput="D.syllabus[${mi}].lessons[${li}].min=Number(this.value);touch()">
         <button onclick="D.syllabus[${mi}].lessons.splice(${li},1);renderSyllabus();touch()">✕</button>
+        ${l.type === "slides" ? `<div class="sx-file">${l.file && l.file.name ? `📎 <b dir="ltr">${esc(l.file.name)}</b>${l.file.data ? "" : " <small>(فقط نام فایل ذخیره شد؛ فایل کامل در نسخه‌ی متصل به سرور آپلود می‌شود)</small>"} <button type="button" style="color:var(--rose-500)" onclick="delete D.syllabus[${mi}].lessons[${li}].file;renderSyllabus();touch()">حذف فایل</button>` : "فایل ارائه (PPTX یا PDF) را انتخاب کنید:"}
+          <label class="btn btn-sm btn-outline">${l.file && l.file.name ? "تعویض فایل" : "📎 انتخاب فایل"}<input type="file" accept=".ppt,.pptx,.pdf,.key,.odp" hidden onchange="pickSlides(${mi},${li},this)"></label></div>` : ""}
       </div>`).join("")}
       <div class="b-mod-foot">
         <button class="btn btn-sm btn-outline" onclick="addLesson(${mi},'video')">+ ویدئو</button>
         <button class="btn btn-sm btn-outline" onclick="addLesson(${mi},'reading')">+ مطالعه</button>
+        <button class="btn btn-sm btn-outline" onclick="addLesson(${mi},'slides')">+ اسلاید / پاورپوینت</button>
         <button class="btn btn-sm btn-outline" onclick="addLesson(${mi},'lab')">+ تمرین</button>
         <button class="btn btn-sm btn-outline" onclick="addLesson(${mi},'project')">+ پروژه</button>
         <button class="btn btn-sm btn-outline" onclick="addLesson(${mi},'quiz')">+ آزمون ماژول</button>
@@ -351,7 +362,7 @@ function renderFaq() {
 /* ---------- پیش‌نمایش و بررسی ---------- */
 function checklistHTML(c) {
   const rows = [["title", "عنوان (حداقل ۸ نویسه)"], ["subtitle", "زیرعنوان (حداقل ۱۵ نویسه)"], ["provider", "نام ارائه‌دهنده"], ["instr", "حداقل یک مدرس"],
-    ["outcomes", "حداقل ۳ دستاورد"], ["skills", "حداقل ۳ مهارت"], ["syllabus", "حداقل ۱ ماژول با ۲ درس (همه با عنوان)"], ["quiz", "حداقل یک آزمون ماژول"], ["price", "قیمت مشخص (یا رایگان)"]];
+    ["outcomes", "حداقل ۳ دستاورد"], ["skills", "حداقل ۳ مهارت"], ["syllabus", "حداقل ۱ ماژول با ۲ درس (همه با عنوان)"], ["quiz", "حداقل یک آزمون ماژول"], ["price", "قیمت مشخص (یا رایگان)"], ["schedule", "زمان و محل برگزاری (برای دوره‌های زنده/حضوری)"]];
   return rows.map(([k, l]) => `<li class="${c[k] ? "ok" : "no"}">${l}</li>`).join("");
 }
 function renderPreview() {
@@ -374,7 +385,46 @@ function submitCourse() {
   if (bad.length || !D.terms) { renderFinalCheck(); toast("چند مورد از بررسی نهایی کامل نیست"); document.getElementById("b-check-final").scrollIntoView({ behavior: "smooth", block: "center" }); return; }
   D.status = "pending"; D.submittedAt = "امروز"; saveDraft(false); renderPreview();
   toast(`دوره «${D.title}» برای بازبینی ارسال شد ✓ نتیجه تا ۳ روز کاری اعلام می‌شود`);
-  setTimeout(() => location.href = (Auth.user.role === "employer" ? "employer.html#training" : "dashboard.html#courses"), 1400);
+  setTimeout(() => location.href = (Auth.user.role === "employer" ? "employer.html#training" : Auth.user.role === "teacher" ? "teach.html#courses" : "dashboard.html#courses"), 1400);
+}
+/* ---------- زمان و محل برگزاری (نوبت‌ها) ---------- */
+function emptySession() { return { city: "", venue: "", address: "", days: "", time: "", start: "", seats: null, online: D.format === "live" }; }
+function addSession() { D.sessions.push(emptySession()); renderSessions(); touch(); }
+function setSession(i, k, v) { D.sessions[i][k] = k === "seats" ? (v === "" ? null : Number(v)) : (k === "price" ? (v === "" ? null : Number(v)) : v); syncLegacySchedule(); touch(); }
+/* فیلدهای قدیمی (nextStart / seats / venue) از نزدیک‌ترین نوبت پر می‌شوند تا بقیه‌ی صفحات بدون تغییر کار کنند */
+function syncLegacySchedule() {
+  const list = (D.sessions || []).filter(x => (x.start || "").trim());
+  const first = list.sort((a, b) => jDateNum(a.start) - jDateNum(b.start))[0];
+  D.nextStart = first ? first.start : ""; D.seats = first ? first.seats : null; D.venue = first ? sessionPlace(first) : "";
+}
+function renderSessions() {
+  const self = D.format === "self";
+  document.getElementById("b-schedule").style.display = self ? "none" : "";
+  document.getElementById("b-schedule-self").style.display = self ? "" : "none";
+  const cities = ["آنلاین", ...AIO_CITIES];
+  document.getElementById("b-sessions").innerHTML = D.sessions.map((x, i) => `
+    <div class="sx-edit">
+      <div class="sx-edit-head"><span>نوبت ${fa(i + 1)}</span><button class="btn btn-sm btn-ghost" style="color:var(--rose-500)" onclick="D.sessions.splice(${i},1);syncLegacySchedule();renderSessions();touch()">حذف نوبت</button></div>
+      <div class="form-grid">
+        <div class="form-field"><label>شهر *</label><select onchange="D.sessions[${i}].online=this.value==='آنلاین';setSession(${i},'city',this.value);renderSessions()">
+          <option value="">انتخاب شهر…</option>${cities.map(c => `<option ${(x.online ? "آنلاین" : x.city) === c ? "selected" : ""}>${c}</option>`).join("")}</select></div>
+        <div class="form-field"><label>${x.online ? "پلتفرم / لینک کلاس" : "مکان برگزاری"}</label><input value="${esc(x.venue)}" placeholder="${x.online ? "مثلاً: اسکای‌روم" : "مثلاً: آزمایشگاه مرجع البرز"}" oninput="setSession(${i},'venue',this.value)"></div>
+        ${x.online ? "" : `<div class="form-field full"><label>نشانی</label><input value="${esc(x.address)}" placeholder="خیابان، کوچه، پلاک" oninput="setSession(${i},'address',this.value)"></div>`}
+        <div class="form-field"><label>روزهای برگزاری</label><input value="${esc(x.days)}" placeholder="مثلاً: شنبه و دوشنبه" oninput="setSession(${i},'days',this.value)"></div>
+        <div class="form-field"><label>ساعت</label><input value="${esc(x.time)}" placeholder="مثلاً: ۱۶ تا ۱۹" oninput="setSession(${i},'time',this.value)"></div>
+        <div class="form-field"><label>تاریخ شروع *</label><input value="${esc(x.start)}" placeholder="۱۴۰۵/۰۹/۱۵" oninput="setSession(${i},'start',this.value)"></div>
+        <div class="form-field"><label>ظرفیت (نفر)</label><input type="number" min="1" value="${x.seats == null ? "" : x.seats}" placeholder="20" oninput="setSession(${i},'seats',this.value)"></div>
+        <div class="form-field"><label>مبلغ این نوبت (اختیاری)</label><input type="number" min="0" step="10000" value="${x.price == null ? "" : x.price}" placeholder="خالی = قیمت دوره" oninput="setSession(${i},'price',this.value)"></div>
+      </div>
+    </div>`).join("") || `<div class="empty-inline" style="margin-bottom:10px">هنوز نوبتی ثبت نشده است.</div>`;
+}
+/* فایل اسلاید: نام همیشه ذخیره می‌شود؛ محتوا فقط اگر زیر ۱٫۵ مگابایت باشد (حافظه‌ی مرورگر دمو) */
+function pickSlides(mi, li, input) {
+  const f = input.files && input.files[0]; if (!f) return;
+  const l = D.syllabus[mi].lessons[li];
+  const done = data => { l.file = { name: f.name, size: f.size }; if (data) l.file.data = data; try { renderSyllabus(); touch(); toast("فایل اسلاید ضمیمه شد ✓"); } catch (_) { delete l.file.data; renderSyllabus(); touch(); toast("فایل بزرگ است؛ فقط نام آن ذخیره شد"); } };
+  if (f.size > 1.5 * 1024 * 1024) return done(null);
+  const fr = new FileReader(); fr.onload = () => done(fr.result); fr.onerror = () => done(null); fr.readAsDataURL(f);
 }
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;"); }
 </script>

@@ -34,9 +34,9 @@
 
       <div class="role-switch four">
         <button type="button" id="rb-seeker" class="active" onclick="setRole('seeker')">👤 کارجو</button>
-        <button type="button" id="rb-volunteer" onclick="setRole('volunteer')">🎓 داوطلب</button>
-        <button type="button" id="rb-employer" onclick="setRole('employer')">🏥 کارفرما</button>
-        <button type="button" id="rb-supplier" onclick="setRole('supplier')">🔬 تأمین‌کننده</button>
+        <button type="button" id="rb-lab" onclick="setRole('lab')">🏥 آزمایشگاه</button>
+        <button type="button" id="rb-company" onclick="setRole('company')">🏭 شرکت</button>
+        <button type="button" id="rb-teacher" onclick="setRole('teacher')">🎓 آموزش</button>
       </div>
       <div class="role-hint" id="role-hint">پرسنل آزمایشگاه که سابقه کاری دارد و دنبال موقعیت جدید است.</div>
 
@@ -45,7 +45,15 @@
         <input type="text" id="name" placeholder="مثلاً: علی رضایی" required>
       </div>
 
-      <!-- ویژه داوطلب -->
+      <!-- کارجو: باتجربه یا تازه‌کار (داوطلب) -->
+      <div class="form-field" id="f-stage">
+        <label>وضعیت شما</label>
+        <div class="seg-pick">
+          <label><input type="radio" name="stage" value="pro" checked onchange="setStage()"> سابقه کار دارم</label>
+          <label><input type="radio" name="stage" value="student" onchange="setStage()"> دانشجو / تازه‌کار هستم</label>
+        </div>
+      </div>
+      <!-- ویژه داوطلب (کارجوی تازه‌کار) -->
       <div class="form-field" id="f-vol" style="display:none">
         <label>وضعیت تحصیلی</label>
         <select id="vol-status">
@@ -57,18 +65,23 @@
         </select>
       </div>
 
-      <!-- ویژه کارفرما -->
+      <!-- ویژه آزمایشگاه: نوع مرکز از فهرست پویا -->
       <div class="form-field" id="f-field" style="display:none">
         <label>نوع مرکز</label>
-        <select id="center-type">
-          <option>آزمایشگاه تشخیص طبی</option>
-          <option>آزمایشگاه بیمارستانی</option>
-          <option>آزمایشگاه ژنتیک</option>
-          <option>آزمایشگاه دولتی / مرجع</option>
-          <option>مرکز پژوهشی</option>
-          <option>تولیدکننده تجهیزات و کیت</option>
-          <option>توزیع‌کننده / واردکننده</option>
-        </select>
+        <select id="center-type"></select>
+      </div>
+      <!-- ویژه شرکت: نوع شرکت (چندانتخابی، از فهرست پویا) -->
+      <div class="form-field" id="f-ctype" style="display:none">
+        <label>نوع شرکت * <small class="muted">(چند مورد مجاز است)</small></label>
+        <div class="chips-pick" id="ctype-pick"></div>
+      </div>
+      <!-- ویژه آموزش: حساب شخصی یا سازمانی -->
+      <div class="form-field" id="f-acct" style="display:none">
+        <label>نوع حساب آموزشی</label>
+        <div class="seg-pick">
+          <label><input type="radio" name="acct" value="personal" checked onchange="setRole('teacher')"> مدرس (شخصی)</label>
+          <label><input type="radio" name="acct" value="business" onchange="setRole('teacher')"> آموزشگاه / مرکز آموزشی</label>
+        </div>
       </div>
 
       <div class="form-field">
@@ -115,39 +128,77 @@
 let role = "seeker";
 const HINTS = {
   seeker: "پرسنل آزمایشگاه که سابقه کاری دارد و دنبال موقعیت جدید است.",
-  volunteer: "دانشجو، تازه‌فارغ‌التحصیل یا کسی که می‌خواهد تازه وارد بازار کار آزمایشگاه شود. مسیر شما با کارآموزی، آزمون مهارت و خودارزیابی شروع می‌شود.",
-  employer: "آزمایشگاه، بیمارستان، مرکز پژوهشی، تولیدکننده یا توزیع‌کننده تجهیزات که نیرو جذب می‌کند.",
-  supplier: "تأمین‌کننده تجهیزات، مواد مصرفی، کیت یا خدمات آزمایشگاهی که می‌خواهد محصول خود را به جامعه آزمایشگاهی معرفی کند."
+  student: "دانشجو، تازه‌فارغ‌التحصیل یا کسی که می‌خواهد تازه وارد بازار کار آزمایشگاه شود. مسیر شما با کارآموزی، آزمون مهارت و خودارزیابی شروع می‌شود.",
+  lab: "آزمایشگاه، بیمارستان یا مرکز پژوهشی: آگهی استخدام، بانک رزومه، یافتن محصول و تعمیرکار، و آموزش پرسنل.",
+  company: "شرکت تولیدی، وارداتی، پخش یا خدماتی (تعمیر): معرفی شرکت و محصولات به آزمایشگاه‌ها، استخدام، تبلیغات و اسپانسری.",
+  teacher: "مدرس یا آموزشگاه: ساخت دوره‌ی ویدئویی، متنی و اسلاید، برگزاری کلاس حضوری یا آنلاین، آزمون و گواهی.",
+  teacherBiz: "آموزشگاه، دانشگاه یا مرکزی که دوره برگزار می‌کند؛ چند مدرس را زیر یک حساب مدیریت کنید."
 };
+const NAMES = {
+  seeker:  ["نام و نام خانوادگی", "مثلاً: علی رضایی"],
+  lab:     ["نام مرکز / آزمایشگاه", "مثلاً: آزمایشگاه نور"],
+  company: ["نام شرکت", "مثلاً: شرکت زیست‌تجهیز"],
+  teacher: ["نام و نام خانوادگی", "مثلاً: دکتر مریم احمدی"],
+  teacherBiz: ["نام آموزشگاه / مرکز", "مثلاً: آموزشگاه علوم آزمایشگاهی پویا"]
+};
+/* نقش‌های قدیمی در لینک‌ها: employer → آزمایشگاه، supplier → شرکت، volunteer → کارجوی تازه‌کار */
+const ROLE_ALIAS = { employer: "lab", supplier: "company", volunteer: "seeker" };
 
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("prov").innerHTML = `<option value="">استان خود را انتخاب کنید</option>` +
     AIO_PROVINCES.map(p => `<option value="${p.id}">${p.name}</option>`).join("");
-  const r = qs("role");
-  if (r === "employer" || r === "volunteer" || r === "supplier") setRole(r);
+  document.getElementById("center-type").innerHTML = Tax.list("labTypes").map(t => `<option value="${t.id}">${t.name}</option>`).join("");
+  document.getElementById("ctype-pick").innerHTML = Tax.list("companyTypes").map(t =>
+    `<button type="button" class="cp" data-v="${t.id}" title="${t.desc || ""}" onclick="this.classList.toggle('on')">${t.name}</button>`).join("");
+  const q = qs("role");
+  if (q === "volunteer") document.querySelector('input[name=stage][value=student]').checked = true;
+  setRole(ROLE_ALIAS[q] || (NAMES[q] ? q : "seeker"));
 });
+
+const stage = () => document.querySelector("input[name=stage]:checked").value;
+const acct = () => document.querySelector("input[name=acct]:checked").value;
+function setStage() { setRole("seeker"); }
 
 function setRole(r) {
   role = r;
-  ["seeker", "volunteer", "employer", "supplier"].forEach(x =>
-    document.getElementById("rb-" + x).classList.toggle("active", x === r));
-  const org = r === "employer" || r === "supplier";
-  document.getElementById("role-hint").textContent = HINTS[r];
-  document.getElementById("name-label").textContent = org
-    ? (r === "supplier" ? "نام شرکت" : "نام مرکز / آزمایشگاه") : "نام و نام خانوادگی";
-  document.getElementById("name").placeholder = org
-    ? (r === "supplier" ? "مثلاً: شرکت زیست‌تجهیز" : "مثلاً: آزمایشگاه نور") : "مثلاً: علی رضایی";
-  document.getElementById("f-field").style.display = org ? "block" : "none";
-  document.getElementById("f-vol").style.display = r === "volunteer" ? "block" : "none";
+  ["seeker", "lab", "company", "teacher"].forEach(x => document.getElementById("rb-" + x).classList.toggle("active", x === r));
+  const key = r === "seeker" && stage() === "student" ? "student" : (r === "teacher" && acct() === "business" ? "teacherBiz" : r);
+  document.getElementById("role-hint").textContent = HINTS[key];
+  const [label, ph] = NAMES[key] || NAMES[r];
+  document.getElementById("name-label").textContent = label;
+  document.getElementById("name").placeholder = ph;
+  const show = (id, on) => document.getElementById(id).style.display = on ? "block" : "none";
+  show("f-stage", r === "seeker");
+  show("f-vol", r === "seeker" && stage() === "student");
+  show("f-field", r === "lab");
+  show("f-ctype", r === "company");
+  show("f-acct", r === "teacher");
 }
 
 function doRegister(e) {
   e.preventDefault();
   const name = document.getElementById("name").value.trim() || "کاربر آیولب";
-  Auth.login(name, role === "employer" ? "employer" : role);
-  if (role === "volunteer") Store.set("volunteer_status", document.getElementById("vol-status").value);
-  location.href = role === "employer" ? "employer.html"
-    : (role === "supplier" ? "advertise.html" : "dashboard.html");
+  if (role === "seeker") {
+    const st = stage();
+    Auth.login(name, st === "student" ? "volunteer" : "seeker", { stage: st });
+    if (st === "student") Store.set("volunteer_status", document.getElementById("vol-status").value);
+    location.href = "dashboard.html";
+  } else if (role === "lab" || role === "company") {
+    const types = [...document.querySelectorAll("#ctype-pick .cp.on")].map(b => b.dataset.v);
+    if (role === "company" && !types.length) { toast("نوع شرکت را انتخاب کنید (یک یا چند مورد)"); return; }
+    Auth.login(name, "employer", { org: role });
+    /* دمو: حساب تازه به سازمان نمونه‌ی هم‌نوع وصل می‌شود تا پنل خالی نباشد؛ نوع انتخابی روی همان ذخیره می‌شود */
+    const id = role === "company" ? 5 : 1;
+    Store.set("my_org_id", id);
+    const cur = Store.get("org_" + id, {});
+    if (role === "company") cur.companyTypes = types; else cur.labType = document.getElementById("center-type").value;
+    cur.orgType = role;
+    Store.set("org_" + id, cur);
+    location.href = "employer.html#" + (role === "company" ? "orgprofile" : "addlab");
+  } else {
+    Auth.login(name, "teacher", { acct: acct() });
+    location.href = "teach.html";
+  }
 }
 </script>
 </body>

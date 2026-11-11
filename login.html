@@ -32,10 +32,11 @@
         🧪 <b>حالت دمو:</b> این نسخه پروتوتایپ است و به سرور متصل نیست. با هر ایمیل و رمزی می‌توانید وارد شوید.
       </div>
 
-      <div class="role-switch three">
+      <div class="role-switch four">
         <button type="button" id="rb-seeker" class="active" onclick="setRole('seeker')">👤 کارجو</button>
-        <button type="button" id="rb-employer" onclick="setRole('employer')">🏥 کارفرما</button>
-        <button type="button" id="rb-supplier" onclick="setRole('supplier')">🔬 تأمین‌کننده</button>
+        <button type="button" id="rb-lab" onclick="setRole('lab')">🏥 آزمایشگاه</button>
+        <button type="button" id="rb-company" onclick="setRole('company')">🏭 شرکت</button>
+        <button type="button" id="rb-teacher" onclick="setRole('teacher')">🎓 آموزش</button>
       </div>
 
       <div class="form-field">
@@ -90,26 +91,30 @@
 <script src="assets/js/app.js"></script>
 <script>
 let role = "seeker";
+const ROLE_ALIAS = { employer: "lab", supplier: "company", volunteer: "seeker" };
 document.addEventListener("DOMContentLoaded", () => {
   const r = qs("role");
-  if (r === "employer" || r === "supplier") setRole(r);
+  setRole(ROLE_ALIAS[r] || (["lab", "company", "teacher"].includes(r) ? r : "seeker"));
 });
 function setRole(r) {
   role = r;
-  ["seeker", "employer", "supplier"].forEach(x =>
+  ["seeker", "lab", "company", "teacher"].forEach(x =>
     document.getElementById("rb-" + x).classList.toggle("active", x === r));
   document.getElementById("reg-link").href = "register.html" + (r === "seeker" ? "" : "?role=" + r);
 }
 function doLogin(e) {
   e.preventDefault();
   const email = document.getElementById("email").value.trim();
+  /* دمو: هر نقش به یک حساب نمونه وصل می‌شود */
   const DEMO = {
-    employer: { name: "آزمایشگاه نور",       role: "employer", to: "employer.html" },
-    supplier: { name: "شرکت زیست‌تجهیز",     role: "supplier", to: "advertise.html" },
-    seeker:   { name: "علی رضایی",           role: "seeker",   to: "dashboard.html" }
+    seeker:  { name: "علی رضایی",          role: "seeker",   to: "dashboard.html" },
+    lab:     { name: "آزمایشگاه نور",       role: "employer", extra: { org: "lab" },     org: 1, to: "employer.html" },
+    company: { name: "شرکت زیست‌تجهیز",     role: "employer", extra: { org: "company" }, org: 5, to: "employer.html" },
+    teacher: { name: "دکتر مریم احمدی",     role: "teacher",  extra: { acct: "personal" }, to: "teach.html" }
   };
   const d = DEMO[role] || DEMO.seeker;
-  Auth.login(role === "seeker" ? d.name : (email.split("@")[0] || d.name), d.role);
+  Auth.login(role === "seeker" || role === "teacher" ? d.name : (email.split("@")[0] || d.name), d.role, d.extra);
+  if (d.org) Store.set("my_org_id", d.org);
   const back = Store.get("after_login", null);
   if (back) { Store.set("after_login", null); location.href = back; return; }
   location.href = d.to;

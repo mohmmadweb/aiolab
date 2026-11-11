@@ -430,3 +430,204 @@ function aioCandidates() {
   const me = _st("resume", null);
   return me && me.name ? [...AIO_CANDIDATES, Object.assign({ id: 100, color: "#0f766e", self: true }, me)] : AIO_CANDIDATES;
 }
+
+/* ==========================================================================
+   طبقه‌بندی پویا (۱۴۰۵/۰۸) — نوع شرکت، نوع آزمایشگاه، گروه/دسته/تعریف محصول، برندها، مدارک
+   مقادیر پیش‌فرض اینجاست؛ مدیر سایت از «پنل مدیریت» (admin.html) همه را بدون برنامه‌نویس
+   تغییر می‌دهد (دمو: حافظه‌ی مرورگر کلید aio_tax؛ نسخه‌ی اصلی: تنظیمات آیولب).
+   شرکت‌ها هم می‌توانند برند/محصول/دستگاه تازه پیشنهاد دهند (aio_tax_proposals) تا مدیر تأیید کند.
+   ========================================================================== */
+const AIO_TAX_DEFAULT = {
+  /* نوع شرکت — asks: کدام بخش‌های پروفایل برای این نوع پرسیده شود
+     brands = «نماینده‌ی کدام شرکت‌ها»، products = محصولات، repairs = خدمات تعمیر */
+  companyTypes: [
+    { id: "manufacturer", name: "تولیدی", desc: "تولید کیت، معرف، مواد مصرفی یا دستگاه", asks: ["products"] },
+    { id: "importer", name: "وارداتی (نمایندگی شرکت خارجی)", desc: "واردات و نمایندگی رسمی برندهای خارجی", asks: ["brands", "products"] },
+    { id: "distributor", name: "توزیع و پخش", desc: "پخش محصولات چند شرکت داخلی یا خارجی", asks: ["brands", "products"] },
+    { id: "service", name: "خدماتی — تعمیر و نگهداری (آچار آزمایشگاه)", desc: "تعمیر، سرویس و کالیبراسیون دستگاه‌ها", asks: ["repairs"] }
+  ],
+  /* نوع آزمایشگاه / مرکز */
+  labTypes: [
+    { id: "clinical", name: "آزمایشگاه تشخیص طبی" }, { id: "hospital", name: "آزمایشگاه بیمارستانی" },
+    { id: "genetics", name: "آزمایشگاه ژنتیک" }, { id: "reference", name: "آزمایشگاه دولتی / مرجع" },
+    { id: "research", name: "مرکز پژوهشی" }, { id: "university", name: "آزمایشگاه دانشگاهی / آموزشی" },
+    { id: "pathology", name: "آزمایشگاه پاتولوژی" }
+  ],
+  /* گروه محصول (حوزه‌ی آزمایشگاهی) — شناسه‌ها تا جای ممکن با بخش‌ها و دسته‌ی دوره‌ها یکی است تا محصول، آگهی و دوره به هم وصل شوند */
+  groups: [
+    { id: "biochemistry", name: "بیوشیمی" }, { id: "hormone", name: "هورمون و ایمونولوژی" }, { id: "hematology", name: "هماتولوژی" },
+    { id: "coagulation", name: "انعقاد" }, { id: "microbiology", name: "میکروب‌شناسی" }, { id: "genetics", name: "مولکولی و ژنتیک" },
+    { id: "pathology", name: "پاتولوژی" }, { id: "urinalysis", name: "ادرار و مایعات بدن" }, { id: "general", name: "تجهیزات عمومی و مصرفی" }
+  ],
+  /* دسته‌ی محصول + تعریف ویژگی‌های پارامتریک هر دسته (type: text | number | select) */
+  categories: [
+    { id: "analyzer", name: "دستگاه و آنالایزر", icon: "machine", color: "#6366f1", bg: "#e0e7ff", fields: [
+      { key: "method", label: "روش اندازه‌گیری", type: "select", options: ["فتومتری (آنزیمی)", "ایمپدانس", "فلوسایتومتری فلورسنت", "کمی‌لومینسانس (CLIA)", "الکتروکمی‌لومینسانس (ECL)", "الایزا", "ایمونوتوربیدیمتری", "Real-time PCR", "الکترود یون‌انتخابی (ISE)", "کلاتینگ (اپتیکال/مکانیکال)"] },
+      { key: "throughput", label: "ظرفیت", type: "number", unit: "تست در ساعت" },
+      { key: "automation", label: "سطح اتوماسیون", type: "select", options: ["تمام‌خودکار", "نیمه‌خودکار", "دستی"] },
+      { key: "sample", label: "نوع نمونه", type: "select", options: ["خون کامل", "سرم / پلاسما", "ادرار", "بافت", "چندگانه"] } ] },
+    { id: "reagent", name: "کیت و معرف", icon: "flask", color: "#0d9488", bg: "#ccfbf1", fields: [
+      { key: "method", label: "روش اندازه‌گیری", type: "select", options: ["فتومتری (آنزیمی)", "الایزا", "کمی‌لومینسانس (CLIA)", "ایمونوتوربیدیمتری", "ایمونوکروماتوگرافی (رپید)", "Real-time PCR", "آگلوتیناسیون"] },
+      { key: "tests", label: "تعداد تست در کیت", type: "number", unit: "تست" },
+      { key: "sample", label: "نوع نمونه", type: "select", options: ["سرم / پلاسما", "خون کامل", "ادرار", "سواب", "چندگانه"] },
+      { key: "compat", label: "سازگار با دستگاه", type: "text" },
+      { key: "storage", label: "شرایط نگهداری", type: "text" } ] },
+    { id: "consumable", name: "مواد مصرفی", icon: "syringe", color: "#f59e0b", bg: "#fef3c7", fields: [
+      { key: "material", label: "جنس", type: "text" }, { key: "volume", label: "حجم / اندازه", type: "text" },
+      { key: "pack", label: "تعداد در بسته", type: "number", unit: "عدد" } ] },
+    { id: "equipment", name: "تجهیزات عمومی آزمایشگاه", icon: "scope", color: "#0ea5e9", bg: "#e0f2fe", fields: [
+      { key: "capacity", label: "ظرفیت", type: "text" }, { key: "power", label: "برق مصرفی", type: "text" } ] },
+    { id: "software", name: "نرم‌افزار و LIS", icon: "doc", color: "#8b5cf6", bg: "#ede9fe", fields: [
+      { key: "platform", label: "بستر", type: "select", options: ["تحت وب", "ویندوز", "ابری (SaaS)"] },
+      { key: "hl7", label: "اتصال به دستگاه (HL7/ASTM)", type: "select", options: ["دارد", "ندارد"] } ] },
+    { id: "service", name: "خدمات فنی و کالیبراسیون", icon: "settings", color: "#f43f5e", bg: "#ffe4e6", fields: [
+      { key: "response", label: "زمان پاسخ", type: "number", unit: "ساعت" }, { key: "coverage", label: "محدوده‌ی خدمت", type: "text" } ] }
+  ],
+  /* تعریف محصول / دستگاه زیر هر گروه — kind: test (آزمایش/کیت) | device (دستگاه) | supply (مصرفی) | software | service */
+  items: [
+    { id: "glucose", group: "biochemistry", name: "قند (گلوکز)", kind: "test" }, { id: "cholesterol", group: "biochemistry", name: "کلسترول", kind: "test" },
+    { id: "urea", group: "biochemistry", name: "اوره", kind: "test" }, { id: "creatinine", group: "biochemistry", name: "کراتینین", kind: "test" },
+    { id: "auto-chem", group: "biochemistry", name: "اتوآنالایزر بیوشیمی", kind: "device" }, { id: "photometer", group: "biochemistry", name: "فتومتر", kind: "device" },
+    { id: "electrolyte", group: "biochemistry", name: "آنالایزر الکترولیت", kind: "device" },
+    { id: "tsh", group: "hormone", name: "TSH", kind: "test" }, { id: "t4", group: "hormone", name: "T4", kind: "test" },
+    { id: "vitd", group: "hormone", name: "ویتامین D", kind: "test" }, { id: "ferritin", group: "hormone", name: "فریتین", kind: "test" },
+    { id: "elisa-reader", group: "hormone", name: "الایزا ریدر", kind: "device" }, { id: "clia-analyzer", group: "hormone", name: "آنالایزر ایمونواسی (CLIA)", kind: "device" },
+    { id: "cbc-reagent", group: "hematology", name: "معرف CBC", kind: "test" }, { id: "cell-counter", group: "hematology", name: "سل‌کانتر", kind: "device" },
+    { id: "esr", group: "hematology", name: "ESR", kind: "test" },
+    { id: "pt", group: "coagulation", name: "PT", kind: "test" }, { id: "ptt", group: "coagulation", name: "PTT", kind: "test" },
+    { id: "coag-analyzer", group: "coagulation", name: "آنالایزر انعقاد", kind: "device" },
+    { id: "culture-media", group: "microbiology", name: "محیط کشت", kind: "supply" }, { id: "incubator", group: "microbiology", name: "انکوباتور", kind: "device" },
+    { id: "blood-culture", group: "microbiology", name: "سیستم کشت خون", kind: "device" },
+    { id: "pcr-kit", group: "genetics", name: "کیت PCR", kind: "test" }, { id: "rt-pcr", group: "genetics", name: "دستگاه Real-time PCR", kind: "device" },
+    { id: "ngs-panel", group: "genetics", name: "پنل NGS", kind: "service" }, { id: "extractor", group: "genetics", name: "دستگاه استخراج DNA/RNA", kind: "device" },
+    { id: "microtome", group: "pathology", name: "میکروتوم", kind: "device" }, { id: "tissue-processor", group: "pathology", name: "تیشو پروسسور", kind: "device" },
+    { id: "he-stain", group: "pathology", name: "رنگ H&E", kind: "supply" },
+    { id: "urine-strip", group: "urinalysis", name: "نوار ادرار", kind: "supply" }, { id: "urine-analyzer", group: "urinalysis", name: "آنالایزر ادرار", kind: "device" },
+    { id: "centrifuge", group: "general", name: "سانتریفیوژ", kind: "device" }, { id: "vacuum-tube", group: "general", name: "لوله خلأ", kind: "supply" },
+    { id: "pipette", group: "general", name: "سمپلر (پیپت)", kind: "supply" }, { id: "lis", group: "general", name: "نرم‌افزار آزمایشگاه (LIS)", kind: "software" }
+  ],
+  /* برند / سازنده (برای «نماینده‌ی چه شرکتی»، برند محصول و «تعمیر چه برندی») */
+  brands: [
+    { id: "sysmex", name: "Sysmex", country: "ژاپن" }, { id: "mindray", name: "Mindray", country: "چین" }, { id: "roche", name: "Roche", country: "سوئیس" },
+    { id: "abbott", name: "Abbott", country: "آمریکا" }, { id: "siemens", name: "Siemens Healthineers", country: "آلمان" }, { id: "beckman", name: "Beckman Coulter", country: "آمریکا" },
+    { id: "hitachi", name: "Hitachi", country: "ژاپن" }, { id: "biorad", name: "Bio-Rad", country: "آمریکا" }, { id: "snibe", name: "Snibe", country: "چین" },
+    { id: "diasys", name: "DiaSys", country: "آلمان" }, { id: "stago", name: "Stago", country: "فرانسه" }, { id: "erba", name: "Erba", country: "چک" },
+    { id: "dirui", name: "Dirui", country: "چین" }, { id: "hettich", name: "Hettich", country: "آلمان" }, { id: "qiagen", name: "Qiagen", country: "آلمان" },
+    { id: "pishtaz", name: "پیشتاز طب", country: "ایران" }, { id: "parsazmoon", name: "پارس آزمون", country: "ایران" }, { id: "parsbiotech", name: "پارس‌بیوتک", country: "ایران" }
+  ],
+  /* نوع مدارکی که شرکت/آزمایشگاه آپلود می‌کند */
+  docKinds: ["روزنامه رسمی / پروانه ثبت", "مجوز تجهیزات پزشکی (IMED)", "گواهی نمایندگی رسمی", "پروانه بهره‌برداری", "گواهی ISO", "گواهی دانش‌بنیان", "سایر"]
+};
+
+/* طبقه‌بندی مؤثر = پیش‌فرض + ویرایش‌های مدیر. فهرست‌های قدیمی (AIO_PRODUCT_CATS) هم از همین تغذیه می‌شوند تا همه‌ی کد قبلی پویا شود */
+const AIO_TAX = Object.assign(JSON.parse(JSON.stringify(AIO_TAX_DEFAULT)), _st("tax", {}));
+AIO_PRODUCT_CATS.splice(0, AIO_PRODUCT_CATS.length, ...AIO_TAX.categories);
+const Tax = {
+  list: k => AIO_TAX[k] || [],
+  find: (k, id) => (AIO_TAX[k] || []).find(x => x.id === id),
+  name: (k, id) => { const x = Tax.find(k, id); return x ? x.name : (id || ""); },
+  /* مقادیر پیشنهادی شرکت‌ها که هنوز تأیید نشده‌اند (در فرم همان شرکت قابل استفاده‌اند) */
+  proposals: () => _st("tax_proposals", []),
+  propose(kind, item, by) {
+    const all = Tax.proposals();
+    if (all.some(p => p.kind === kind && p.item.name === item.name)) return;
+    all.push({ id: Date.now(), kind, item, by: by || "", status: "pending", date: "امروز" });
+    localStorage.setItem("aio_tax_proposals", JSON.stringify(all));
+  },
+  /* برند/محصول با شناسه یا نام آزاد (ورودی شرکت) */
+  brandName: v => { const b = Tax.find("brands", v); return b ? b.name : (v || ""); },
+  itemName: v => { const i = Tax.find("items", v); return i ? i.name : (v || ""); },
+  itemsOf: g => Tax.list("items").filter(i => !g || i.group === g),
+  catFields: cat => ((Tax.find("categories", cat) || {}).fields || []),
+  save(k, list) { const t = _st("tax", {}); t[k] = list; localStorage.setItem("aio_tax", JSON.stringify(t)); },
+  reset(k) { const t = _st("tax", {}); delete t[k]; localStorage.setItem("aio_tax", JSON.stringify(t)); }
+};
+
+/* ---------- داده‌ی نمونه: تکمیل شرکت‌ها با نوع، نمایندگی، تعمیرات، مدیرعامل، کاتالوگ و مدارک ---------- */
+AIO_LABS.push({ id: 14, name: "شرکت فنی‌مهندسی آچار طب", vertical: "lab", city: "تهران", provinceId: "tehran",
+  type: "شرکت خدمات فنی", sector: "private", orgKind: "distributor", size: "۱۰ تا ۵۰ نفر",
+  color: "#ea580c", lat: 35.6890, lng: 51.3890, address: "تهران، خیابان انقلاب، نبش خیابان فلسطین، پلاک ۴۱۲",
+  about: "آچار طب در تعمیر، سرویس دوره‌ای و کالیبراسیون دستگاه‌های بیوشیمی، هماتولوژی و تجهیزات عمومی آزمایشگاه تخصص دارد؛ با تیم سیار در تهران و البرز و قطعات یدکی اصل.",
+  perks: ["ماشین شرکتی", "آموزش رایگان", "پورسانت"], staff: 22, founded: 1394, verified: true,
+  avgSalary: 21.5, avgSalaryUpdated: "۱۴۰۵/۰۷/۱۰", rating: 4.3, ratingCount: 18,
+  ratingBreakdown: { salary: 4.1, environment: 4.4, learning: 4.5, management: 4.0, worklife: 4.0 } });
+AIO_ORG_EXTRA[14] = { orgType: "company", tagline: "تعمیر و کالیبراسیون دستگاه‌های آزمایشگاهی — آچار آزمایشگاه", services: ["کالیبراسیون تجهیزات", "خدمات پس از فروش"],
+  accreditations: ["ISO 9001"], hours: "شنبه تا پنجشنبه ۸ تا ۱۸", phone: "02166400000", email: "info@acharteb.example", gallery: [{ t: "کارگاه تعمیرات", c: "#ea580c" }] };
+const AIO_ORG_PROFILE_X = {
+  5: { companyTypes: ["importer", "service"], groups: ["hematology", "biochemistry", "hormone"], represents: ["sysmex", "mindray"],
+       repairs: [{ group: "hematology", item: "cell-counter", brand: "sysmex", models: "XN-350, XN-550, XS-1000i" },
+                 { group: "biochemistry", item: "auto-chem", brand: "mindray", models: "BS-200, BS-240, BS-380" }],
+       ceo: { name: "مهندس کامران صالحی", title: "مدیرعامل", bio: "۲۲ سال سابقه در واردات و پشتیبانی تجهیزات تشخیص آزمایشگاهی؛ فارغ‌التحصیل مهندسی پزشکی دانشگاه امیرکبیر." },
+       catalogs: [{ name: "کاتالوگ محصولات زیست‌تجهیز ۱۴۰۵.pdf", size: "۲٫۴ مگابایت" }, { name: "مشخصات فنی Sysmex XN-L.pdf", size: "۱٫۱ مگابایت" }],
+       documents: [{ kind: "مجوز تجهیزات پزشکی (IMED)", name: "IMED-1405.pdf", status: "verified" }, { kind: "گواهی نمایندگی رسمی", name: "Sysmex-Authorization.pdf", status: "verified" }] },
+  10: { companyTypes: ["manufacturer"], groups: ["hormone", "biochemistry"],
+       ceo: { name: "دکتر نسرین فرهمند", title: "مدیرعامل و بنیان‌گذار", bio: "دکترای بیوشیمی بالینی؛ بنیان‌گذار پارس‌بیوتک و مجری ۴ طرح فناوری کیت‌های تشخیصی." },
+       catalogs: [{ name: "کاتالوگ کیت‌های پارس‌بیوتک.pdf", size: "۳٫۲ مگابایت" }],
+       documents: [{ kind: "گواهی ISO", name: "ISO13485.pdf", status: "verified" }, { kind: "گواهی دانش‌بنیان", name: "knowledge-based.pdf", status: "verified" }] },
+  11: { companyTypes: ["distributor"], groups: ["general", "biochemistry", "urinalysis"], represents: ["pishtaz", "parsazmoon", "diasys", "hettich"],
+       catalogs: [{ name: "لیست قیمت و محصولات آریامد.pdf", size: "۸۵۰ کیلوبایت" }],
+       documents: [{ kind: "روزنامه رسمی / پروانه ثبت", name: "registration.pdf", status: "pending" }] },
+  14: { companyTypes: ["service"], groups: ["biochemistry", "hematology", "general"],
+       repairs: [{ group: "biochemistry", item: "auto-chem", brand: "hitachi", models: "912, 917, 902" },
+                 { group: "biochemistry", item: "auto-chem", brand: "mindray", models: "BS-200, BS-380" },
+                 { group: "hematology", item: "cell-counter", brand: "sysmex", models: "KX-21, XP-300" },
+                 { group: "general", item: "centrifuge", brand: "hettich", models: "EBA 200, Rotofix 32" }],
+       ceo: { name: "مهندس رضا کیانی", title: "مدیرعامل", bio: "متخصص تعمیر اتوآنالایزرهای ژاپنی با ۱۵ سال سابقه‌ی کار در شرکت‌های نمایندگی." },
+       documents: [{ kind: "گواهی ISO", name: "ISO9001.pdf", status: "verified" }] }
+};
+Object.entries(AIO_ORG_PROFILE_X).forEach(([id, x]) => { AIO_ORG_EXTRA[id] = Object.assign(AIO_ORG_EXTRA[id] || {}, x); });
+/* آزمایشگاه‌ها: نوع مرکز از متن قبلی به شناسه‌ی پویا */
+AIO_LABS.forEach(l => { const t = AIO_TAX.labTypes.find(x => x.name === l.type); if (t && AIO_ORG_EXTRA[l.id] && !AIO_ORG_EXTRA[l.id].labType) AIO_ORG_EXTRA[l.id].labType = t.id; });
+
+/* محصولات نمونه: گروه، تعریف محصول، ویژگی‌های پارامتریک و «محصول جدید» */
+const AIO_PRODUCT_X = {
+  1: { group: "hematology", item: "cell-counter", attrs: { method: "فلوسایتومتری فلورسنت", throughput: 60, automation: "تمام‌خودکار", sample: "خون کامل" } },
+  2: { group: "biochemistry", item: "auto-chem", attrs: { method: "فتومتری (آنزیمی)", throughput: 240, automation: "تمام‌خودکار", sample: "سرم / پلاسما" }, isNew: true, launched: "۱۴۰۵/۰۸/۰۱" },
+  3: { group: "hematology", item: "cell-counter", attrs: { response: 24, coverage: "تهران و البرز" } },
+  4: { group: "hormone", item: "tsh", attrs: { method: "الایزا", tests: 96, sample: "سرم / پلاسما", storage: "۲ تا ۸ درجه" } },
+  5: { group: "biochemistry", item: "glucose", attrs: { method: "فتومتری (آنزیمی)", tests: 200, sample: "سرم / پلاسما", compat: "اغلب اتوآنالایزرهای باز", storage: "۲ تا ۸ درجه" } },
+  6: { group: "general", item: "vacuum-tube", attrs: { material: "PET", volume: "۳ میلی‌لیتر", pack: 100 } },
+  7: { group: "general", item: "centrifuge", attrs: { capacity: "۱۲ لوله ۱۵ میلی‌لیتری", power: "۲۲۰ ولت" } },
+  8: { group: "genetics", item: "ngs-panel", attrs: { response: 504, coverage: "سراسری (ارسال نمونه)" } }
+};
+AIO_PRODUCTS.forEach(p => Object.assign(p, AIO_PRODUCT_X[p.id] || {}));
+AIO_PRODUCTS.push(
+  { id: 9, orgId: 5, cat: "analyzer", group: "hormone", item: "clia-analyzer", name: "آنالایزر ایمونواسی Mindray CL-1000i", brand: "Mindray", model: "CL-1000i", price: null,
+    desc: "آنالایزر کمی‌لومینسانس تمام‌خودکار برای هورمون‌ها، مارکرهای توموری و عفونی؛ تازه وارد بازار ایران شده است.",
+    specs: [["منوی تست", "بیش از ۱۰۰ تست"]], attrs: { method: "کمی‌لومینسانس (CLIA)", throughput: 180, automation: "تمام‌خودکار", sample: "سرم / پلاسما" },
+    isNew: true, launched: "۱۴۰۵/۰۸/۱۵", color: "#6366f1" },
+  { id: 10, orgId: 11, cat: "reagent", group: "biochemistry", item: "cholesterol", name: "کیت کلسترول پیشتاز طب", brand: "پیشتاز طب", model: "CHOL-CHOD", price: 690000,
+    desc: "معرف آنزیمی کلسترول تام؛ پخش سراسری با زنجیره‌ی سرد.", specs: [["حجم", "۲×۱۰۰ میلی‌لیتر"]],
+    attrs: { method: "فتومتری (آنزیمی)", tests: 400, sample: "سرم / پلاسما", storage: "۲ تا ۸ درجه" }, color: "#0d9488" },
+  { id: 11, orgId: 10, cat: "reagent", group: "hormone", item: "vitd", name: "کیت الایزا ویتامین D", brand: "پارس‌بیوتک", model: "PB-VITD96", price: 4100000,
+    desc: "کیت الایزای ۲۵-هیدروکسی ویتامین D با کالیبراتور قابل ردیابی.", specs: [["تعداد تست", "۹۶"]],
+    attrs: { method: "الایزا", tests: 96, sample: "سرم / پلاسما", storage: "۲ تا ۸ درجه" }, isNew: true, launched: "۱۴۰۵/۰۷/۲۰", color: "#059669" },
+  { id: 12, orgId: 14, cat: "service", group: "biochemistry", item: "auto-chem", name: "تعمیر و سرویس اتوآنالایزر Hitachi 912/917", brand: "Hitachi", model: "912 / 917", price: null,
+    desc: "عیب‌یابی، تعویض لامپ و سرنگ، کالیبراسیون و سرویس دوره‌ای با قطعات اصل؛ اعزام تکنسین در تهران و البرز.",
+    specs: [["گارانتی تعمیر", "۳ ماه"]], attrs: { response: 24, coverage: "تهران و البرز" }, color: "#ea580c" }
+);
+
+/* سازمان کامل با نوع شرکت (پیش‌فرض از دسته‌ی قدیمی orgKind) */
+function orgCompanyTypes(o) {
+  if (o.companyTypes && o.companyTypes.length) return o.companyTypes;
+  return ({ manufacturer: ["manufacturer"], importer: ["importer"], distributor: ["distributor"] })[o.orgKind] || [];
+}
+/* همه‌ی تعمیرات اعلام‌شده‌ی شرکت‌ها (برای «چه کسی این دستگاه را تعمیر می‌کند؟») */
+function aioRepairs() {
+  return AIO_LABS.map(l => orgFull(l.id)).filter(o => o.orgType === "company")
+    .flatMap(o => (o.repairs || []).map(r => Object.assign({ org: o }, r)));
+}
+/* پرسنل فعلی و سابقه‌دار هر سازمان از رزومه‌ها (مثل لینکدین: هر نفر می‌تواند هم‌زمان در چند جا شاغل باشد) */
+function orgPeople(orgId) {
+  const cur = [], past = [];
+  aioCandidates().forEach(c => (c.experience || []).forEach(x => {
+    if (+x.orgId !== +orgId) return;
+    (x.end ? past : cur).push({ c, x });
+  }));
+  return { cur, past };
+}
+/* بخش‌های فعال آزمایشگاه‌های نمونه (برای فیلتر «بخش» و مخاطب معرفی محصول) */
+Object.entries({ 1: ["biochemistry", "hormone", "hematology", "microbiology", "pathology"], 2: ["genetics"], 3: ["biochemistry", "hematology", "coagulation"],
+   4: ["biochemistry", "hematology", "urinalysis"], 6: ["biochemistry", "hormone", "microbiology"], 7: ["genetics", "hematology"], 8: ["biochemistry", "hematology"],
+   9: ["biochemistry", "hormone", "hematology"], 12: ["microbiology", "pathology"], 13: ["biochemistry", "hormone"] })
+  .forEach(([id, g]) => { AIO_ORG_EXTRA[id] = AIO_ORG_EXTRA[id] || {}; if (!AIO_ORG_EXTRA[id].groups) AIO_ORG_EXTRA[id].groups = g; });

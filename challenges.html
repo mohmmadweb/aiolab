@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>چالش علمی هفتگی و ماهانه | آیولب</title>
+<meta name="description" content="چالش علمی هفتگی و ماهانه آیولب: یک سؤال تخصصی آزمایشگاهی، ورودیه‌ی کم، جایزه‌ی نقدی با حمایت شرکت‌ها و نمایش سه پاسخ برتر برای دیده شدن متخصصان.">
+<meta name="theme-color" content="#0d9488">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://demo.aiolab.ir/challenges.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="چالش علمی هفتگی و ماهانه | آیولب">
+<meta property="og:description" content="چالش علمی هفتگی و ماهانه آیولب: یک سؤال تخصصی آزمایشگاهی، ورودیه‌ی کم، جایزه‌ی نقدی با حمایت شرکت‌ها و نمایش سه پاسخ برتر برای دیده شدن متخصصان.">
+<meta property="og:url" content="https://demo.aiolab.ir/challenges.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-page="challenges.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / چالش علمی</div>
+    <h1>چالش علمی هفتگی و ماهانه</h1>
+    <p>هر هفته و هر ماه یک سؤال جدی از دل کار آزمایشگاه. جواب بده، جایزه ببر و جزو سه پاسخ برتر دیده شو.</p>
+  </div>
+</div>
+
+<section class="section" style="padding-top:28px">
+  <div class="container">
+    <div class="ch-steps" id="ch-steps">
+      <div><span>۱</span><b>سؤال را بخوان</b><small>متن سؤال برای همه آزاد است</small></div>
+      <div><span>۲</span><b>وارد شو و ورودیه بده</b><small>ثبت‌نام لازم است؛ ورودیه‌ی کم هنگام ارسال پاسخ</small></div>
+      <div><span>۳</span><b>پاسخت را بفرست</b><small>تا پایان مهلت؛ هر نفر یک پاسخ</small></div>
+      <div><span>۴</span><b>برنده شو و دیده شو</b><small>سه پاسخ برتر با نام و محل کار روی سایت می‌آیند</small></div>
+    </div>
+
+    <div class="ch-tabs chips-pick" role="tablist" id="ch-tabs">
+      <button type="button" class="cp on" data-tab="all">همه</button>
+      <button type="button" class="cp" data-tab="weekly">هفتگی</button>
+      <button type="button" class="cp" data-tab="monthly">ماهانه</button>
+    </div>
+    <div id="ch-open"></div>
+  </div>
+</section>
+
+<section class="section alt" id="winners">
+  <div class="container">
+    <div class="section-head"><div><h2>برترین پاسخ‌ها</h2><p>پاسخ‌های برگزیده‌ی چالش‌های گذشته — فرصتی برای دیده شدن متخصصان</p></div></div>
+    <div id="ch-past"></div>
+  </div>
+</section>
+
+<section class="section" id="sponsor">
+  <div class="container">
+    <div class="panel ch-sponsor-cta">
+      <div>
+        <h2>شرکت یا آزمایشگاه هستید؟ اسپانسر چالش شوید</h2>
+        <p class="muted">جایزه‌ی یک چالش مرتبط با محصولات یا خدمات خود را تأمین کنید؛ نام و لوگوی شما روی صفحه‌ی چالش، صفحه‌ی اول و اعلام برندگان دیده می‌شود و با متخصصان برتر آشنا می‌شوید.</p>
+      </div>
+      <a class="btn btn-primary" href="employer.html#sponsor">درخواست اسپانسری</a>
+    </div>
+  </div>
+</section>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/talent-data.js"></script>
+<script src="assets/js/match.js"></script>
+<script src="assets/js/talent-ui.js"></script>
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/challenges.js"></script>
+<script>
+let chTab = "all";
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("ch-tabs").onclick = ev => {
+    const b = ev.target.closest("[data-tab]"); if (!b) return;
+    chTab = b.dataset.tab;
+    document.querySelectorAll("#ch-tabs .cp").forEach(x => x.classList.toggle("on", x === b));
+    renderOpen();
+  };
+  document.getElementById("ch-open").addEventListener("click", onOpenClick);
+  renderOpen();
+  renderPast();
+  /* لینک مستقیم به یک چالش (مثلاً از صفحه‌ی اول) */
+  if (location.hash) { const el = document.getElementById(location.hash.slice(1)); if (el) setTimeout(() => el.scrollIntoView({ block: "start" }), 60); }
+});
+
+/* وضعیت شرکت کاربر در یک چالش */
+function entryBox(c) {
+  const u = Auth.user, e = myEntry(c.id);
+  if (c.status !== "open")
+    return `<div class="notice-box info">مهلت ارسال پاسخ تمام شده و این چالش ${CH_STATUS[c.status]} است.${e && e.text ? " پاسخ شما ثبت شده است." : ""}</div>`;
+  if (!u)
+    return `<button type="button" class="btn btn-primary btn-block btn-lg" data-login="${c.id}">ورود و شرکت در چالش</button>
+      <p class="muted ch-note">برای شرکت باید ثبت‌نام کنید؛ ورودیه ${fa(c.fee)} تومان هنگام ارسال پاسخ.</p>`;
+  if (Auth.persona === "lab" || Auth.persona === "company")
+    return `<div class="notice-box info">شرکت در چالش ویژه‌ی افراد است. سازمان شما می‌تواند <a href="employer.html#sponsor">اسپانسر چالش</a> شود.</div>`;
+  if (e && e.text)
+    return `<div class="ch-mine-answer"><b>✓ پاسخ شما ثبت شد</b><small>ارسال: ${TUI.e(e.submittedAt || "")} · نتایج پس از داوری اعلام می‌شود</small><p>${TUI.e(e.text)}</p></div>`;
+  if (e && e.paid)
+    return `<div class="form-field"><label for="ans-${c.id}">پاسخ شما</label>
+        <textarea id="ans-${c.id}" rows="7" maxlength="4000" placeholder="${TUI.e(c.hint || "پاسخ خود را بنویسید")}"></textarea></div>
+      <button type="button" class="btn btn-primary btn-block" data-submit="${c.id}">ارسال پاسخ</button>
+      <p class="muted ch-note">ورودیه پرداخت شد ✓ پاسخ پس از ارسال قابل ویرایش نیست.</p>`;
+  return `<button type="button" class="btn btn-primary btn-block btn-lg" data-pay="${c.id}">پرداخت ${fa(c.fee)} تومان و ارسال پاسخ</button>
+    <p class="muted ch-note">سؤال را با دقت بخوانید؛ پس از پرداخت، کادر پاسخ باز می‌شود.</p>`;
+}
+
+function renderOpen() {
+  const list = openChallenges().concat(challenges().filter(c => c.status === "judging"))
+    .filter(c => chTab === "all" || c.period === chTab)
+    .sort((a, b) => (a.status === "open" ? 0 : 1) - (b.status === "open" ? 0 : 1) || (a.period === "weekly" ? 0 : 1) - (b.period === "weekly" ? 0 : 1));
+  document.getElementById("ch-open").innerHTML = list.length ? list.map(c => `
+    <article class="ch-block" id="ch-${c.id}">
+      <div class="detail-layout ch-layout">
+        <main class="panel">
+          <div class="job-meta"><span class="chip ${c.period === "weekly" ? "teal" : "violet"}">چالش ${CH_PERIODS[c.period]}</span><span class="chip">${TUI.e(_chGroup(c.group))}</span><span class="chip ${c.status === "open" ? "amber" : ""}">${CH_STATUS[c.status]}</span></div>
+          <h2 class="ch-title">${TUI.e(c.title)}</h2>
+          <div class="ch-question">${TUI.e(c.question)}</div>
+          ${c.image ? `<div class="ch-image">🖼 ${TUI.e(c.image)}</div>` : ""}
+          ${c.hint ? `<p class="muted ch-note">${TUI.e(c.hint)}</p>` : ""}
+          <div class="ch-entry">${entryBox(c)}</div>
+        </main>
+        <aside class="side-card">
+          <div class="ch-prize"><small>جایزه</small><b>🏆 ${TUI.e(c.prize)}</b></div>
+          <div class="row"><span>ورودیه</span><b>${c.fee ? fa(c.fee) + " تومان" : "رایگان"}</b></div>
+          <div class="row"><span>شروع</span><b>${TUI.e(c.opens)}</b></div>
+          <div class="row"><span>مهلت ارسال</span><b>${TUI.e(c.deadline)}</b></div>
+          <div class="row"><span>زمان باقی‌مانده</span><b>${c.status !== "open" ? "—" : c.daysLeft > 0 ? fa(c.daysLeft) + " روز" : "آخرین روز"}</b></div>
+          <div class="row"><span>شرکت‌کنندگان</span><b>${fa(c.participantsShown)} نفر</b></div>
+          ${challengeSponsorHTML(c)}
+        </aside>
+      </div>
+    </article>`).join("") : `<div class="empty-inline">در حال حاضر چالش ${chTab === "all" ? "" : CH_PERIODS[chTab] + "‌ای "}باز نیست. چالش بعدی به‌زودی اعلام می‌شود.</div>`;
+}
+
+function renderPast() {
+  const past = pastChallenges().filter(c => c.status === "closed");
+  document.getElementById("ch-past").innerHTML = past.length ? past.map(c => `
+    <div class="panel ch-past" id="ch-${c.id}">
+      <div class="syllabus-head"><div>
+        <div class="job-meta"><span class="chip ${c.period === "weekly" ? "teal" : "violet"}">چالش ${CH_PERIODS[c.period]}</span><span class="chip">${TUI.e(_chGroup(c.group))}</span><span class="chip">مهلت ${TUI.e(c.deadline)}</span><span class="chip">${fa(c.participantsShown)} شرکت‌کننده</span></div>
+        <h3 class="ch-title">${TUI.e(c.title)}</h3></div>${challengeSponsorHTML(c, true)}</div>
+      <details class="ch-q-small"><summary>متن سؤال</summary><p>${TUI.e(c.question)}</p></details>
+      ${challengeWinnersHTML(c)}
+    </div>`).join("") : '<div class="empty-inline">هنوز چالشی به پایان نرسیده است.</div>';
+}
+
+function onOpenClick(ev) {
+  const b = ev.target.closest("[data-login],[data-pay],[data-submit]"); if (!b) return;
+  if (b.dataset.login) { Store.set("after_login", "challenges.html#ch-" + b.dataset.login); location.href = "login.html"; return; }
+  if (b.dataset.pay) {
+    const c = challenge(b.dataset.pay);
+    const m = _chModal(`<h3>پرداخت ورودیه</h3>
+      <p>چالش «${TUI.e(c.title)}»</p>
+      <div class="side-card" style="position:static;margin:14px 0;padding:14px 16px"><div class="row"><span>مبلغ</span><b>${fa(c.fee)} تومان</b></div><div class="row"><span>پرداخت‌کننده</span><b>${TUI.e(Auth.user.name)}</b></div></div>
+      <p class="muted" style="font-size:13px">حالت دمو: پرداخت آزمایشی است و مبلغی کسر نمی‌شود. در نسخه‌ی اصلی به درگاه بانکی متصل می‌شود.</p>
+      <div class="modal-actions"><button type="button" class="btn btn-ghost" data-close>انصراف</button><button type="button" class="btn btn-primary" data-confirm>پرداخت آزمایشی</button></div>`);
+    m.querySelector("[data-confirm]").onclick = () => {
+      payChallengeFee(c.id); m.remove(); toast("ورودیه پرداخت شد ✓ حالا پاسخ خود را بنویسید"); renderOpen();
+      const t = document.getElementById("ans-" + c.id); if (t) t.focus();
+    };
+    return;
+  }
+  if (b.dataset.submit) {
+    const id = +b.dataset.submit, t = document.getElementById("ans-" + id);
+    try { submitAnswer(id, t.value); toast("پاسخ شما ثبت شد ✓ نتایج پس از داوری اعلام می‌شود"); renderOpen(); }
+    catch (err) { toast(err.message); }
+  }
+}
+</script>
+</body>
+</html>

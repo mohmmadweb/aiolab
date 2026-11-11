@@ -131,6 +131,7 @@ function contentHTML(l) {
       <p style="margin-top:10px;font-size:12.5px;color:var(--navy-400)">متن کامل و منابع PDF در نسخه متصل به سرور بارگذاری می‌شود (دمو).</p>
     </div>`;
   if (l.type === "quiz") return quizHTML(l);
+  if (l.type === "slides") return slidesHTML(l);
   /* lab / project */
   const steps = l.type === "project"
     ? ["مطالعه شرح پروژه و معیارهای ارزیابی", "انجام پروژه مطابق قالب ارائه‌شده", "بارگذاری فایل یا گزارش نهایی", "خودارزیابی با چک‌لیست"]
@@ -143,6 +144,30 @@ function contentHTML(l) {
       <p id="lab-hint" style="margin-top:10px;font-size:12.5px;color:var(--navy-400)">همه مراحل را تیک بزنید تا دکمه تکمیل فعال شود.</p>
     </div>`;
 }
+
+/* اسلاید / پاورپوینت — نمایشگر ساده با ورق‌زدن؛ فایل اصلی قابل دانلود */
+let slideAt = 0;
+function slidesHTML(l) {
+  const deck = (l.slides && l.slides.length) ? l.slides : [{ h: l.t, b: ["فایل ارائه‌ی این درس را از دکمه‌ی زیر دریافت کنید.", "پس از مرور اسلایدها، درس را تکمیل‌شده علامت بزنید."] }];
+  slideAt = Math.min(slideAt, deck.length - 1);
+  const sl = deck[slideAt], esc = x => String(x).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const file = l.file && l.file.name
+    ? (l.file.data ? `<a class="btn btn-sm btn-outline" href="${l.file.data}" download="${esc(l.file.name)}">⬇ دانلود ${esc(l.file.name)}</a>`
+                   : `<button class="btn btn-sm btn-outline" onclick="toast('دانلود فایل اصلی در نسخه‌ی متصل به سرور فعال است (دمو)')">⬇ دانلود <span dir="ltr">${esc(l.file.name)}</span></button>`)
+    : "";
+  return `
+    <div class="slide-box">
+      <div class="slide-stage"><h3>${esc(sl.h || "")}</h3><ul>${(sl.b || []).map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
+      <div class="slide-bar">
+        <button class="btn btn-sm btn-outline" onclick="slideGo(-1)" ${slideAt ? "" : "disabled"}>→ اسلاید قبلی</button>
+        <span class="sb-n">اسلاید ${fa(slideAt + 1)} از ${fa(deck.length)}</span>
+        <span class="slide-dots">${deck.map((_, i) => `<i class="${i === slideAt ? "on" : ""}"></i>`).join("")}</span>
+        <button class="btn btn-sm btn-outline" onclick="slideGo(1)" ${slideAt < deck.length - 1 ? "" : "disabled"}>اسلاید بعدی ←</button>
+      </div>
+    </div>
+    <div class="reading-box" style="margin-top:14px"><h3>فایل ارائه</h3><p>${file || "این درس فایل پیوست ندارد."}</p></div>`;
+}
+function slideGo(d) { slideAt += d; document.getElementById("l-content").innerHTML = contentHTML(L[idx]); }
 
 /* آزمون ماژول — سؤالات از سرفصل همان ماژول ساخته می‌شوند (دمو) */
 function quizHTML(l) {
@@ -185,11 +210,11 @@ function markCurrent() {
   MyCourses.markDone(C.id, l.key, !e.done.includes(l.key));
   const pr = courseProgress(C);
   if (pr.pct === 100) issueCert();
-  else if (!e.done.includes(l.key) && idx < L.length - 1) { idx++; }
+  else if (!e.done.includes(l.key) && idx < L.length - 1) { idx++; slideAt = 0; }
   render();
 }
-function move(d) { idx = Math.max(0, Math.min(L.length - 1, idx + d)); render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
-function goTo(key) { idx = L.findIndex(l => l.key === key); render(); }
+function move(d) { idx = Math.max(0, Math.min(L.length - 1, idx + d)); slideAt = 0; render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+function goTo(key) { idx = L.findIndex(l => l.key === key); slideAt = 0; render(); }
 
 function issueCert() {
   if (!C.cert) return;

@@ -29,25 +29,10 @@
     <div class="dash-profile">
       <div class="avatar" id="p-avatar" style="border-radius:16px">آ</div>
       <b id="p-name">...</b>
-      <span>کارفرمای تأییدشده ✔️</span>
+      <span id="p-badge">کارفرمای تأییدشده ✔️</span>
     </div>
     <nav class="dash-nav" id="dash-nav">
-      <a href="#overview" class="active" data-sec="overview"></a>
-      <a href="#addlab" data-sec="addlab"></a>
-      <a href="#orgprofile" data-sec="orgprofile"></a>
-      <a href="#products" data-sec="products"></a>
-      <a href="#post" data-sec="post"></a>
-      <a href="#jobs" data-sec="jobs"></a>
-      <a href="#applicants" data-sec="applicants"></a>
-      <a href="#resumes" data-sec="resumes"></a>
-      <a href="#exambuilder" data-sec="exambuilder"></a>
-      <a href="#training" data-sec="training"></a>
-      <a href="#matching" data-sec="matching"></a>
-      <a href="#branding" data-sec="branding"></a>
-      <a href="#hiring" data-sec="hiring"></a>
-      <a href="#reports" data-sec="reports"></a>
-      <a href="#orders" data-sec="orders"></a>
-      <a href="#pricing" data-sec="pricing"></a>
+      <!-- منو بر اساس پرسونا (آزمایشگاه / شرکت) از NAV_ITEMS ساخته می‌شود -->
       <button class="danger" onclick="Auth.logout()"></button>
     </nav>
   </aside>
@@ -57,7 +42,8 @@
 
     <!-- ===== Overview ===== -->
     <section id="sec-overview" class="active">
-      <h1 class="dash-title">پنل کارفرما</h1>
+      <h1 class="dash-title" id="ov-title">پنل کارفرما</h1>
+      <div id="ov-checklist"></div>
       <div class="dash-cards">
         <div class="dash-stat"><b>۳</b><span>آگهی فعال</span></div>
         <div class="dash-stat"><b>۱۲۲</b><span>درخواست دریافتی</span> <span class="trend">▲ ۱۸٪</span></div>
@@ -91,12 +77,8 @@
             <label class="check-item inline"><input type="radio" name="lb-otype" value="company"> شرکت (تولید، واردات، توزیع، خدمات)</label></div></div>
           <div class="form-field full"><label>نام سازمان *</label><input type="text" id="lb-name" placeholder="مثلاً: آزمایشگاه پاتوبیولوژی نور"></div>
           <div class="form-field"><label>عمودی (حوزه فعالیت)</label><select id="lb-vertical"></select></div>
-          <div class="form-field"><label>نوع مرکز *</label>
-            <select id="lb-type">
-              <option>آزمایشگاه تشخیص طبی</option><option>آزمایشگاه بیمارستانی</option>
-              <option>آزمایشگاه ژنتیک</option><option>آزمایشگاه دولتی / مرجع</option>
-              <option>مرکز پژوهشی</option><option>شرکت تجهیزات</option>
-            </select></div>
+          <div class="form-field"><label>نوع *</label>
+            <select id="lb-type"></select></div>
           <div class="form-field"><label>بخش مالکیت *</label><select id="lb-sector"></select></div>
           <div class="form-field"><label>دسته سازمان *</label><select id="lb-kind"></select></div>
           <div class="form-field"><label>اندازه سازمان</label><select id="lb-size"></select></div>
@@ -166,7 +148,40 @@
     <!-- ===== محصولات ===== -->
     <section id="sec-products">
       <h1 class="dash-title">محصولات من</h1>
+      <p class="dash-sub">هر محصول: دسته، گروه، تعریف محصول (مثلاً TSH یا اتوآنالایزر)، برند/سازنده، مدل و ویژگی‌های فنی همان دسته. آزمایشگاه‌ها با همین جزئیات جستجو می‌کنند.</p>
       <div id="org-products"></div>
+    </section>
+
+    <!-- ===== استعلام‌ها و درخواست‌ها (شرکت: دریافتی، آزمایشگاه: ارسالی) ===== -->
+    <section id="sec-inquiries">
+      <h1 class="dash-title">استعلام‌ها و درخواست‌ها</h1>
+      <div id="org-inquiries"></div>
+    </section>
+
+    <!-- ===== معرفی محصول جدید (شرکت) ===== -->
+    <section id="sec-launch">
+      <h1 class="dash-title">معرفی محصول / دستگاه جدید</h1>
+      <p class="dash-sub">دستگاه یا کیت تازه را به آزمایشگاه‌های همان حوزه معرفی کنید: برچسب «جدید»، نمایش در صفحه‌ی اول، اعلان به آزمایشگاه‌ها و روز دمو/وبینار.</p>
+      <div id="org-launch"></div>
+    </section>
+
+    <!-- ===== بازار: یافتن محصول/تعمیرکار (آزمایشگاه) یا رقبا و آزمایشگاه‌ها (شرکت) ===== -->
+    <section id="sec-market">
+      <h1 class="dash-title" id="market-title">شرکت‌ها، محصولات و تعمیرکاران</h1>
+      <div id="org-market"></div>
+    </section>
+
+    <!-- ===== پرسنل آماده به کار ===== -->
+    <section id="sec-otw">
+      <h1 class="dash-title">پرسنل آماده به کار</h1>
+      <div id="org-otw"></div>
+    </section>
+
+    <!-- ===== اسپانسری چالش علمی ===== -->
+    <section id="sec-sponsor">
+      <h1 class="dash-title">اسپانسری چالش علمی</h1>
+      <p class="dash-sub">جایزه‌ی چالش هفتگی یا ماهانه‌ی مرتبط با حوزه‌ی خودتان را بدهید؛ نام و لینک شما کنار سؤال و برندگان نمایش داده می‌شود. <a href="challenges.html">مشاهده‌ی چالش‌ها</a></p>
+      <div id="org-sponsor"></div>
     </section>
 
     <!-- ===== Post job ===== -->
@@ -388,18 +403,27 @@
 <script src="assets/js/map.js"></script>
 <script src="assets/js/talent-center.js"></script>
 <script src="assets/js/employer-talent.js"></script>
+<script src="assets/js/challenges.js"></script>
+<script src="assets/js/marketplace.js"></script>
 <script>
+/* [بخش، عنوان، آیکن، فقط برای] — منو بر اساس پرسونا: lab | company (بدون مقدار = هر دو) */
 const NAV_ITEMS = [
   ["overview", "پیشخوان", "home"],
   ["addlab", "ثبت سازمان روی نقشه", "pin"],
-  ["orgprofile", "پروفایل و گالری سازمان", "doc"],
+  ["orgprofile", "پروفایل، نوع و مدارک", "doc"],
   ["products", "محصولات من", "machine"],
+  ["launch", "معرفی محصول جدید", "star", "company"],
+  ["inquiries", "استعلام‌ها و درخواست‌ها", "comment"],
+  ["market", "یافتن محصول و تعمیرکار", "wrench", "lab"],
+  ["market", "رقبا و آزمایشگاه‌ها", "building", "company"],
   ["post", "ثبت آگهی / پوزیشن", "plus"],
   ["jobs", "آگهی‌های من", "briefcase"],
   ["applicants", "متقاضیان", "users"],
   ["resumes", "بانک رزومه", "search"],
+  ["otw", "پرسنل آماده به کار", "users"],
   ["exambuilder", "طراحی آزمون و گواهی", "shield"],
   ["training", "دوره‌های آموزشی من", "grad"],
+  ["sponsor", "اسپانسری چالش علمی", "trophy"],
   ["matching", "تطبیق هوشمند", "path"],
   ["branding", "برند کارفرمایی", "shield"],
   ["hiring", "خدمات استخدام کامل", "users"],
@@ -415,11 +439,18 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("p-avatar").textContent = u.name.charAt(0);
   document.getElementById("p-name").textContent = u.name;
 
+  /* پرسونا: آزمایشگاه یا شرکت — منو، عنوان‌ها و بخش‌ها */
+  const persona = Auth.persona, isCo = persona === "company";
+  document.getElementById("p-badge").textContent = isCo ? "شرکت تأییدشده ✔️" : "آزمایشگاه تأییدشده ✔️";
+  document.getElementById("ov-title").textContent = isCo ? "پنل شرکت" : "پنل آزمایشگاه";
+  document.getElementById("market-title").textContent = isCo ? "رقبا و آزمایشگاه‌های هدف" : "یافتن محصول، تعمیرکار و آزمایشگاه‌های هم‌حوزه";
+  document.title = (isCo ? "پنل شرکت" : "پنل آزمایشگاه") + " | آیولب";
   const nav = document.getElementById("dash-nav");
-  nav.querySelectorAll("a").forEach((a, i) => {
-    const [sec, label, icon] = NAV_ITEMS[i];
-    a.innerHTML = ICONS[icon] + " " + label;
-    a.onclick = e => { e.preventDefault(); showSec(sec); history.replaceState(null, "", "#" + sec); };
+  nav.insertAdjacentHTML("afterbegin", NAV_ITEMS.filter(x => !x[3] || x[3] === persona)
+    .map(([sec, label, icon]) => `<a href="#${sec}" data-sec="${sec}">${ICONS[icon] || ""} ${label}</a>`).join(""));
+  nav.querySelector("a").classList.add("active");
+  nav.querySelectorAll("a").forEach(a => {
+    a.onclick = e => { e.preventDefault(); showSec(a.dataset.sec); history.replaceState(null, "", "#" + a.dataset.sec); };
   });
   nav.querySelector("button").innerHTML = ICONS.logout + " خروج از حساب";
   if (location.hash) showSec(location.hash.slice(1));
@@ -427,6 +458,12 @@ document.addEventListener("DOMContentLoaded", () => {
   /* رزومه/تطبیق/سازمان/محصولات — همه ساخت‌یافته */
   EmpTalent.orgProfile(document.getElementById("org-profile"));
   EmpTalent.products(document.getElementById("org-products"));
+  OrgPanel.checklist(document.getElementById("ov-checklist"));
+  OrgPanel.inquiries(document.getElementById("org-inquiries"));
+  if (isCo) OrgPanel.launch(document.getElementById("org-launch"));
+  OrgPanel.market(document.getElementById("org-market"));
+  OrgPanel.otw(document.getElementById("org-otw"));
+  if (typeof ChallengeSponsor !== "undefined") ChallengeSponsor.mount(document.getElementById("org-sponsor"), Store.get("my_org_id", 1));
   window.posForm = EmpTalent.positionForm(document.getElementById("pos-form"), () => { renderMyJobs(); showSec("jobs"); });
   TalentCenter.mount(document.getElementById("emp-talent"));
   TalentCenter.mount(document.getElementById("emp-resumes"), { tab: "filter" });
@@ -561,6 +598,14 @@ function initAddLab() {
   const opt = (id, arr, val, label) => document.getElementById(id).innerHTML =
     arr.map(x => `<option value="${val ? x[val] : x}">${label ? x[label] : x}</option>`).join("");
 
+  /* نوع مرکز / نوع شرکت از طبقه‌بندی پویا (پنل مدیریت) */
+  const fillType = () => {
+    const co = (document.querySelector("[name=lb-otype]:checked") || {}).value === "company";
+    document.getElementById("lb-type").innerHTML = (co ? Tax.list("companyTypes") : Tax.list("labTypes")).map(t => `<option>${TUI.e(t.name)}</option>`).join("");
+  };
+  document.querySelectorAll("[name=lb-otype]").forEach(r => r.onchange = fillType);
+  if (Auth.persona === "company") document.querySelector("[name=lb-otype][value=company]").checked = true;
+  fillType();
   opt("lb-vertical", AIO_VERTICALS, "id", "name");
   opt("lb-sector", AIO_SECTORS, "id", "name");
   opt("lb-kind", AIO_ORG_KINDS, "id", "name");

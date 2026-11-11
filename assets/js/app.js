@@ -33,6 +33,9 @@ const ICONS = {
   clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>',
   filter: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.5V19l4 2v-8.5z"/></svg>',
   menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
+  star:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></svg>',
+  trophy:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3a3 3 0 0 1-3 4M7 5H4a3 3 0 0 0 3 4"/></svg>',
+  wrench:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"/></svg>',
   send: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/></svg>'
 };
 
@@ -46,11 +49,36 @@ const LOGO_SVG = `<svg class="logo-mark" viewBox="0 0 48 48" fill="none">
 </svg>`;
 
 /* ---------- Demo auth (localStorage) ---------- */
+/* چهار پرسونا:
+   کارجو      → role "seeker" (stage: "pro" | "student")؛ «volunteer» (داوطلب قبلی) همان کارجو با stage=student است
+   آزمایشگاه  → role "employer" + org "lab"
+   شرکت       → role "employer" + org "company"؛ «supplier» (تأمین‌کننده‌ی قبلی) همین است
+   آموزش      → role "teacher" + acct "personal" (مدرس) | "business" (آموزشگاه / مرکز آموزشی) */
 const Auth = {
-  get user() { try { return JSON.parse(localStorage.getItem("aio_user")); } catch { return null; } },
-  login(name, role) { localStorage.setItem("aio_user", JSON.stringify({ name, role })); },
+  get user() {
+    let u; try { u = JSON.parse(localStorage.getItem("aio_user")); } catch { u = null; }
+    if (!u) return null;
+    if (u.role === "supplier") { u.role = "employer"; u.org = "company"; }
+    if (u.role === "employer" && !u.org) u.org = "lab";
+    if (u.role === "volunteer") u.stage = "student";
+    return u;
+  },
+  /* persona: "seeker" | "lab" | "company" | "teacher" — برای متن و مسیر هر نقش */
+  get persona() { const u = Auth.user; return !u ? null : (u.role === "employer" ? u.org : (u.role === "teacher" ? "teacher" : "seeker")); },
+  login(name, role, extra) { localStorage.setItem("aio_user", JSON.stringify(Object.assign({ name, role }, extra || {}))); },
   logout() { localStorage.removeItem("aio_user"); location.href = "index.html"; }
 };
+
+/* خانه‌ی هر پرسونا: پنل، عنوان پنل و مقصد «اعلان‌ها» */
+function personaHome(u) {
+  u = u || Auth.user;
+  if (!u) return { href: "dashboard.html", label: "داشبورد من", inbox: "dashboard.html#notifications", inboxLabel: "اعلان‌ها" };
+  if (u.role === "employer") return u.org === "company"
+    ? { href: "employer.html", label: "پنل شرکت", inbox: "employer.html#inquiries", inboxLabel: "استعلام‌های آزمایشگاه‌ها" }
+    : { href: "employer.html", label: "پنل آزمایشگاه", inbox: "employer.html#applicants", inboxLabel: "متقاضیان جدید" };
+  if (u.role === "teacher") return { href: "teach.html", label: "پنل آموزش", inbox: "teach.html#students", inboxLabel: "دانشجویان" };
+  return { href: "dashboard.html", label: "داشبورد من", inbox: "dashboard.html#notifications", inboxLabel: "اعلان‌ها" };
+}
 
 /* ---------- Local store (دمو: جای دیتابیس) ---------- */
 const Store = {
@@ -77,7 +105,8 @@ const MyLabs    = { all: () => Store.get("mylabs", []),  add: l => Store.push("m
      learn.html?id=[&lesson=m:l]   path.html?id=   course-builder.html[?id=][&step=]
      jobs.html?q=&prov=&city=&dept=&type=&shift=&benefit=&remote=1&urgent=1
      courses.html?cat=&q=&skill=&level=&type=course|guided&free=1   services.html#<groupId>
-     dashboard.html#<section>   employer.html#<section>   login.html?role=   register.html?role=
+     dashboard.html#<section>   employer.html#<section>   teach.html#<section>   login.html?role=   register.html?role=seeker|lab|company|teacher
+     products.html?q=&group=&cat=&item=&brand=&org=&ctype=&new=1&tab=repair&rgroup=&ritem=&rbrand=&model=   admin.html#<section>
    ========================================== */
 const AIO_SITEMAP = [
   { path: "index.html",          title: "خانه",                         parent: null },
@@ -87,6 +116,9 @@ const AIO_SITEMAP = [
   { path: "lab.html",            title: "پروفایل مرکز",                 parent: "labs.html",       dynamic: true },
   { path: "companies.html",      title: "شرکت‌ها",                      parent: "index.html",      group: "company" },
   { path: "products.html",       title: "محصولات و تجهیزات",            parent: "companies.html",  group: "company" },
+  { path: "challenges.html",     title: "چالش علمی",                    parent: "index.html",      group: "seeker" },
+  { path: "teach.html",          title: "پنل آموزش",                    parent: "index.html",      auth: "teacher" },
+  { path: "admin.html",          title: "پنل مدیریت سایت",              parent: "index.html",      noindex: true },
   { path: "product.html",        title: "محصول",                        parent: "products.html",   dynamic: true },
   { path: "talent.html",         title: "تطبیق هوشمند",                 parent: "employer.html",   auth: "employer" },
   { path: "ranking.html",        title: "رتبه‌بندی مراکز",              parent: "labs.html",       group: "company" },
@@ -137,15 +169,16 @@ const AIO_FOOTER = [
   { title: "کارجویان", links: [
       ["jobs.html", "جستجوی فرصت شغلی"], ["dashboard.html#resume", "رزومه‌ساز حرفه‌ای"], ["courses.html", "آکادمی و دوره‌های آموزشی"],
       ["courses.html#paths", "مسیرهای یادگیری تخصصی"], ["exams.html", "آزمون و گواهینامه"], ["services.html#interview", "مصاحبه تخصصی و توصیه‌نامه"],
-      ["services.html#advice", "مشاوره شغلی"], ["magazine.html", "راهنمای مسیر شغلی"] ] },
-  { title: "کارفرمایان", links: [
+      ["services.html#advice", "مشاوره شغلی"], ["magazine.html", "راهنمای مسیر شغلی"], ["challenges.html", "چالش علمی هفتگی و ماهانه"] ] },
+  { title: "آزمایشگاه‌ها، شرکت‌ها و آموزش", links: [
       ["login.html?role=employer", "ثبت آگهی استخدام"], ["employer.html#resumes", "جستجوی بانک رزومه"], ["employer.html#pricing", "تعرفه‌ها و اشتراک"],
       ["talent.html", "تطبیق هوشمند"], ["services.html#hiring", "خدمات استخدام کامل"], ["services.html#branding", "برند کارفرمایی"],
-      ["advertise.html", "تبلیغات و اسپانسری"] ] },
+      ["advertise.html", "تبلیغات و اسپانسری"], ["register.html?role=company", "ثبت شرکت و محصولات"], ["products.html?tab=repair", "یافتن تعمیرکار دستگاه"],
+      ["register.html?role=teacher", "تدریس در آیولب"] ] },
   { title: "آیولب", links: [
       ["faq.html", "سؤالات پرتکرار"], ["services.html", "خدمات آیولب"], ["pricing.html", "تعرفه‌ها و اشتراک"], ["reports.html", "گزارش بازار کار"],
       ["ranking.html", "رتبه‌بندی مراکز"], ["companies.html", "شرکت‌ها و محصولات"], ["magazine.html", "در آزمایشگاه چه می‌گذرد؟"], ["community.html", "جامعه آزمایشگاهی"],
-      ["about.html", "درباره ما"], ["contact.html", "تماس با ما"] ] }
+      ["about.html", "درباره ما"], ["contact.html", "تماس با ما"], ["admin.html", "پنل مدیریت سایت (دمو)"] ] }
 ];
 
 /* ---------- ساختار منو ----------
@@ -156,7 +189,8 @@ const AIO_NAV = [
   { key: "nav.labs", label: "آزمایشگاه‌ها", children: [
       { href: "labs.html",    label: "آزمایشگاه‌ها روی نقشه", desc: "نقشه سراسری مراکز عضو", icon: "pin" },
       { href: "companies.html", label: "شرکت‌ها",           desc: "تولیدکننده، واردکننده و توزیع‌کننده", icon: "building" },
-      { href: "products.html",  label: "محصولات و تجهیزات", desc: "کاتالوگ دستگاه، کیت و مواد مصرفی", icon: "machine" },
+      { href: "products.html",  label: "محصولات و تجهیزات", desc: "جستجوی پارامتریک دستگاه، کیت و مواد مصرفی", icon: "machine" },
+      { href: "products.html?tab=repair", label: "یافتن تعمیرکار", desc: "چه کسی دستگاه شما را تعمیر می‌کند؟", icon: "wrench" },
       { href: "ranking.html", label: "رتبه‌بندی مراکز",       desc: "امتیاز کاربران و میانگین حقوق", icon: "chart" }
   ]},
   { key: "nav.growth", label: "رشد حرفه‌ای", children: [
@@ -165,7 +199,8 @@ const AIO_NAV = [
       { href: "assessment.html",label: "خودارزیابی مهارت",  desc: "۶ حوزه، نمودار مهارت و تحلیل شکاف", icon: "chart" },
       { href: "mbti.html",      label: "تست شخصیت‌شناسی MBTI", desc: "تیپ شخصیتی و مشاغل متناسب", icon: "path" },
       { href: "courses.html",   label: "آکادمی آیولب",     desc: "دوره‌های تخصصی، پروژه راهنما و گواهی", icon: "grad" },
-      { href: "courses.html#paths", label: "مسیرهای یادگیری", desc: "زنجیره دوره‌ها تا یک نقش شغلی مشخص", icon: "path" }
+      { href: "courses.html#paths", label: "مسیرهای یادگیری", desc: "زنجیره دوره‌ها تا یک نقش شغلی مشخص", icon: "path" },
+      { href: "challenges.html", label: "چالش علمی", desc: "سؤال هفتگی و ماهانه، جایزه و دیده‌شدن", icon: "star" }
   ]},
   { key: "nav.content", label: "جامعه و محتوا", children: [
       { href: "magazine.html",  label: "در آزمایشگاه چه می‌گذرد؟", desc: "مجله تخصصی آیولب", icon: "doc" },
@@ -176,7 +211,7 @@ const AIO_NAV = [
       { href: "services.html",  label: "خدمات آیولب",     desc: "همه سرویس‌های کارجو، آزمایشگاه و تأمین‌کننده", icon: "briefcase" },
       { href: "pricing.html",   label: "تعرفه‌ها",         desc: "قیمت شفاف تک‌تک خدمات و اشتراک‌ها", icon: "chart" },
       { href: "reports.html",   label: "گزارش بازار کار",  desc: "تحلیل حقوق، عرضه و تقاضای تخصص‌ها", icon: "doc" },
-      { href: "advertise.html", label: "تبلیغات و همکاری", desc: "ویژه تأمین‌کنندگان تجهیزات و مواد", icon: "machine" }
+      { href: "advertise.html", label: "تبلیغات و همکاری", desc: "ویژه شرکت‌ها: تبلیغ، معرفی محصول و اسپانسری", icon: "machine" }
   ]}
 ];
 
@@ -212,7 +247,7 @@ function renderHeader(active) {
         ${unread ? `<span class="badge-count">${unread.toLocaleString("fa-IR")}</span>` : ""}
       </button>
       <div class="msg-menu" id="msg-menu">
-        <div class="msg-head">پیام‌ها <a href="${(u && u.role === "employer") ? "employer.html#applicants" : "dashboard.html#notifications"}">مشاهده همه</a></div>
+        <div class="msg-head">پیام‌ها <a href="${personaHome(u).inbox}">مشاهده همه</a></div>
         ${(typeof AIO_MESSAGES !== "undefined" ? AIO_MESSAGES : []).map(m => `
           <div class="msg-item ${m.unread ? "unread" : ""}">
             <b>${m.from}</b>
@@ -224,9 +259,7 @@ function renderHeader(active) {
 
   const langBtn = (typeof I18N !== "undefined") ? I18N.switcherHTML() : "";
 
-  const dash = !u ? "dashboard.html"
-             : (u.role === "employer" ? "employer.html"
-             : (u.role === "supplier" ? "advertise.html" : "dashboard.html"));
+  const ph = personaHome(u), dash = ph.href;
 
   let actions;
   if (u) {
@@ -237,15 +270,14 @@ function renderHeader(active) {
           <span class="avatar">${u.name.charAt(0)}</span>${u.name}
         </button>
         <div class="user-menu">
-          <a href="${dash}">${u.role === "employer" ? "پنل کارفرما"
-                            : (u.role === "supplier" ? "پنل تأمین‌کننده" : "داشبورد من")}</a>
-          <a href="${u.role === "employer" ? "employer.html#applicants" : (u.role === "supplier" ? "advertise.html" : "dashboard.html#notifications")}">${u.role === "employer" ? "متقاضیان جدید" : "اعلان‌ها"}</a>
+          <a href="${dash}">${ph.label}</a>
+          <a href="${ph.inbox}">${ph.inboxLabel}</a>
           <button class="danger" onclick="Auth.logout()">خروج از حساب</button>
         </div>
       </div>`;
   } else {
     actions = `
-      <a href="login.html" class="btn btn-ghost hdr-login" data-i18n="act.login">ورود کارجو</a>
+      <a href="login.html" class="btn btn-ghost hdr-login" data-i18n="act.login">ورود / ثبت‌نام</a>
       <a href="login.html?role=employer" class="btn btn-primary hdr-emp" data-i18n="act.employer">ثبت آگهی استخدام</a>
       ${langBtn}${msgBtn}`;
   }
@@ -267,12 +299,13 @@ function renderHeader(active) {
   const mobileCta = u ? `
     <div class="nav-cta">
       <a href="${dash}" class="btn btn-primary btn-block">
-        ${u.role === "employer" ? "پنل کارفرما"
-        : (u.role === "supplier" ? "پنل تأمین‌کننده" : "داشبورد من")}</a>
+        ${ph.label}</a>
     </div>` : `
     <div class="nav-cta">
-      <a href="login.html" class="btn btn-outline btn-block">ورود / ثبت‌نام کارجو</a>
-      <a href="login.html?role=employer" class="btn btn-primary btn-block">ورود آزمایشگاه | ثبت آگهی</a>
+      <a href="login.html" class="btn btn-outline btn-block">ورود / ثبت‌نام</a>
+      <a href="register.html?role=lab" class="btn btn-primary btn-block">ثبت آزمایشگاه</a>
+      <a href="register.html?role=company" class="btn btn-outline btn-block">ثبت شرکت</a>
+      <a href="register.html?role=teacher" class="btn btn-outline btn-block">ثبت مدرس / آموزشگاه</a>
     </div>`;
 
   document.getElementById("site-header").innerHTML = `
@@ -511,7 +544,7 @@ function requireLogin(role) {
   const u = Auth.user;
   if (!u) {
     Store.set("after_login", currentPath() + location.search + location.hash);
-    location.href = "login.html" + (role === "employer" ? "?role=employer" : "");
+    location.href = "login.html" + (role ? "?role=" + role : "");
     return null;
   }
   return u;

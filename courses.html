@@ -85,6 +85,10 @@
             <label>دسته</label>
             <select id="f-cat"><option value="">همه دسته‌ها</option></select>
           </div>
+          <div class="filter-group">
+            <label>شهر برگزاری</label>
+            <select id="f-city"><option value="">همه شهرها</option></select>
+          </div>
           <details class="filter-group acc" open><summary>نوع محصول آموزشی</summary><div id="f-type"></div></details>
           <details class="filter-group acc" open><summary>سطح</summary><div id="f-level"></div></details>
           <details class="filter-group acc"><summary>شیوه برگزاری</summary><div id="f-format"></div></details>
@@ -115,7 +119,11 @@
       <!-- نتایج -->
       <main class="listing-main">
         <div class="crs-toolbar">
-          <span class="count"><b id="count">۰</b> نتیجه</span>
+          <span class="count" id="count-wrap"><b id="count">۰</b> نتیجه</span>
+          <div class="sx-views" role="group" aria-label="نمای نتایج">
+            <button type="button" data-view="cards" class="on" onclick="setView('cards')">▦ کارت</button>
+            <button type="button" data-view="table" onclick="setView('table')">☰ جدول</button>
+          </div>
           <select id="f-sort" aria-label="مرتب‌سازی">
             <option value="popular">محبوب‌ترین</option>
             <option value="rating">بالاترین امتیاز</option>
@@ -126,6 +134,7 @@
         </div>
         <div class="active-chips" id="chips"></div>
         <div class="course-grid" id="course-grid"></div>
+        <div id="course-table" hidden></div>
         <div class="empty-state" id="empty" style="display:none">
           <b>دوره‌ای با این فیلترها پیدا نشد</b>
           فیلترها را تغییر دهید یا عبارت دیگری جستجو کنید.
@@ -252,6 +261,7 @@
 <script src="assets/js/talent-ui.js"></script>
 <script src="assets/js/i18n.js"></script>
 <script src="assets/js/app.js"></script>
+<script src="assets/js/academy-extra.js"></script>
 <script>
 function checks(containerId, name, values, labels) {
   document.getElementById(containerId).innerHTML = values.map((v, i) =>
@@ -293,7 +303,14 @@ document.addEventListener("DOMContentLoaded", () => {
   checks("f-lang",     "lang",     AIO_COURSE_LANGS);
   checks("f-prov",     "prov",     AIO_PROVIDERS.map(p => p.id), AIO_PROVIDERS.map(p => p.name));
 
-  /* پارامترهای URL: ?cat= ?q= ?level= ?free=1 ?skill= */
+  /* شهرهای برگزاری (از نوبت‌های دوره‌ها) */
+  const cities = [...new Set(AIO_COURSES.flatMap(c => courseSessions(c).map(s => s.online ? "آنلاین" : s.city)).filter(Boolean))]
+    .sort((a, b) => a === "آنلاین" ? -1 : b === "آنلاین" ? 1 : a.localeCompare(b, "fa"));
+  document.getElementById("f-city").insertAdjacentHTML("beforeend", cities.map(c => `<option>${c}</option>`).join(""));
+  if (qs("city")) document.getElementById("f-city").value = qs("city");
+  if (qs("view") === "table") VIEW = "table";
+
+  /* پارامترهای URL: ?cat= ?q= ?level= ?free=1 ?skill= ?city= ?view=table */
   if (qs("cat")) document.getElementById("f-cat").value = qs("cat");
   if (qs("q")) document.getElementById("f-q").value = qs("q");
   if (qs("skill")) document.getElementById("f-q").value = qs("skill");
@@ -303,7 +320,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelectorAll(".crs-filters input, .crs-filters select, #f-sort").forEach(el => el.addEventListener("input", render));
   render();
-  if (qs("cat") || qs("q") || qs("skill") || qs("free") || qs("level") || qs("type")) setTimeout(() => document.getElementById("catalog").scrollIntoView({ behavior: "smooth" }), 150);
+  if (qs("cat") || qs("q") || qs("skill") || qs("free") || qs("level") || qs("type") || qs("city") || qs("view")) setTimeout(() => document.getElementById("catalog").scrollIntoView({ behavior: "smooth" }), 150);
 
   /* مدرسان */
   document.getElementById("instr-grid").innerHTML = AIO_INSTRUCTORS.map(i => `
@@ -344,15 +361,38 @@ function currentFilters() {
     type: getChecked("type"), level: getChecked("level"), format: getChecked("format"),
     duration: getChecked("duration"), lang: getChecked("lang"), provider: getChecked("prov"),
     price: getRadio("price"), rating: parseFloat(getRadio("rating")) || 0,
-    cert: document.getElementById("f-cert").checked
+    cert: document.getElementById("f-cert").checked,
+    city: document.getElementById("f-city").value
   };
+}
+
+/* نمای کارت / جدول — جدول یک ردیف برای هر نوبت برگزاری دارد؛ دوره‌های خودآموز «آنلاین — هر زمان» */
+let VIEW = "cards";
+const inCity = (s, city) => !city || (city === "آنلاین" ? !!s.online : s.city === city);
+function setView(v) {
+  VIEW = v;
+  const u = new URL(location.href); v === "table" ? u.searchParams.set("view", "table") : u.searchParams.delete("view");
+  history.replaceState(null, "", u.pathname + u.search + u.hash);
+  render();
 }
 
 function render() {
   const f = currentFilters();
-  const list = sortCourses(filterCourses(f), document.getElementById("f-sort").value);
-  document.getElementById("count").textContent = fa(list.length);
-  document.getElementById("course-grid").innerHTML = list.map(c => courseCardHTML(c)).join("");
+  const list = sortCourses(filterCourses(f), document.getElementById("f-sort").value)
+    .filter(c => !f.city || courseSessions(c).some(s => inCity(s, f.city)));
+  const rows = list.flatMap(c => {
+    const ss = courseSessions(c).map((s, i) => ({ course: c, session: s, index: i })).filter(r => inCity(r.session, f.city));
+    return ss.length ? ss : [{ course: c, session: null, index: -1 }];
+  });
+  /* در جدول، کلاس‌های زمان‌دار (به ترتیب تاریخ شروع) اول می‌آیند و بعد دوره‌های خودآموز */
+  rows.sort((a, b) => (a.session ? jDateNum(a.session.start) : 1e9) - (b.session ? jDateNum(b.session.start) : 1e9));
+  const table = VIEW === "table";
+  document.getElementById("count-wrap").innerHTML = table ? `<b id="count">${fa(list.length)}</b> دوره · ${fa(rows.length)} ردیف زمان‌بندی` : `<b id="count">${fa(list.length)}</b> نتیجه`;
+  document.getElementById("course-grid").hidden = table;
+  document.getElementById("course-table").hidden = !table;
+  document.getElementById("course-grid").innerHTML = table ? "" : list.map(c => courseCardHTML(c)).join("");
+  document.getElementById("course-table").innerHTML = table && list.length ? sessionsTableHTML(rows) : "";
+  document.querySelectorAll(".sx-views button").forEach(b => b.classList.toggle("on", b.dataset.view === VIEW));
   document.getElementById("empty").style.display = list.length ? "none" : "block";
   document.querySelectorAll(".cat-chip").forEach(b => b.classList.toggle("on", b.dataset.cat === f.cat));
   renderChips(f);
@@ -372,6 +412,7 @@ function renderChips(f) {
   if (f.price) add(f.price === "free" ? "رایگان" : "پولی", `document.querySelector('input[name=price][value=""]').checked=true;render()`);
   if (f.rating) add(`امتیاز ${fa(f.rating)}+`, `document.querySelector('input[name=rating][value=""]').checked=true;render()`);
   if (f.cert) add("گواهی‌دار", `document.getElementById('f-cert').checked=false;render()`);
+  if (f.city) add("شهر: " + f.city, `document.getElementById('f-city').value='';render()`);
   document.getElementById("chips").innerHTML = chips.length
     ? chips.join("") + `<button class="a-chip clear" onclick="resetFilters()">حذف همه فیلترها</button>` : "";
 }
@@ -383,7 +424,7 @@ function heroSearch(e) { e.preventDefault(); setQ(document.getElementById("hq").
 function resetFilters() {
   document.querySelectorAll(".crs-filters input[type=checkbox]").forEach(i => i.checked = false);
   document.querySelectorAll('input[name="price"], input[name="rating"]').forEach(i => i.checked = i.value === "");
-  document.getElementById("f-q").value = ""; document.getElementById("f-cat").value = "";
+  document.getElementById("f-q").value = ""; document.getElementById("f-cat").value = ""; document.getElementById("f-city").value = "";
   render();
 }
 </script>

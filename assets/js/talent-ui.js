@@ -50,12 +50,23 @@ const TUI = (() => {
           lastG = x[2] || lastG;
           return g + `<button type="button" class="tp-opt ${String(x[0]) === String(p.value) ? "on" : ""}" data-v="${e(x[0])}">${e(x[1])}</button>`;
         }).join("") || `<div class="tp-empty">موردی پیدا نشد</div>`;
+      /* allowNew: کاربر می‌تواند مقدار تازه بنویسد (مثلاً برند یا دستگاهی که هنوز در فهرست نیست) — onNew برای ثبت پیشنهاد */
+      if (p.allowNew && q && !p.options.some(x => String(x[1]) === q))
+        list.insertAdjacentHTML("beforeend", `<button type="button" class="tp-opt tp-new" data-new="${e(q)}">+ افزودن «${e(q)}»</button>`);
     };
     draw("");
     inp.oninput = () => draw(inp.value);
     inp.focus();
     list.onclick = ev => {
       const b = ev.target.closest(".tp-opt"); if (!b) return;
+      if (b.dataset.new !== undefined) {
+        const v = b.dataset.new;
+        if (!p.options.some(x => String(x[0]) === v)) p.options = [...p.options, [v, v]];
+        if (p.onNew) p.onNew(v);
+        setValue(pid, p.multi ? [...p.value, v] : v);
+        if (!p.multi) closePickers(); else { inp.value = ""; draw(""); inp.focus(); }
+        return;
+      }
       setValue(pid, p.multi ? [...p.value, b.dataset.v] : b.dataset.v);
       if (!p.multi) closePickers(); else { inp.value = ""; draw(""); inp.focus(); }
     };
@@ -322,7 +333,8 @@ const TUI = (() => {
     const cat = AIO_PRODUCT_CATS.find(c => c.id === pr.cat) || {}, org = AIO_LABS.find(l => l.id === pr.orgId) || {};
     return `<a class="prod-card" href="${e(href || pr.url || "product.html?id=" + pr.id)}">
       <div class="pc-img" style="--pc:${pr.color || cat.color};--pbg:${cat.bg || "#f1f5f9"}">${pr.img ? `<img src="${e(pr.img)}" alt="">` : (typeof ICONS !== "undefined" ? (ICONS[cat.icon] || ICONS.flask) : "")}</div>
-      <div class="pc-body"><span class="pc-cat">${e(cat.name || "")}</span><h3>${e(pr.name)}</h3>
+      <div class="pc-body"><span class="pc-cat">${e(cat.name || "")}${pr.group && typeof Tax !== "undefined" ? " · " + e(Tax.name("groups", pr.group)) : ""}</span>${pr.isNew ? '<span class="pc-new">جدید</span>' : ""}<h3>${e(pr.name)}</h3>
+        ${pr.brand || pr.model ? `<small class="pc-brand" dir="auto">${e([pr.brand, pr.model].filter(Boolean).join(" · "))}</small>` : ""}
         <small>${e(org.name || "")}</small>
         <b class="pc-price">${pr.price ? fa(Number(pr.price).toLocaleString("en")).replace(/,/g, "٬") + " تومان" : "استعلام قیمت"}</b></div></a>`;
   }
