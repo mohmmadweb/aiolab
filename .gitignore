@@ -17,3 +17,4 @@ Docs/timesheet/
 # کش پایتون
 __pycache__/
 *.pyc
+backups/

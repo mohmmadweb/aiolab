@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # اتصال Claude Code به وردپرس aiolab.ir از طریق افزونه‌ی Novamira
-# اطلاعات ورود از .secrets/wp-aiolab.env خوانده می‌شود (هرگز داخل کد نوشته نمی‌شود)
+# اطلاعات ورود از .env همین پروژه خوانده می‌شود (هرگز داخل کد نوشته نمی‌شود)
 #
 # پیش‌نیازها (یک‌بار در پیشخوان وردپرس):
 #   ۱) تنظیمات ← پیوندهای یکتا ← هر ساختاری غیر از «ساده» ← ذخیره
@@ -8,7 +8,7 @@
 #   ۳) کاربران ← پروفایل ← رمزهای ورود برنامه ← ساخت رمز
 set -euo pipefail
 
-ENV_FILE="$(cd "$(dirname "$0")/.." && pwd)/.secrets/wp-aiolab.env"
+ENV_FILE="$(cd "$(dirname "$0")/.." && pwd)/.env"
 NAME="novamira-aiolab-ir"
 
 [[ -f "$ENV_FILE" ]] || { echo "✗ فایل اطلاعات پیدا نشد: $ENV_FILE" >&2; exit 1; }

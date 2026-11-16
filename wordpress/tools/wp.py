@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """کلاینت خط فرمان Novamira برای وردپرس aiolab.ir
 
-اطلاعات ورود از .secrets/wp-aiolab.env خوانده می‌شود (هرگز داخل کد نیست).
+اطلاعات ورود از .env همین پروژه خوانده می‌شود (هرگز داخل کد نیست).
 
 نمونه‌ها:
   wp.py php 'return get_bloginfo("name");'
@@ -16,7 +16,7 @@ import pathlib
 import requests
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-ENV = ROOT / ".secrets" / "wp-aiolab.env"
+ENV = ROOT / ".env"
 
 
 def load_env():
