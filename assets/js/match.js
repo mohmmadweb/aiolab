@@ -102,8 +102,17 @@ const AioMatch = (() => {
     const last = current || [...exp].sort((a, b) => ym(b.end || b.start) - ym(a.end || a.start))[0] || null;
     const edu = c.education || [];
     const degree = edu.reduce((m, e) => Math.max(m, (e.end || e.degree < 3) ? +e.degree || 0 : (+e.degree || 0) - 0.5), 0);
-    const skills = {};
-    (c.skills || []).forEach(s => skills[s.id] = Math.max(skills[s.id] || 0, +s.lvl || 0));
+    /* مهارت × دستگاه: هر مهارت می‌تواند «روی دستگاه X» باشد ({id, lvl, device}).
+       skills[id]      = بالاترین سطح آن مهارت روی هر دستگاهی (یا بدون دستگاه)
+       devSkills[id@d] = سطح همان مهارت روی دستگاه d
+       skills[d]       = سطح «کار با دستگاه d» (ورودی مستقل دستگاه، یا بالاترین مهارتی که روی آن دستگاه ثبت شده) */
+    const skills = {}, devSkills = {};
+    const up = (o, k, v) => { o[k] = Math.max(o[k] || 0, v); };
+    (c.skills || []).forEach(s => {
+      const lv = +s.lvl || 0;
+      up(skills, s.id, lv);
+      if (s.device) { up(devSkills, s.id + "@" + s.device, lv); up(skills, s.device, lv); }
+    });
     /* مهارت‌هایی که فقط در سوابق آمده‌اند حداقل «مقدماتی» حساب می‌شوند */
     exp.forEach(e => (e.skills || []).forEach(id => { if (!skills[id]) skills[id] = 2; }));
     const nowISO = new Date().toISOString().slice(0, 7);
@@ -114,12 +123,33 @@ const AioMatch = (() => {
     return {
       age: AioDate.age(c.birth), expMonths: mergedMonths(exp), expDept, expRole, current, last,
       degree: Math.floor(degree), fields: edu.map(e => e.field).filter(Boolean), unis: edu.map(e => e.uni).filter(Boolean),
-      skills, licenses, langs, roles: [...new Set([...(c.targetRoles || []), ...exp.map(e => e.role)])].filter(Boolean)
+      skills, devSkills, licenses, langs, roles: [...new Set([...(c.targetRoles || []), ...exp.map(e => e.role)])].filter(Boolean)
     };
   }
 
   const DEFAULT_WEIGHTS = { skills: 0.65, criteria: 0.35, thresholdIrrelevant: 30, high: 75, mid: 55 };
   const W = () => Object.assign({}, DEFAULT_WEIGHTS, (typeof AIO_MATCH_WEIGHTS !== "undefined" ? AIO_MATCH_WEIGHTS : {}));
+
+  /* سطح مؤثر یک نفر برای یک نیاز مهارتی.
+     بدون دستگاه: همان مهارت روی هر دستگاهی (بیشینه).
+     با دستگاه d:  ۱) همان مهارت روی همان دستگاه = سطح کامل
+                   ۲) مهارت را دارد (جای دیگر) و با دستگاه d هم کار کرده = min(مهارت، دستگاه) × ۰٫۸۵
+                   ۳) فقط مهارت را دارد، دستگاه را نه = مهارت × ۰٫۶
+                   ۴) فقط با دستگاه کار کرده، مهارت را نه = دستگاه × ۰٫۴
+     پوشش = min(۱، سطح مؤثر ÷ سطح لازم)؛ «کامل» فقط وقتی همان مهارت روی همان دستگاه به سطح لازم برسد. */
+  function haveFor(p, r) {
+    if (!r.device) { const v = p.skills[r.id] || 0; return { v, how: v ? "exact" : "none" }; }
+    const ds = p.devSkills || {};
+    const exact = ds[r.id + "@" + r.device] || 0;
+    if (exact) return { v: exact, how: "exact" };
+    const sk = p.skills[r.id] || 0, dv = p.skills[r.device] || 0;
+    if (sk && dv) return { v: Math.min(sk, dv) * 0.85, how: "other-device" };
+    if (sk) return { v: sk * 0.6, how: "no-device" };
+    if (dv) return { v: dv * 0.4, how: "device-only" };
+    return { v: 0, how: "none" };
+  }
+  const reqName = r => skillName(r.id) + (r.device ? " — روی " + skillName(r.device) : "");
+  const HOW = { "other-device": "روی دستگاه دیگر", "no-device": "بدون این دستگاه", "device-only": "فقط کار با دستگاه" };
 
   /* امتیاز تطبیق یک نفر با یک پوزیشن + توضیح کامل */
   function score(c, job) {
@@ -127,10 +157,12 @@ const AioMatch = (() => {
     const w = W();
     /* ۱) پوشش وزنی مهارت‌ها (مثل استاندارد DOJT) */
     const sk = (req.skills || []).map(r => {
-      const have = p.skills[r.id] || 0;
+      const h = haveFor(p, r), have = h.v;
       const cover = have >= r.lvl ? 1 : have / r.lvl;
-      return { id: r.id, name: skillName(r.id), w: r.w, lvl: r.lvl, lvlName: lvlName(r.lvl), have, haveName: have ? lvlName(have) : "ندارد", cover, must: !!r.must,
-               status: cover >= 1 ? "full" : have ? "partial" : "none" };
+      const shown = Math.max(1, Math.round(have));
+      return { id: r.id, device: r.device || "", name: reqName(r), w: r.w, lvl: r.lvl, lvlName: lvlName(r.lvl), have,
+               haveName: have ? lvlName(shown) + (HOW[h.how] ? " (" + HOW[h.how] + ")" : "") : "ندارد", cover, must: !!r.must,
+               status: cover >= 1 && h.how === "exact" ? "full" : have ? "partial" : "none" };
     });
     const sumW = sk.reduce((s, x) => s + x.w, 0);
     const skillScore = sumW ? sk.reduce((s, x) => s + x.w * x.cover, 0) / sumW : 1;
@@ -215,7 +247,7 @@ const AioMatch = (() => {
     const arr = Array.isArray(v) ? v.map(String) : [String(v)];
     const inList = (vals, list) => (Array.isArray(vals) ? vals : [vals]).some(x => list.includes(String(x)));
     switch (r.field) {
-      case "skill": return (p.skills[v.id] || 0) >= (+v.lvl || 1);
+      case "skill": return v.device ? ((p.devSkills || {})[v.id + "@" + v.device] || 0) >= (+v.lvl || 1) : (p.skills[v.id] || 0) >= (+v.lvl || 1);
       case "expTotal": return num(p.expMonths / 12, Array.isArray(v) ? v : [v]);
       case "expDept": return (p.expDept[v.dept] || 0) / 12 >= (+v.years || 0);
       case "roleTarget": return op === "notin" ? !inList(c.targetRoles || [], arr) : inList(c.targetRoles || [], arr);
@@ -258,5 +290,5 @@ const AioMatch = (() => {
   /* تعداد شرط‌های یک درخت (برای نمایش) */
   const countRules = t => !t || !t.rules ? 0 : t.rules.reduce((s, r) => s + (r.rules ? countRules(r) : 1), 0);
 
-  return { profile, score, fields, evaluate, test, jobsFor, candidatesFor, mergedMonths, countRules, skillName, lvlName, degName, DEFAULT_WEIGHTS };
+  return { profile, score, fields, evaluate, test, jobsFor, candidatesFor, mergedMonths, countRules, skillName, lvlName, degName, haveFor, reqName, DEFAULT_WEIGHTS };
 })();

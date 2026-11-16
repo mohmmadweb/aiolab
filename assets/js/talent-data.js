@@ -631,3 +631,21 @@ Object.entries({ 1: ["biochemistry", "hormone", "hematology", "microbiology", "p
    4: ["biochemistry", "hematology", "urinalysis"], 6: ["biochemistry", "hormone", "microbiology"], 7: ["genetics", "hematology"], 8: ["biochemistry", "hematology"],
    9: ["biochemistry", "hormone", "hematology"], 12: ["microbiology", "pathology"], 13: ["biochemistry", "hormone"] })
   .forEach(([id, g]) => { AIO_ORG_EXTRA[id] = AIO_ORG_EXTRA[id] || {}; if (!AIO_ORG_EXTRA[id].groups) AIO_ORG_EXTRA[id].groups = g; });
+
+/* ---------- مهارت × دستگاه (۱۴۰۵/۰۸) — نمونه‌ها: «با دستگاه X مهارت Y» ----------
+   ورودی مهارت می‌تواند device داشته باشد: رزومه {id, lvl, device} و نیاز پوزیشن {id, w, lvl, must, device}.
+   ورودی‌ای که خودش دستگاه است (بدون device) همان «کار با دستگاه» است. داده‌ی قبلی دست نمی‌خورد؛ فقط جفت‌ها اضافه می‌شوند. */
+(() => {
+  const cand = id => AIO_CANDIDATES.find(c => c.id === id);
+  const addSk = (id, list) => { const c = cand(id); if (c) list.forEach(s => { if (!c.skills.some(x => x.id === s.id && x.device === s.device)) c.skills.push(s); }); };
+  addSk(101, [{ id: "cbc-interp", lvl: 4, device: "sysmex-xn" }, { id: "iqc", lvl: 3, device: "sysmex-xn" }, { id: "clinical-chem", lvl: 3, device: "bt-3000" }]);
+  addSk(103, [{ id: "calibration", lvl: 4, device: "bt-3000" }, { id: "electrolytes", lvl: 4, device: "electrolyte-analyzer" }]);
+  addSk(107, [{ id: "troubleshooting", lvl: 5, device: "sysmex-xn" }, { id: "device-install", lvl: 4, device: "mindray-bc" }]);
+  addSk(110, [{ id: "bacteria-id", lvl: 3, device: "vitek2" }]);
+  addSk(112, [{ id: "microtomy", lvl: 5, device: "leica-microtome" }]);
+  /* نیاز آگهی‌ها: همان مهارت، این بار «روی» دستگاه مشخص */
+  const onDev = (jobId, skillId, device) => { const r = AIO_JOB_REQ[jobId]; const s = r && r.skills.find(x => x.id === skillId && !x.device); if (s) s.device = device; };
+  onDev(1, "cbc-interp", "sysmex-xn");
+  onDev(3, "calibration", "bt-3000");
+  if (AIO_JOB_REQ[4]) AIO_JOB_REQ[4].skills.push({ id: "bacteria-id", w: 5, lvl: 3, device: "vitek2" });
+})();

@@ -10,7 +10,7 @@
 <meta name="theme-color" content="#0d9488">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
-<link rel="stylesheet" href="assets/css/style.css?v=20261111c">
+<link rel="stylesheet" href="assets/css/style.css?v=20261116a">
 <style>body{background:var(--navy-50)}</style>
 </head>
 <body data-page="courses.html">
@@ -174,20 +174,26 @@
 
 <footer id="site-footer" class="site-footer"></footer>
 
-<script src="assets/js/geo.js?v=20261111c"></script>
-<script src="assets/js/data.js?v=20261111c"></script>
-<script src="assets/js/talent-data.js?v=20261111c"></script>
-<script src="assets/js/match.js?v=20261111c"></script>
-<script src="assets/js/talent-ui.js?v=20261111c"></script>
-<script src="assets/js/i18n.js?v=20261111c"></script>
-<script src="assets/js/app.js?v=20261111c"></script>
-<script src="assets/js/academy-extra.js?v=20261111c"></script>
+<script src="assets/js/geo.js?v=20261116a"></script>
+<script src="assets/js/data.js?v=20261116a"></script>
+<script src="assets/js/talent-data.js?v=20261116a"></script>
+<script src="assets/js/match.js?v=20261116a"></script>
+<script src="assets/js/talent-ui.js?v=20261116a"></script>
+<script src="assets/js/i18n.js?v=20261116a"></script>
+<script src="assets/js/app.js?v=20261116a"></script>
+<script src="assets/js/academy-extra.js?v=20261116a"></script>
 <script>
 const STEPS = ["اطلاعات پایه", "دستاوردها و مهارت‌ها", "سرفصل", "قیمت و گواهی", "پرسش‌ها و ارسال"];
 let D, step = 1, U;
 
 document.addEventListener("DOMContentLoaded", () => {
   U = requireLogin(); if (!U) return;
+  /* آزمایشگاه‌ها دوره ثبت نمی‌کنند (فقط پرسنل خود را در دوره‌ها ثبت‌نام می‌کنند) */
+  if (Auth.persona === "lab") {
+    document.querySelector(".builder-layout").innerHTML = '<div class="empty-state" style="margin:32px 0;grid-column:1/-1"><b>ساخت دوره برای حساب آزمایشگاه فعال نیست</b>آزمایشگاه‌ها می‌توانند پرسنل خود را در دوره‌های آکادمی ثبت‌نام کنند.<br><a class="btn btn-primary" href="employer.html#training" style="margin-top:12px">آموزش پرسنل</a></div>';
+    setTimeout(() => location.href = "employer.html#training", 2500);
+    return;
+  }
   const id = qs("id");
   D = (id && MyCreated.get(id)) || newDraft();
   if (U.role === "employer") document.getElementById("b-mylist").href = "employer.html#training";

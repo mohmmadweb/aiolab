@@ -16,7 +16,7 @@
 <meta property="og:url" content="https://demo.aiolab.ir/job.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
-<link rel="stylesheet" href="assets/css/style.css?v=20261111c">
+<link rel="stylesheet" href="assets/css/style.css?v=20261116a">
 </head>
 <body data-page="jobs.html">
 
@@ -96,13 +96,13 @@
 
 <footer id="site-footer" class="site-footer"></footer>
 
-<script src="assets/js/geo.js?v=20261111c"></script>
-<script src="assets/js/data.js?v=20261111c"></script>
-<script src="assets/js/talent-data.js?v=20261111c"></script>
-<script src="assets/js/match.js?v=20261111c"></script>
-<script src="assets/js/talent-ui.js?v=20261111c"></script>
-<script src="assets/js/i18n.js?v=20261111c"></script>
-<script src="assets/js/app.js?v=20261111c"></script>
+<script src="assets/js/geo.js?v=20261116a"></script>
+<script src="assets/js/data.js?v=20261116a"></script>
+<script src="assets/js/talent-data.js?v=20261116a"></script>
+<script src="assets/js/match.js?v=20261116a"></script>
+<script src="assets/js/talent-ui.js?v=20261116a"></script>
+<script src="assets/js/i18n.js?v=20261116a"></script>
+<script src="assets/js/app.js?v=20261116a"></script>
 <script>
 let J;
 document.addEventListener("DOMContentLoaded", () => {
@@ -176,8 +176,7 @@ function TalentReq(j) {
   if (r.gender) rows.push(["جنسیت", r.gender]);
   if ((r.military || []).length) rows.push(["نظام وظیفه (آقایان)", r.military.join("، ")]);
   return `<div class="table-wrap"><table class="data spec-table"><tbody>${rows.map(([k, v]) => `<tr><td>${k}</td><td>${TUI.e(v)}</td></tr>`).join("")}</tbody></table></div>
-    <h3>مهارت‌ها و سطح لازم</h3><div class="table-wrap"><table class="data"><thead><tr><th>مهارت</th><th>سطح لازم</th><th>اهمیت</th></tr></thead><tbody>
-    ${(r.skills || []).map(s => `<tr><td>${TUI.e(n.skill(s.id))}${s.must ? ' <span class="chip sm warn">کلیدی</span>' : ""}</td><td>${TUI.e(n.level(s.lvl))}</td><td><div class="cc-progress" style="width:90px"><i style="width:${s.w * 10}%"></i></div></td></tr>`).join("")}</tbody></table></div>`;
+    <h3>مهارت‌ها و دستگاه‌ها</h3>${TUI.reqSkillsHTML(r.skills || [])}`;
 }
 
 function applyJob() {

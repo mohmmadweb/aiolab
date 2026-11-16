@@ -116,6 +116,7 @@ const AIO_SITEMAP = [
   { path: "lab.html",            title: "پروفایل مرکز",                 parent: "labs.html",       dynamic: true },
   { path: "companies.html",      title: "شرکت‌ها",                      parent: "index.html",      group: "company" },
   { path: "products.html",       title: "محصولات و تجهیزات",            parent: "companies.html",  group: "company" },
+  { path: "ads.html",            title: "آگهی محصولات و خدمات",          parent: "companies.html",  group: "company" },
   { path: "challenges.html",     title: "چالش علمی",                    parent: "index.html",      group: "seeker" },
   { path: "teach.html",          title: "پنل آموزش",                    parent: "index.html",      auth: "teacher" },
   { path: "admin.html",          title: "پنل مدیریت سایت",              parent: "index.html",      noindex: true },
@@ -167,18 +168,14 @@ function injectBreadcrumbLD(leafTitle) {
 /* لینک‌های فوتر — ستون‌ها ثابت (ظاهر بدون تغییر)، مقصدها از نقشه سایت */
 const AIO_FOOTER = [
   { title: "کارجویان", links: [
-      ["jobs.html", "جستجوی فرصت شغلی"], ["dashboard.html#resume", "رزومه‌ساز حرفه‌ای"], ["courses.html", "آکادمی و دوره‌های آموزشی"],
-      ["courses.html#paths", "مسیرهای یادگیری تخصصی"], ["exams.html", "آزمون و گواهینامه"], ["services.html#interview", "مصاحبه تخصصی و توصیه‌نامه"],
-      ["services.html#advice", "مشاوره شغلی"], ["magazine.html", "راهنمای مسیر شغلی"], ["challenges.html", "چالش علمی هفتگی و ماهانه"] ] },
+      ["jobs.html", "جستجوی فرصت شغلی"], ["dashboard.html#resume", "رزومه‌ساز حرفه‌ای"], ["courses.html", "آکادمی و دوره‌ها"],
+      ["exams.html", "آزمون و گواهینامه"], ["challenges.html", "چالش علمی هفتگی و ماهانه"], ["services.html#advice", "مشاوره شغلی"] ] },
   { title: "آزمایشگاه‌ها، شرکت‌ها و آموزش", links: [
-      ["login.html?role=employer", "ثبت آگهی استخدام"], ["employer.html#resumes", "جستجوی بانک رزومه"], ["employer.html#pricing", "تعرفه‌ها و اشتراک"],
-      ["talent.html", "تطبیق هوشمند"], ["services.html#hiring", "خدمات استخدام کامل"], ["services.html#branding", "برند کارفرمایی"],
-      ["advertise.html", "تبلیغات و اسپانسری"], ["register.html?role=company", "ثبت شرکت و محصولات"], ["products.html?tab=repair", "یافتن تعمیرکار دستگاه"],
-      ["register.html?role=teacher", "تدریس در آیولب"] ] },
+      ["login.html?role=lab", "ثبت آگهی استخدام"], ["employer.html#resumes", "بانک رزومه"], ["register.html?role=company", "ثبت شرکت و محصولات"],
+      ["ads.html", "آگهی محصولات شرکت‌ها"], ["products.html?tab=repair", "یافتن تعمیرکار دستگاه"], ["register.html?role=teacher", "تدریس در آیولب"], ["pricing.html", "تعرفه‌ها"] ] },
   { title: "آیولب", links: [
-      ["faq.html", "سؤالات پرتکرار"], ["services.html", "خدمات آیولب"], ["pricing.html", "تعرفه‌ها و اشتراک"], ["reports.html", "گزارش بازار کار"],
-      ["ranking.html", "رتبه‌بندی مراکز"], ["companies.html", "شرکت‌ها و محصولات"], ["magazine.html", "در آزمایشگاه چه می‌گذرد؟"], ["community.html", "جامعه آزمایشگاهی"],
-      ["about.html", "درباره ما"], ["contact.html", "تماس با ما"], ["admin.html", "پنل مدیریت سایت (دمو)"] ] }
+      ["about.html", "درباره ما"], ["contact.html", "تماس با ما"], ["faq.html", "سؤالات پرتکرار"], ["services.html", "خدمات آیولب"],
+      ["reports.html", "گزارش بازار کار"], ["magazine.html", "مجله آیولب"], ["admin.html", "پنل مدیریت سایت (دمو)"] ] }
 ];
 
 /* ---------- ساختار منو ----------
@@ -190,6 +187,7 @@ const AIO_NAV = [
       { href: "labs.html",    label: "آزمایشگاه‌ها روی نقشه", desc: "نقشه سراسری مراکز عضو", icon: "pin" },
       { href: "companies.html", label: "شرکت‌ها",           desc: "تولیدکننده، واردکننده و توزیع‌کننده", icon: "building" },
       { href: "products.html",  label: "محصولات و تجهیزات", desc: "جستجوی پارامتریک دستگاه، کیت و مواد مصرفی", icon: "machine" },
+      { href: "ads.html", label: "آگهی محصولات", desc: "پیشنهادهای ویژه‌ی شرکت‌ها", icon: "star" },
       { href: "products.html?tab=repair", label: "یافتن تعمیرکار", desc: "چه کسی دستگاه شما را تعمیر می‌کند؟", icon: "wrench" },
       { href: "ranking.html", label: "رتبه‌بندی مراکز",       desc: "امتیاز کاربران و میانگین حقوق", icon: "chart" }
   ]},
@@ -849,6 +847,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (document.getElementById("site-footer")) renderFooter();
   if (typeof I18N !== "undefined") I18N.apply();
   injectBreadcrumbLD();
+  /* آزمایشگاه‌ها دوره ثبت نمی‌کنند: دکمه‌های «ساخت دوره» برایشان نمایش داده نمی‌شود */
+  if (Auth.persona === "lab") document.querySelectorAll('a[href^="course-builder.html"]').forEach(a => a.hidden = true);
   document.querySelectorAll('a[target="_blank"]:not([rel])').forEach(a => a.rel = "noopener");
   document.addEventListener("click", e => {
     document.querySelectorAll(".user-menu.open, .msg-menu.open, .lang-menu.open, .nav-group.open").forEach(m => {

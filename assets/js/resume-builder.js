@@ -32,6 +32,12 @@ const ResumeBuilder = (() => {
 
   function mount(host, opts) {
     let R = Object.assign(clone(EMPTY), clone(opts.load() || {}));
+    normSkills();
+    /* مهارت × دستگاه: برای هر دستگاهی که مهارتی رویش ثبت شده، ردیف «کار با دستگاه» هم باشد (بدون حذف چیزی از داده‌ی قبلی) */
+    function normSkills() {
+      const devs = [...new Set((R.skills || []).filter(s => s.device).map(s => s.device))];
+      devs.forEach(d => { if (!R.skills.some(s => s.id === d && !s.device)) R.skills.push({ id: d, lvl: Math.max(...R.skills.filter(s => s.device === d).map(s => +s.lvl || 3)) }); });
+    }
     let edit = null;   /* { kind, idx, d } فرم باز */
 
     const yearSel = (key, val, from, to, ph) => {
@@ -123,7 +129,10 @@ const ResumeBuilder = (() => {
     function draw() {
       const p = AioMatch.profile(R);
       const exp = R.experience.map((x, i) => ({ x, i })).sort((a, b) => (b.x.end || "9999") < (a.x.end || "9999") ? -1 : (b.x.start > a.x.start ? 1 : -1));
-      const grouped = AIO_SKILL_GROUPS.map(g => ({ g, list: R.skills.map((s, i) => ({ s, i })).filter(({ s }) => (AIO_SKILLS.find(k => k.id === s.id) || {}).group === g.id) })).filter(x => x.list.length);
+      const blocks = TUI.byDevice(R.skills);
+      if (!blocks.some(b => !b.device)) blocks.push({ device: "", base: null, items: [] });
+      const lvRow = (label, i, del) => `<div class="rb-skill"><span>${label}</span>
+          <span class="sd-lv"><span data-lvl="skills:${i}">${TUI.levels({ value: R.skills[i].lvl })}</span><button type="button" class="btn btn-sm btn-ghost danger" data-del="${del}" aria-label="حذف">×</button></span></div>`;
       host.innerHTML = `
       <div class="panel"><h2>محاسبه‌ی خودکار از روی رزومه</h2>
         <p class="muted" style="font-size:13px">سن از تاریخ تولد و سابقه از تاریخ‌های شروع و پایان هر سمت (با حذف هم‌پوشانی‌ها، مثل لینکدین) محاسبه می‌شود و با گذر زمان خودکار به‌روز است.</p>
@@ -168,10 +177,18 @@ const ResumeBuilder = (() => {
           <div class="ri-act"><button type="button" class="btn btn-sm btn-ghost" data-edit="edu:${i}">ویرایش</button><button type="button" class="btn btn-sm btn-ghost danger" data-del="education:${i}">حذف</button></div></div>`).join("")}
       </div>
 
-      <div class="panel rb-section"><div class="syllabus-head"><div><h2>مهارت‌ها و دستگاه‌ها</h2><p>سطح هر مهارت را از ۱ (آشنایی) تا ۵ (خبره) مشخص کنید؛ موتور تطبیق همین سطح را با نیاز هر پوزیشن می‌سنجد.</p></div></div>
-        ${grouped.map(({ g, list }) => `<div class="rb-skill-group">${e(g.name)}</div>${list.map(({ s, i }) => `<div class="rb-skill"><span>${e(name.skill(s.id))}</span>
-          <span style="display:flex;gap:8px;align-items:center"><span data-lvl="skills:${i}">${TUI.levels({ value: s.lvl })}</span><button type="button" class="btn btn-sm btn-ghost danger" data-del="skills:${i}" aria-label="حذف">×</button></span></div>`).join("")}`).join("") || '<div class="empty-inline">مهارتی اضافه نکرده‌اید.</div>'}
-        <div style="margin-top:12px">${TUI.picker({ multi: true, options: O.skills().filter(o => !R.skills.some(s => s.id === o[0])), value: [], addLabel: "افزودن مهارت یا دستگاه", onChange: v => { v.forEach(id => { if (!R.skills.some(s => s.id === id)) R.skills.push({ id, lvl: 3 }); }); draw(); } })}</div>
+      <div class="panel rb-section"><div class="syllabus-head"><div><h2>مهارت‌ها و دستگاه‌ها</h2><p>بگویید «با دستگاه X، مهارت Y را دارم»: برای هر دستگاه یک بلوک بسازید و مهارت‌هایی را که روی آن انجام می‌دهید با سطح (۱ آشنایی تا ۵ خبره) اضافه کنید. یک مهارت می‌تواند زیر چند دستگاه بیاید؛ مهارت‌های بدون دستگاه (مثل ارتباط با مراجع) در بلوک آخر.</p></div></div>
+        ${blocks.map(b => b.device ? `<div class="sd-block">
+          <div class="sd-head"><b>🔧 دستگاه: ${e(name.skill(b.device))}</b><button type="button" class="btn btn-sm btn-ghost danger" data-deldev="${e(b.device)}">حذف دستگاه</button></div>
+          ${b.base ? lvRow("کار با دستگاه (کلی)", b.base.i, "skills:" + b.base.i) : ""}
+          ${b.items.map(({ s: x, i }) => lvRow(e(name.skill(x.id)), i, "skills:" + i)).join("")}
+          <div class="sd-add">${TUI.picker({ multi: true, options: O.plainSkills().filter(o => !b.items.some(({ s: x }) => x.id === o[0])), value: [], addLabel: "مهارت روی این دستگاه",
+            onChange: v => { v.forEach(id => { if (!R.skills.some(x => x.id === id && x.device === b.device)) R.skills.push({ id, lvl: 3, device: b.device }); }); draw(); } })}</div></div>`
+          : `<div class="sd-block sd-plain"><div class="sd-head"><b>مهارت‌های بدون دستگاه خاص</b></div>
+          ${b.items.map(({ s: x, i }) => lvRow(e(name.skill(x.id)), i, "skills:" + i)).join("") || '<div class="empty-inline">موردی ندارد.</div>'}
+          <div class="sd-add">${TUI.picker({ multi: true, options: O.plainSkills().filter(o => !b.items.some(({ s: x }) => x.id === o[0])), value: [], addLabel: "مهارت",
+            onChange: v => { v.forEach(id => { if (!R.skills.some(x => x.id === id && !x.device)) R.skills.push({ id, lvl: 3 }); }); draw(); } })}</div></div>`).join("")}
+        <div class="sd-newdev">${TUI.picker({ options: O.devices().filter(o => !blocks.some(b => b.device === o[0])), value: "", placeholder: "+ افزودن دستگاه", onChange: v => { if (v && !R.skills.some(x => x.id === v && !x.device)) R.skills.push({ id: v, lvl: 3 }); draw(); } })}</div>
       </div>
 
       <div class="panel rb-section"><div class="syllabus-head"><div><h2>مدارک، پروانه‌ها و گواهی‌ها</h2><p>مدرکی که تاریخ انقضایش گذشته باشد خودکار «منقضی» نمایش داده می‌شود.</p></div><button type="button" class="btn btn-sm btn-outline" data-add="lic">+ افزودن مدرک</button></div>
@@ -220,7 +237,8 @@ const ResumeBuilder = (() => {
       if (lv) { const [arr, i] = lv.dataset.lvl.split(":"); R[arr][+i].lvl = +t.dataset.value || +lv.querySelector(".tui-levels").dataset.value; live(); }
     });
     host.addEventListener("click", ev => {
-      const b = ev.target.closest("[data-add],[data-edit],[data-del],[data-act],[data-save]"); if (!b) return;
+      const b = ev.target.closest("[data-add],[data-edit],[data-del],[data-deldev],[data-act],[data-save]"); if (!b) return;
+      if (b.dataset.deldev) { const d = b.dataset.deldev; R.skills = R.skills.filter(x => x.device !== d && !(x.id === d && !x.device)); draw(); return; }
       if (b.dataset.add) { edit = { kind: b.dataset.add, idx: null, d: b.dataset.add === "exp" ? { orgType: "lab", skills: [] } : {} }; draw(); }
       else if (b.dataset.edit) { const [k, i] = b.dataset.edit.split(":"); const src = R[{ exp: "experience", edu: "education", lic: "licenses" }[k]][+i];
         const d = clone(src); if (k === "exp") d.current = !d.end; if (k === "edu") d.studying = !d.end; if (k === "lic") d.noexp = !d.expires; edit = { kind: k, idx: +i, d }; draw(); }

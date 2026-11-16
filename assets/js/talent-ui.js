@@ -92,6 +92,9 @@ const TUI = (() => {
   /* ---------------- گزینه‌های آماده ---------------- */
   const O = {
     skills: () => AIO_SKILL_GROUPS.flatMap(g => AIO_SKILLS.filter(s => s.group === g.id).map(s => [s.id, s.name, g.name])),
+    /* مهارت × دستگاه: دستگاه‌ها جدا، مهارت‌ها (بدون دستگاه‌ها) جدا */
+    devices: () => AIO_SKILLS.filter(s => s.group === "device").map(s => [s.id, s.name]),
+    plainSkills: () => AIO_SKILL_GROUPS.filter(g => g.id !== "device").flatMap(g => AIO_SKILLS.filter(s => s.group === g.id).map(s => [s.id, s.name, g.name])),
     roles: () => AIO_ROLES.map(r => [r.id, r.name, (AIO_DEPARTMENTS.find(d => d.id === r.dept) || {}).name]),
     depts: () => AIO_DEPARTMENTS.map(d => [d.id, d.name]),
     seniority: () => AIO_SENIORITY.map(s => [s.v, s.name]),
@@ -115,6 +118,7 @@ const TUI = (() => {
   };
   const name = {
     skill: id => (AIO_SKILLS.find(s => s.id === id) || { name: id }).name,
+    skillOn: s => (AIO_SKILLS.find(k => k.id === s.id) || { name: s.id }).name + (s.device ? " — روی " + (AIO_SKILLS.find(k => k.id === s.device) || { name: s.device }).name : ""),
     role: id => (AIO_ROLES.find(r => r.id === id) || { name: id || "—" }).name,
     dept: id => (AIO_DEPARTMENTS.find(d => d.id === id) || { name: id || "—" }).name,
     uni: id => (AIO_UNIVERSITIES.find(u => u.id === id) || { name: id || "—" }).name,
@@ -208,7 +212,7 @@ const TUI = (() => {
       <h3>سوابق کاری <small>(${e(AioDate.durText(p.expMonths))})</small></h3>
       ${exp.length ? `<div class="cd-timeline">${exp.map(x => `<div><b>${e(name.role(x.role))}</b> — ${e(x.orgName || "")}<small>${e(AioDate.toJ(x.start, true))} تا ${x.end ? e(AioDate.toJ(x.end, true)) : "اکنون"} · ${e(AioDate.durText(AioDate.months(x.start, x.end)))} · ${e(name.dept(x.dept))}</small></div>`).join("")}</div>` : '<p class="muted">بدون سابقه کاری</p>'}
       <h3>تحصیلات</h3>${(c.education || []).map(x => `<p>${e(name.degree(x.degree))} ${e(x.field)} — ${e(name.uni(x.uni))} <small class="muted">${x.start ? fa(x.start - 621) : ""}${x.end ? "–" + fa(x.end - 621) : " (در حال تحصیل)"}</small></p>`).join("") || '<p class="muted">—</p>'}
-      <h3>مهارت‌ها</h3><div class="tag-list">${(c.skills || []).map(s => `<span class="tag">${e(name.skill(s.id))} · ${e(name.level(s.lvl))}</span>`).join("")}</div>
+      <h3>مهارت‌ها و دستگاه‌ها</h3>${skillTags(c.skills || [])}
       ${(c.licenses || []).length ? `<h3>مدارک و پروانه‌ها</h3><div class="tag-list">${c.licenses.map(l => `<span class="tag">${e(name.license(l.id))}${l.expires && l.expires < new Date().toISOString().slice(0, 7) ? " (منقضی)" : ""}</span>`).join("")}</div>` : ""}
       ${(c.langs || []).length ? `<h3>زبان</h3><div class="tag-list">${c.langs.map(l => `<span class="tag">${e(name.lang(l.id))} · ${e(name.langLevel(l.lvl))}</span>`).join("")}</div>` : ""}
       <h3>ترجیحات</h3><p>نوع همکاری: ${e((c.wantTypes || []).join("، ") || "—")} · شیفت: ${e((c.wantShifts || []).join("، ") || "—")} · حقوق درخواستی: ${c.salaryMin ? fa(c.salaryMin) + (c.salaryMax ? " تا " + fa(c.salaryMax) : "") + " میلیون" : "توافقی"}</p>
@@ -227,7 +231,7 @@ const TUI = (() => {
       const opts = f.options ? f.options() : [];
       const sel = (key, list, cur) => `<select data-path="${path}" data-k="${key}">${list.map(([v, l]) => `<option value="${e(v)}" ${String(cur) === String(v) ? "selected" : ""}>${e(l)}</option>`).join("")}</select>`;
       switch (f.type) {
-        case "skill": r.value = r.value || { id: opts[0][0], lvl: 3 }; return sel("v.id", opts, r.value.id) + sel("v.lvl", AIO_SKILL_LEVELS.map(l => [l.v, "حداقل " + l.name]), r.value.lvl);
+        case "skill": r.value = r.value || { id: opts[0][0], lvl: 3 }; return sel("v.id", opts, r.value.id) + (isDevice(r.value.id) ? "" : sel("v.device", [["", "روی هر دستگاهی"], ...O.devices().map(([id, n]) => [id, "روی " + n])], r.value.device || "")) + sel("v.lvl", AIO_SKILL_LEVELS.map(l => [l.v, "حداقل " + l.name]), r.value.lvl);
         case "lang": r.value = r.value || { id: opts[0][0], lvl: 2 }; return sel("v.id", opts, r.value.id) + sel("v.lvl", AIO_LANG_LEVELS.map(l => [l.v, "حداقل " + l.name]), r.value.lvl);
         case "deptyears": r.value = r.value || { dept: opts[0][0], years: 1 }; return sel("v.dept", opts, r.value.dept) + `<input type="number" min="0" step="0.5" data-path="${path}" data-k="v.years" value="${e(r.value.years)}"><span>سال</span>`;
         case "number": if (!Array.isArray(r.value)) r.value = [r.value != null ? r.value : 0, 0];
@@ -278,7 +282,8 @@ const TUI = (() => {
       const [, sub, idx] = k.split(".");
       if (sub === "bool") r.value = t.value === "true";
       else if (/^\d$/.test(sub)) { r.value = Array.isArray(r.value) ? r.value : []; r.value[+sub] = +t.value; }
-      else r.value = Object.assign({}, r.value, { [sub]: isNaN(+t.value) || sub === "id" || sub === "dept" ? t.value : +t.value });
+      else r.value = Object.assign({}, r.value, { [sub]: isNaN(+t.value) || sub === "id" || sub === "dept" || sub === "device" ? t.value : +t.value });
+      if (sub === "id") { if (isDevice(t.value)) delete r.value.device; draw(); }
       fire();
     };
     draw();
@@ -292,7 +297,7 @@ const TUI = (() => {
       if (r.rules) return "(" + describe(r) + ")";
       const f = F.find(x => x.key === r.field) || { label: r.field }, v = r.value;
       const lab = list => (Array.isArray(v) ? v : [v]).map(x => { const o = (f.options ? f.options() : []).find(o => String(o[0]) === String(x)); return o ? o[1] : x; }).join("، ");
-      if (f.type === "skill") return `${name.skill(v.id)} (حداقل ${name.level(v.lvl)})`;
+      if (f.type === "skill") return `${name.skillOn(v)} (حداقل ${name.level(v.lvl)})`;
       if (f.type === "lang") return `${name.lang(v.id)} (حداقل ${name.langLevel(v.lvl)})`;
       if (f.type === "deptyears") return `سابقه ${name.dept(v.dept)} ≥ ${fa(v.years)} سال`;
       if (f.type === "number") return `${f.label} ${OPS[r.op]} ${fa(v[0])}${r.op === "between" ? " تا " + fa(v[1]) : ""}`;
@@ -329,15 +334,46 @@ const TUI = (() => {
   }
 
   /* کارت محصول */
+  /* ---------- مهارت × دستگاه ----------
+     ورودی‌ها: {id, lvl, device?} (رزومه) یا {id, w, lvl, must, device?} (نیاز پوزیشن).
+     ورودی‌ای که خودش دستگاه است و device ندارد = «کار با دستگاه» (سطح عمومی همان دستگاه).
+     خروجی: بلوک‌های [{device, base:{s,i}|null, items:[{s,i}]}] — بلوک‌های دستگاه اول، «بدون دستگاه خاص» آخر */
+  const isDevice = id => (AIO_SKILLS.find(k => k.id === id) || {}).group === "device";
+  function byDevice(list) {
+    const map = new Map(), get = d => { if (!map.has(d)) map.set(d, { device: d, base: null, items: [] }); return map.get(d); };
+    (list || []).forEach((s, i) => { if (!s.device && isDevice(s.id)) get(s.id).base = { s, i }; else get(s.device || "").items.push({ s, i }); });
+    const out = [...map.values()].filter(b => b.device), none = map.get("");
+    return none ? [...out, none] : out;
+  }
+  /* نمایش گروه‌بندی‌شده (کارت نفر، صفحه‌ی آگهی، مرکز تطبیق) */
+  function skillTags(list, opt) {
+    opt = opt || {};
+    const tag = s => `<span class="tag">${e(name.skill(s.id))} · ${e(name.level(s.lvl))}${opt.req && s.w ? " · وزن " + fa(s.w) : ""}${opt.req && s.must ? " · کلیدی" : ""}</span>`;
+    return byDevice(list).map(b => `<div class="sd-tags">${b.device
+      ? `<b class="sd-dev">🔧 ${e(name.skill(b.device))}${b.base ? ` <small>${opt.req ? "حداقل " : ""}${e(name.level(b.base.s.lvl))}${opt.req && b.base.s.must ? " · کلیدی" : ""}</small>` : ""}</b>`
+      : (byDevice(list).length > 1 ? '<b class="sd-dev sd-none">بدون دستگاه خاص</b>' : "")}
+      <div class="tag-list">${b.items.map(({ s }) => tag(s)).join("")}</div></div>`).join("");
+  }
+  /* جدول نیازهای مهارتی آگهی، گروه‌بندی‌شده با دستگاه */
+  function reqSkillsHTML(list) {
+    const imp = w => `<div class="cc-progress" style="width:90px" title="اهمیت ${fa(w)} از ۱۰"><i style="width:${(+w || 0) * 10}%"></i></div>`;
+    const row = (s, label) => `<tr><td>${label}${s.must ? ' <span class="chip sm warn">کلیدی</span>' : ""}</td><td>${e(name.level(s.lvl))}</td><td>${imp(s.w)}</td></tr>`;
+    return `<div class="table-wrap"><table class="data sd-table"><thead><tr><th>مهارت</th><th>سطح لازم</th><th>اهمیت</th></tr></thead><tbody>
+      ${byDevice(list).map(b => (b.device ? `<tr class="sd-row-dev"><td colspan="3">🔧 دستگاه: ${e(name.skill(b.device))}</td></tr>` + (b.base ? row(b.base.s, "کار با دستگاه") : "")
+        : (byDevice(list).length > 1 ? '<tr class="sd-row-dev"><td colspan="3">بدون دستگاه خاص</td></tr>' : "")) + b.items.map(({ s }) => row(s, e(name.skill(s.id)))).join("")).join("")}
+      </tbody></table></div>`;
+  }
+  const weightName = w => (w >= 9 ? "خیلی زیاد" : w >= 7 ? "زیاد" : w >= 4 ? "متوسط" : "کم");
+
   function productCard(pr, href) {
     const cat = AIO_PRODUCT_CATS.find(c => c.id === pr.cat) || {}, org = AIO_LABS.find(l => l.id === pr.orgId) || {};
     return `<a class="prod-card" href="${e(href || pr.url || "product.html?id=" + pr.id)}">
       <div class="pc-img" style="--pc:${pr.color || cat.color};--pbg:${cat.bg || "#f1f5f9"}">${pr.img ? `<img src="${e(pr.img)}" alt="">` : (typeof ICONS !== "undefined" ? (ICONS[cat.icon] || ICONS.flask) : "")}</div>
-      <div class="pc-body"><span class="pc-cat">${e(cat.name || "")}${pr.group && typeof Tax !== "undefined" ? " · " + e(Tax.name("groups", pr.group)) : ""}</span>${pr.isNew ? '<span class="pc-new">جدید</span>' : ""}<h3>${e(pr.name)}</h3>
+      <div class="pc-body"><span class="pc-cat">${pr.group && typeof Tax !== "undefined" ? e(Tax.name("groups", pr.group)) + " · " : ""}${e(cat.name || "")}</span>${pr.isNew ? '<span class="pc-new">جدید</span>' : ""}<h3>${e(pr.name)}</h3>
         ${pr.brand || pr.model ? `<small class="pc-brand" dir="auto">${e([pr.brand, pr.model].filter(Boolean).join(" · "))}</small>` : ""}
         <small>${e(org.name || "")}</small>
         <b class="pc-price">${pr.price ? fa(Number(pr.price).toLocaleString("en")).replace(/,/g, "٬") + " تومان" : "استعلام قیمت"}</b></div></a>`;
   }
 
-  return { e, fa, picker, setValue, val, O, name, orgType, monthYear, fullDate, dateVal, levels, fitBadge, ring, breakdown, candSummary, candDetail, builder, describe, slider, productCard, FIT };
+  return { byDevice, isDevice, skillTags, reqSkillsHTML, weightName, e, fa, picker, setValue, val, O, name, orgType, monthYear, fullDate, dateVal, levels, fitBadge, ring, breakdown, candSummary, candDetail, builder, describe, slider, productCard, FIT };
 })();

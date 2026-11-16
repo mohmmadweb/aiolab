@@ -16,7 +16,7 @@
 <meta property="og:url" content="https://demo.aiolab.ir/employer.html">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
-<link rel="stylesheet" href="assets/css/style.css?v=20261111c">
+<link rel="stylesheet" href="assets/css/style.css?v=20261116a">
 <style>body{background:var(--navy-50)}</style>
 </head>
 <body data-page="employer.html">
@@ -66,7 +66,7 @@
 
     <!-- ===== Register lab (map) ===== -->
     <section id="sec-addlab">
-      <h1 class="dash-title">ثبت آزمایشگاه یا شرکت</h1>
+      <h1 class="dash-title">دفتر اصلی (لوکیشن)</h1>
       <p class="dash-sub">اطلاعات مرکز را وارد کنید و موقعیت دقیق آن را روی نقشه پین کنید. پس از تأیید، مرکز شما در صفحه «آزمایشگاه‌ها» روی نقشه سراسری نمایش داده می‌شود.</p>
 
       <div class="panel">
@@ -116,7 +116,7 @@
 
       <!-- نقشه -->
       <div class="panel">
-        <h2>موقعیت روی نقشه *</h2>
+        <h2>لوکیشن دفتر اصلی روی نقشه *</h2>
         <p>روی نقشه کلیک کنید تا پین قرار بگیرد؛ می‌توانید پین را بکشید و جابه‌جا کنید.</p>
         <div class="map-tools">
           <button class="btn btn-outline btn-sm" onclick="locateMe()">📍 موقعیت فعلی من</button>
@@ -171,6 +171,19 @@
       <div id="org-market"></div>
     </section>
 
+    <!-- ===== کارت‌های ویزیت ===== -->
+    <section id="sec-cards">
+      <h1 class="dash-title">کارت‌های ویزیت</h1>
+      <p class="dash-sub">پیشنهادهایی که سازمان‌ها برای هم می‌فرستند؛ با پذیرش هر کارت، اطلاعات تماس شما برای فرستنده باز می‌شود.</p>
+      <div id="org-cards"></div>
+    </section>
+
+    <!-- ===== آگهی تبلیغاتی محصولات (شرکت) ===== -->
+    <section id="sec-ads">
+      <h1 class="dash-title">آگهی تبلیغاتی محصولات</h1>
+      <div id="org-ads"></div>
+    </section>
+
     <!-- ===== پرسنل آماده به کار ===== -->
     <section id="sec-otw">
       <h1 class="dash-title">پرسنل آماده به کار</h1>
@@ -186,7 +199,7 @@
 
     <!-- ===== Post job ===== -->
     <section id="sec-post">
-      <h1 class="dash-title">ثبت آگهی یا پوزیشن</h1>
+      <h1 class="dash-title">ثبت آگهی استخدام</h1>
       <p class="dash-sub">نیازمندی‌ها را از فهرست‌های استاندارد انتخاب کنید؛ همین معیارها مبنای تطبیق خودکار با رزومه‌هاست و همان لحظه می‌بینید چند نفر واجد شرایط‌اند.</p>
       <div id="pos-form"></div>
     </section>
@@ -393,36 +406,39 @@
 <footer id="site-footer" class="site-footer"></footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="assets/js/geo.js?v=20261111c"></script>
-<script src="assets/js/data.js?v=20261111c"></script>
-<script src="assets/js/talent-data.js?v=20261111c"></script>
-<script src="assets/js/match.js?v=20261111c"></script>
-<script src="assets/js/talent-ui.js?v=20261111c"></script>
-<script src="assets/js/i18n.js?v=20261111c"></script>
-<script src="assets/js/app.js?v=20261111c"></script>
-<script src="assets/js/map.js?v=20261111c"></script>
-<script src="assets/js/talent-center.js?v=20261111c"></script>
-<script src="assets/js/employer-talent.js?v=20261111c"></script>
-<script src="assets/js/challenges.js?v=20261111c"></script>
-<script src="assets/js/marketplace.js?v=20261111c"></script>
+<script src="assets/js/geo.js?v=20261116a"></script>
+<script src="assets/js/data.js?v=20261116a"></script>
+<script src="assets/js/talent-data.js?v=20261116a"></script>
+<script src="assets/js/match.js?v=20261116a"></script>
+<script src="assets/js/talent-ui.js?v=20261116a"></script>
+<script src="assets/js/i18n.js?v=20261116a"></script>
+<script src="assets/js/app.js?v=20261116a"></script>
+<script src="assets/js/map.js?v=20261116a"></script>
+<script src="assets/js/talent-center.js?v=20261116a"></script>
+<script src="assets/js/employer-talent.js?v=20261116a"></script>
+<script src="assets/js/challenges.js?v=20261116a"></script>
+<script src="assets/js/marketplace.js?v=20261116a"></script>
 <script>
 /* [بخش، عنوان، آیکن، فقط برای] — منو بر اساس پرسونا: lab | company (بدون مقدار = هر دو) */
 const NAV_ITEMS = [
   ["overview", "پیشخوان", "home"],
-  ["addlab", "ثبت سازمان روی نقشه", "pin"],
+  ["addlab", "دفتر اصلی (لوکیشن)", "pin"],
   ["orgprofile", "پروفایل، نوع و مدارک", "doc"],
   ["products", "محصولات من", "machine"],
   ["launch", "معرفی محصول جدید", "star", "company"],
   ["inquiries", "استعلام‌ها و درخواست‌ها", "comment"],
   ["market", "یافتن محصول و تعمیرکار", "wrench", "lab"],
-  ["market", "رقبا و آزمایشگاه‌ها", "building", "company"],
-  ["post", "ثبت آگهی / پوزیشن", "plus"],
+  ["market", "آزمایشگاه‌ها و مشتریان", "users", "company"],
+  ["cards", "کارت‌های ویزیت", "send"],
+  ["ads", "آگهی تبلیغاتی محصولات", "star", "company"],
+  ["post", "ثبت آگهی استخدام", "plus"],
   ["jobs", "آگهی‌های من", "briefcase"],
   ["applicants", "متقاضیان", "users"],
   ["resumes", "بانک رزومه", "search"],
   ["otw", "پرسنل آماده به کار", "users"],
   ["exambuilder", "طراحی آزمون و گواهی", "shield"],
-  ["training", "دوره‌های آموزشی من", "grad"],
+  ["training", "دوره‌های آموزشی من", "grad", "company"],
+  ["training", "آموزش پرسنل", "grad", "lab"],
   ["sponsor", "اسپانسری چالش علمی", "trophy"],
   ["matching", "تطبیق هوشمند", "path"],
   ["branding", "برند کارفرمایی", "shield"],
@@ -443,7 +459,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const persona = Auth.persona, isCo = persona === "company";
   document.getElementById("p-badge").textContent = isCo ? "شرکت تأییدشده ✔️" : "آزمایشگاه تأییدشده ✔️";
   document.getElementById("ov-title").textContent = isCo ? "پنل شرکت" : "پنل آزمایشگاه";
-  document.getElementById("market-title").textContent = isCo ? "رقبا و آزمایشگاه‌های هدف" : "یافتن محصول، تعمیرکار و آزمایشگاه‌های هم‌حوزه";
+  document.getElementById("market-title").textContent = isCo ? "آزمایشگاه‌ها و مشتریان" : "یافتن محصول، تعمیرکار و آزمایشگاه‌های هم‌حوزه";
   document.title = (isCo ? "پنل شرکت" : "پنل آزمایشگاه") + " | آیولب";
   const nav = document.getElementById("dash-nav");
   nav.insertAdjacentHTML("afterbegin", NAV_ITEMS.filter(x => !x[3] || x[3] === persona)
@@ -463,6 +479,13 @@ document.addEventListener("DOMContentLoaded", () => {
   if (isCo) OrgPanel.launch(document.getElementById("org-launch"));
   OrgPanel.market(document.getElementById("org-market"));
   OrgPanel.otw(document.getElementById("org-otw"));
+  OrgPanel.cards(document.getElementById("org-cards"));
+  if (isCo) OrgPanel.ads(document.getElementById("org-ads"));
+  /* آزمایشگاه‌ها دوره ثبت نمی‌کنند؛ فقط پرسنل خود را در دوره‌ها ثبت‌نام می‌کنند */
+  if (!isCo) { const cp = document.getElementById("my-created").closest(".panel"); cp.hidden = true; document.getElementById("training-stats").hidden = true;
+    const t = document.querySelector("#sec-training .dash-title"); t.textContent = "آموزش پرسنل"; document.querySelector("#sec-training .dash-sub").textContent = "پرسنل خود را در دوره‌های آکادمی ثبت‌نام کنید و پیشرفت‌شان را ببینید."; }
+  /* شرکت و آزمایشگاه جدا هستند: در ثبت دفتر اصلی فقط نوع خود حساب */
+  document.querySelectorAll("[name=lb-otype]").forEach(r => { if (r.value !== persona) r.closest("label").hidden = true; else r.checked = true; });
   if (typeof ChallengeSponsor !== "undefined") ChallengeSponsor.mount(document.getElementById("org-sponsor"), Store.get("my_org_id", 1));
   window.posForm = EmpTalent.positionForm(document.getElementById("pos-form"), () => { renderMyJobs(); showSec("jobs"); });
   TalentCenter.mount(document.getElementById("emp-talent"));

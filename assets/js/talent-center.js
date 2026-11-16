@@ -65,7 +65,7 @@ const TalentCenter = (() => {
     if (r.age) c.push("سن " + fa(r.age[0]) + "–" + fa(r.age[1]));
     if (r.gender && r.gender !== "فرقی نمی‌کند") c.push(r.gender);
     return `<div class="job-meta">${c.map(x => `<span class="chip">${e(x)}</span>`).join("")}</div>
-      <div class="tag-list" style="margin-top:8px">${(r.skills || []).map(s => `<span class="tag">${e(name.skill(s.id))} · ${e(name.level(s.lvl))} · وزن ${fa(s.w)}${s.must ? " · کلیدی" : ""}</span>`).join("")}</div>`;
+      <div style="margin-top:8px">${TUI.skillTags(r.skills || [], { req: true })}</div>`;
   }
   /* «چرا؟» — دو نکته‌ی مهم */
   function why(m) {

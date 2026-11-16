@@ -17,7 +17,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="assets/css/style.css?v=20261111c">
+<link rel="stylesheet" href="assets/css/style.css?v=20261116a">
 </head>
 <body data-page="labs.html">
 
@@ -59,6 +59,14 @@
       <div class="syllabus-head"><div><h2>محصولات</h2></div><a class="btn btn-sm btn-outline" id="l-allprod" href="products.html">همه محصولات</a></div>
       <div class="job-meta" id="l-pgroups" style="margin-bottom:12px"></div>
       <div class="prod-grid" id="l-products"></div>
+    </div>
+    <div class="panel" id="p-equip" hidden>
+      <h2>تجهیزات آزمایشگاه</h2>
+      <div class="table-wrap"><table class="data"><thead><tr><th>بخش</th><th>دستگاه</th><th>برند</th><th>مدل</th><th>تعداد</th></tr></thead><tbody id="l-equip"></tbody></table></div>
+    </div>
+    <div class="panel" id="p-ads" hidden>
+      <div class="syllabus-head"><div><h2>آگهی‌های این شرکت</h2></div><a class="btn btn-sm btn-outline" href="ads.html">همه‌ی آگهی‌ها</a></div>
+      <div class="ad-grid" id="l-ads"></div>
     </div>
     <div class="panel" id="p-repairs" hidden>
       <div class="syllabus-head"><div><h2>🔧 خدمات تعمیر و نگهداری</h2></div><button class="btn btn-sm btn-primary" type="button" id="b-repair">درخواست تعمیر</button></div>
@@ -138,13 +146,15 @@
       <div class="row" id="r-hours" hidden><span>ساعات کاری</span><b id="s-hours" style="max-width:60%;text-align:left"></b></div>
       <div class="row" id="r-phone" hidden><span>تلفن</span><b id="s-phone" dir="ltr"></b></div>
       <div class="job-meta" id="s-socials" style="margin-top:10px"></div>
+      <div id="s-contact"></div>
       <button class="btn btn-primary btn-block" style="margin-top:16px" id="b-quote" hidden>استعلام قیمت از این شرکت</button>
+      <button class="btn btn-outline btn-block" style="margin-top:8px" id="b-card">ارسال کارت ویزیت</button>
       <button class="btn btn-primary btn-block" style="margin-top:16px" onclick="msgLab()" id="b-msg">ارسال پیام</button>
     </div>
 
-    <!-- موقعیت روی نقشه -->
+    <!-- دفتر اصلی (لوکیشن) -->
     <div class="side-card">
-      <h2 style="font-size:16px;margin-bottom:10px">موقعیت روی نقشه</h2>
+      <h2 style="font-size:16px;margin-bottom:10px">دفتر اصلی</h2>
       <div id="lab-map" class="map-box small"></div>
       <p class="addr" id="s-address"></p>
     </div>
@@ -154,16 +164,16 @@
 <footer id="site-footer" class="site-footer"></footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="assets/js/geo.js?v=20261111c"></script>
-<script src="assets/js/data.js?v=20261111c"></script>
-<script src="assets/js/talent-data.js?v=20261111c"></script>
-<script src="assets/js/match.js?v=20261111c"></script>
-<script src="assets/js/talent-ui.js?v=20261111c"></script>
-<script src="assets/js/i18n.js?v=20261111c"></script>
-<script src="assets/js/app.js?v=20261111c"></script>
-<script src="assets/js/map.js?v=20261111c"></script>
-<script src="assets/js/challenges.js?v=20261111c"></script>
-<script src="assets/js/marketplace.js?v=20261111c"></script>
+<script src="assets/js/geo.js?v=20261116a"></script>
+<script src="assets/js/data.js?v=20261116a"></script>
+<script src="assets/js/talent-data.js?v=20261116a"></script>
+<script src="assets/js/match.js?v=20261116a"></script>
+<script src="assets/js/talent-ui.js?v=20261116a"></script>
+<script src="assets/js/i18n.js?v=20261116a"></script>
+<script src="assets/js/app.js?v=20261116a"></script>
+<script src="assets/js/map.js?v=20261116a"></script>
+<script src="assets/js/challenges.js?v=20261116a"></script>
+<script src="assets/js/marketplace.js?v=20261116a"></script>
 <script>
 const METRIC_LABELS = { salary: "حقوق و مزایا", environment: "محیط کاری", learning: "یادگیری و آموزش",
                         management: "مدیریت", worklife: "تعادل کار و زندگی" };
@@ -283,6 +293,20 @@ function renderOrgExtras(L, isCo) {
   /* مدارک تأییدشده */
   const docs = L.documents || [], ok = docs.filter(d => d.status === "verified");
   if (docs.length) { $("r-docs").hidden = false; $("s-docs").textContent = ok.length ? "✔️ " + fa(ok.length) + " مدرک تأییدشده" : "در حال بررسی"; $("s-docs").title = ok.map(d => d.kind).join("، "); }
+  /* تجهیزات (شناسنامه‌ی آزمایشگاه) */
+  if (!isCo && (L.equipment || []).length) { show("p-equip");
+    $("l-equip").innerHTML = L.equipment.map(r => `<tr><td>${e(Tax.name("groups", r.group))}</td><td>${e(Tax.itemName(r.item))}</td><td dir="auto">${e(Tax.brandName(r.brand))}</td><td dir="ltr">${e(r.model || "")}</td><td>${fa(r.count || 1)}</td></tr>`).join(""); }
+  /* آگهی‌های محصولات شرکت */
+  const myAds = ProductAds.active().filter(a => +a.orgId === L.id);
+  if (isCo && myAds.length) { show("p-ads"); $("l-ads").innerHTML = myAds.map(adCardHTML).join(""); }
+  /* اطلاعات تماس فقط پس از پذیرش کارت ویزیت (یا برای خود سازمان) */
+  const see = canSeeContact(L.id), me = viewerOrg();
+  if (!see) { $("r-phone").hidden = true; $("s-socials").innerHTML = "";
+    const pend = me && Cards.between(me, L.id).find(c => c.status === "pending");
+    $("s-contact").innerHTML = `<p class="muted bc-lock">🔒 اطلاعات تماس ${isCo ? "این شرکت" : "این مرکز"} پس از پذیرش کارت ویزیت شما نمایش داده می‌شود.${pend ? " (کارت شما در انتظار پاسخ است)" : ""}</p>`; }
+  else if (me && me !== L.id) { $("r-phone").hidden = true; $("s-contact").innerHTML = '<p class="muted bc-lock">✓ کارت ویزیت پذیرفته شده؛ اطلاعات تماس:</p>' + contactHTML(L); }
+  $("b-card").hidden = me === L.id;
+  $("b-card").onclick = () => cardDialog({ toOrg: L.id, done: () => location.reload() });
   /* استعلام از شرکت */
   if (isCo) { $("b-quote").hidden = false; $("b-quote").onclick = () => inquiryDialog({ kind: "quote", toOrg: L.id }); $("b-msg").className = "btn btn-outline btn-block"; $("b-msg").style.marginTop = "8px"; }
   /* دوره‌های این مجموعه (ارائه‌دهنده = همین سازمان) */

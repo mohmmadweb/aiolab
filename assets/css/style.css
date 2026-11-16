@@ -2525,3 +2525,119 @@ table.data.spec-table { min-width: 0; }
 .sx-table table.data { font-size: 13px; }
 .sx-table td:first-child { min-width: 150px; }
 @media (max-width: 720px) { .sx-table td:first-child { min-width: 0; } }
+
+/* =====================================================================
+   لایه ۷ (۱۴۰۵/۰۸/۲۵) — طراحی ساده‌تر و خلوت‌تر، کارت ویزیت، آگهی محصولات، مشتریان شرکت
+   ===================================================================== */
+/* خلوت‌تر: فاصله‌ها و سایه‌های آرام‌تر، سرتیترهای کوچک‌تر */
+.section { padding: 56px 0; }
+.section-head { margin-bottom: 24px; }
+.section-head h2 { font-size: 23px; }
+.section-head p { font-size: 14px; }
+.hero-center { padding: 56px 0 80px; }
+.hero-center h1 { font-size: 36px; }
+.persona-card, .pulse-card, .ctype, .lab-card, .prod-card, .ad-card { box-shadow: none; }
+.persona-card { padding: 16px; border-top-width: 3px; }
+.persona-card li { border-bottom: 0; padding: 4px 0; }
+.persona-card ul { margin-bottom: 12px; }
+.pulse-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.pulse-main { display: block; color: var(--navy-900); }
+.pulse-main b { display: block; font-size: 15px; line-height: 1.8; }
+.pulse-main small { color: var(--navy-500); font-size: 12.5px; }
+.home-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.ro-field { padding: 10px 12px; background: var(--navy-50); border: 1px solid var(--navy-100); border-radius: var(--radius-sm); color: var(--navy-700); }
+
+/* کارت ویزیت */
+.biz-card { border: 1px solid var(--navy-100); border-radius: var(--radius-sm); padding: 14px; background: linear-gradient(135deg, #fff, var(--teal-50)); }
+.bc-top { display: flex; gap: 10px; align-items: center; }
+.bc-top small { display: block; color: var(--navy-500); font-size: 12.5px; }
+.bc-offer { margin: 10px 0 6px; font-size: 14px; color: var(--navy-700); }
+.bc-contact { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--navy-600); margin-top: 6px; }
+.bc-contact b { font-weight: 600; }
+.bc-row { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 12px; }
+.bc-row .biz-card { flex: 1; min-width: 0; }
+.bc-side { display: flex; flex-direction: column; gap: 6px; align-items: stretch; width: 190px; flex: none; }
+.bc-lock { font-size: 13px; margin: 10px 0 0; }
+
+/* آگهی محصولات */
+.ad-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+.ad-card { background: #fff; border: 1px solid var(--navy-100); border-radius: var(--radius); overflow: hidden; display: flex; flex-direction: column; height: 100%; }
+.ad-card.featured { border-color: #fcd34d; }
+.ad-media { position: relative; display: flex; align-items: center; justify-content: center; aspect-ratio: 16/7; background: var(--pbg); color: var(--pc); }
+.ad-media svg { width: 40px; height: 40px; }
+.ad-media img { width: 100%; height: 100%; object-fit: cover; }
+.ad-tag { position: absolute; top: 10px; inset-inline-start: 10px; background: #f59e0b; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 99px; }
+.ad-body { padding: 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.ad-body h3 { font-size: 15.5px; margin: 0; line-height: 1.8; }
+.ad-body h3 a { color: var(--navy-900); }
+.ad-body p { font-size: 13.5px; color: var(--navy-600); margin: 0; }
+.ad-offer { align-self: flex-start; background: var(--amber-100); color: #92400e; font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 8px; }
+.ad-foot { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13px; margin-top: auto; }
+
+/* مشتریان شرکت */
+.cust-list { display: flex; flex-direction: column; gap: 10px; }
+.cust-row { margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.cust-main { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.cust-note { width: 100%; }
+.cust-row .fb-actions select { flex: 0 1 220px; }
+
+@media (max-width: 900px) { .pulse-grid { grid-template-columns: 1fr; } }
+@media (max-width: 720px) {
+  .hero-center h1 { font-size: 28px; }
+  .bc-row { flex-direction: column; }
+  .bc-side { width: 100%; flex-direction: row; flex-wrap: wrap; align-items: center; }
+}
+
+/* ---------- لایه ۷: رزومه و آگهی (مهارت روی دستگاه، برچسب سطح، پیش‌نمایش آگهی) ---------- */
+/* موقت: استایل فرم‌های رزومه/آگهی (مهارت×دستگاه، پیش‌نمایش آگهی) — بعداً در style.css ادغام می‌شود */
+
+/* ---------- مهارت × دستگاه (رزومه و آگهی) ---------- */
+.sd-block { border: 1px solid var(--navy-100); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 10px; background: #fff; }
+.sd-block.sd-plain { background: var(--navy-50); }
+.sd-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+.sd-head b { font-size: 14px; color: var(--navy-900); }
+.sd-add { margin-top: 6px; }
+.sd-newdev { margin-top: 6px; max-width: 320px; }
+.sd-lv { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.sd-block .rb-skill { flex-wrap: wrap; gap: 6px; }
+/* نام سطح همیشه کنار نوار */
+.tui-levels small { font-weight: 700; color: var(--teal-700); }
+
+/* نیاز آگهی: سطح، اهمیت، کلیدی — عنوان کنار هر نوار */
+.req-skill { display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px dashed var(--navy-100); }
+.req-skill:last-of-type { border-bottom: 0; }
+.req-skill .rs-name { flex: 1 1 150px; font-size: 13.5px; }
+.req-skill .rs-lv, .req-skill .rs-w { display: inline-flex; align-items: center; gap: 6px; }
+.req-skill .rs-lv > small, .req-skill .rs-w > small { color: var(--navy-500); font-size: 12px; }
+.req-skill .rs-w input[type=range] { width: 110px; }
+.req-skill .rs-w b { font-size: 12.5px; color: var(--teal-700); min-width: 74px; }
+
+/* نمایش گروه‌بندی‌شده */
+.sd-tags { margin-bottom: 8px; }
+.sd-dev { display: block; font-size: 13px; color: var(--navy-800); margin-bottom: 4px; }
+.sd-dev small { color: var(--teal-700); font-weight: 600; }
+.sd-dev.sd-none { color: var(--navy-500); }
+.sd-table .sd-row-dev td { background: var(--navy-50); font-weight: 700; color: var(--navy-800); }
+
+/* حقوق از/تا در یک ستون */
+.sal-pair { display: flex; align-items: center; gap: 6px; }
+.sal-pair input { flex: 1 1 0; min-width: 0; }
+.sal-pair span { color: var(--navy-500); font-size: 13px; }
+
+/* پیش‌نمایش آگهی */
+.jp-modal { position: fixed; inset: 0; background: rgba(15, 23, 42, .5); display: flex; align-items: center; justify-content: center; z-index: 300; padding: 16px; }
+.jp-dialog { background: #fff; border-radius: var(--radius); width: min(760px, 100%); max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-lg); }
+.jp-bar { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; padding: 14px 18px; border-bottom: 1px solid var(--navy-100); }
+.jp-bar .muted { font-size: 12.5px; }
+.jp-body { padding: 16px 18px; overflow: auto; }
+.jp-body h2 { font-size: 19px; margin: 0; }
+.jp-body h3 { font-size: 15px; margin: 16px 0 8px; }
+.jp-head { display: flex; gap: 12px; align-items: center; margin-bottom: 10px; }
+.jp-head p { margin: 2px 0 0; color: var(--navy-500); font-size: 13.5px; }
+.jp-desc { white-space: pre-line; }
+.jp-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 12px 18px; border-top: 1px solid var(--navy-100); }
+@media (max-width: 720px) {
+  .req-skill .rs-name { flex-basis: 100%; }
+  .sd-newdev { max-width: none; }
+}
+#org-market .lab-filters input, #org-market .lab-filters select { flex: 1 1 160px; min-width: 0; }

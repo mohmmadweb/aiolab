@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>آگهی محصولات و خدمات | آیولب</title>
+<meta name="description" content="آگهی‌های تبلیغاتی شرکت‌های تجهیزات، کیت و خدمات آزمایشگاهی: پیشنهادهای ویژه، دستگاه‌های تازه و خدمات تعمیر.">
+<meta name="theme-color" content="#0d9488">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://demo.aiolab.ir/ads.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="آیولب">
+<meta property="og:locale" content="fa_IR">
+<meta property="og:title" content="آگهی محصولات و خدمات | آیولب">
+<meta property="og:description" content="آگهی‌های تبلیغاتی شرکت‌های تجهیزات، کیت و خدمات آزمایشگاهی.">
+<meta property="og:url" content="https://demo.aiolab.ir/ads.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='4' y='4' width='40' height='40' rx='12' fill='%230d9488'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<link rel="stylesheet" href="assets/css/style.css?v=20261116a">
+</head>
+<body data-page="ads.html">
+
+<header id="site-header" class="site-header"></header>
+
+<div class="page-head">
+  <div class="container">
+    <div class="breadcrumb"><a href="index.html">خانه</a> / <a href="companies.html">شرکت‌ها</a> / آگهی محصولات</div>
+    <h1>آگهی محصولات و خدمات</h1>
+    <p>پیشنهادهای ویژه، دستگاه‌های تازه و خدمات تعمیر شرکت‌ها؛ مستقیم استعلام بگیرید یا کارت ویزیت بفرستید.</p>
+  </div>
+</div>
+<section class="section" style="padding-top:24px">
+  <div class="container">
+    <div class="lab-filters">
+      <input type="text" id="a-q" placeholder="عنوان، محصول یا شرکت…" aria-label="جستجو">
+      <select id="a-group" aria-label="گروه"><option value="">همه‌ی گروه‌ها</option></select>
+      <select id="a-ctype" aria-label="نوع شرکت"><option value="">همه‌ی انواع شرکت</option></select>
+      <label class="check-item inline"><input type="checkbox" id="a-offer"> فقط دارای پیشنهاد ویژه</label>
+      <a class="btn btn-primary" href="employer.html#ads" style="margin-inline-start:auto">+ ثبت آگهی شرکت من</a>
+    </div>
+    <p class="muted" id="a-count" style="margin:6px 0 14px"></p>
+    <div class="ad-grid" id="a-grid"></div>
+  </div>
+</section>
+
+<footer id="site-footer" class="site-footer"></footer>
+
+<script src="assets/js/geo.js?v=20261116a"></script>
+<script src="assets/js/data.js?v=20261116a"></script>
+<script src="assets/js/talent-data.js?v=20261116a"></script>
+<script src="assets/js/match.js?v=20261116a"></script>
+<script src="assets/js/talent-ui.js?v=20261116a"></script>
+<script src="assets/js/i18n.js?v=20261116a"></script>
+<script src="assets/js/app.js?v=20261116a"></script>
+<script src="assets/js/marketplace.js?v=20261116a"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const add = (id, list) => document.getElementById(id).insertAdjacentHTML("beforeend", list.map(x => `<option value="${x.id}">${TUI.e(x.name)}</option>`).join(""));
+  add("a-group", Tax.list("groups")); add("a-ctype", Tax.list("companyTypes"));
+  const g = qs("group"); if (g) document.getElementById("a-group").value = g;
+  document.querySelectorAll(".lab-filters input, .lab-filters select").forEach(el => el.addEventListener("input", render));
+  render();
+});
+function render() {
+  const q = document.getElementById("a-q").value.trim(), g = document.getElementById("a-group").value, t = document.getElementById("a-ctype").value, off = document.getElementById("a-offer").checked;
+  const list = ProductAds.active().filter(a => {
+    const p = aioProducts().find(x => x.id === +a.productId) || {}, o = orgFull(a.orgId) || {};
+    return (!q || [a.title, a.text, p.name, o.name].some(x => String(x || "").includes(q))) && (!g || p.group === g) && (!t || orgCompanyTypes(o).includes(t)) && (!off || a.offer);
+  });
+  document.getElementById("a-count").textContent = fa(list.length) + " آگهی";
+  document.getElementById("a-grid").innerHTML = list.map(adCardHTML).join("") || '<div class="empty-state" style="grid-column:1/-1"><b>آگهی‌ای پیدا نشد</b>فیلترها را تغییر دهید.</div>';
+}
+</script>
+</body>
+</html>

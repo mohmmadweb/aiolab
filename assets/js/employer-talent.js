@@ -39,7 +39,9 @@ const EmpTalent = (() => {
 
   /* آداپتور ذخیره‌سازی: دمو = حافظه‌ی مرورگر؛ وردپرس = API سرور (window.EMP_ADAPTER) */
   const A = Object.assign({
-    orgs: () => AIO_LABS.map(l => [l.id, l.name]),
+    /* شرکت و آزمایشگاه جدا هستند: هر حساب فقط سازمان‌های هم‌نوع خودش را می‌بیند */
+    orgs: () => { const t = typeof Auth !== "undefined" && Auth.persona; return AIO_LABS.filter(l => !t || !["lab", "company"].includes(t) || TUI.orgType(orgFull(l.id) || l) === t).map(l => [l.id, l.name]); },
+    persona: () => (typeof Auth !== "undefined" && ["lab", "company"].includes(Auth.persona)) ? Auth.persona : "",
     orgId: () => Store.get("my_org_id", 1),
     setOrgId: id => Store.set("my_org_id", +id),
     org: id => orgFull(id),
@@ -69,7 +71,8 @@ const EmpTalent = (() => {
     if (!o) { host.innerHTML = '<div class="empty-inline">ابتدا سازمان خود را در بخش «ثبت سازمان روی نقشه» ثبت کنید.</div>'; return; }
     const D = Object.assign({ orgType: "lab", tagline: "", about: "", services: [], accreditations: [], hoursSpec: { days: [0, 1, 2, 3, 4], from: 8, to: 17, h24: false },
       phone: "", email: "", website: "", socials: {}, video: "", branches: "", staff: "", founded: "", gallery: [],
-      labType: "", companyTypes: [], groups: [], represents: [], repairs: [], ceo: {}, catalogs: [], documents: [] }, clone(o));
+      labType: "", companyTypes: [], groups: [], represents: [], repairs: [], equipment: [], ceo: {}, catalogs: [], documents: [] }, clone(o));
+    if (A.persona()) D.orgType = A.persona();
     if (!D.companyTypes.length && typeof orgCompanyTypes === "function") D.companyTypes = orgCompanyTypes(D).slice();
     D.ceo = D.ceo || {};
     /* لینک‌های نمونه‌ی «#» معتبر نیستند و نباید جلوی ذخیره را بگیرند */
@@ -104,6 +107,18 @@ const EmpTalent = (() => {
             <button type="button" class="btn btn-sm btn-ghost danger" data-rmrep="${i}" aria-label="حذف ردیف">×</button></div>`).join("") || '<div class="empty-inline">هنوز خدمتی ثبت نشده است.</div>'}
           <button type="button" class="tp-add" data-addrep style="margin-top:8px">+ دستگاه / برند تازه</button></div>`;
       }
+      if (!isCo) {
+        h += `<div class="panel"><h2>تجهیزات آزمایشگاه</h2>
+          <p class="muted" style="font-size:13px">دستگاه‌هایی که در آزمایشگاه دارید (گروه ← دستگاه ← برند ← مدل). شرکت‌ها برای سرویس، معرف و قطعه همین را می‌بینند و می‌توانند کارت ویزیت بفرستند؛ کارجوها هم می‌بینند با چه دستگاه‌هایی کار خواهند کرد.</p>
+          ${D.equipment.map((r, i) => `<div class="rep-row">
+            <div class="form-field"><label>گروه</label>${TUI.picker({ options: tOpts("groups"), value: r.group, onChange: v => { r.group = v; r.item = ""; draw(); } })}</div>
+            <div class="form-field"><label>دستگاه</label>${TUI.picker({ allowNew: true, options: [...groupItems(r.group), ...(r.item && !Tax.find("items", r.item) ? [[r.item, r.item + " (پیشنهادی)"]] : [])], value: r.item, onChange: v => r.item = v, onNew: v => Tax.propose("items", { id: v, name: v, group: r.group, kind: "device" }, byName()) })}</div>
+            <div class="form-field"><label>برند</label>${TUI.picker({ allowNew: true, options: tOpts("brands", [r.brand]), value: r.brand, onChange: v => r.brand = v, onNew: v => Tax.propose("brands", { id: v, name: v }, byName()) })}</div>
+            <div class="form-field"><label>مدل</label><input type="text" dir="ltr" maxlength="60" data-eq="${i}:model" value="${e(r.model || "")}" placeholder="912"></div>
+            <div class="form-field" style="flex:0 1 90px"><label>تعداد</label><input type="number" min="1" max="99" data-eq="${i}:count" value="${e(r.count || 1)}"></div>
+            <button type="button" class="btn btn-sm btn-ghost danger" data-rmeq="${i}" aria-label="حذف ردیف">×</button></div>`).join("") || '<div class="empty-inline">هنوز دستگاهی ثبت نشده است.</div>'}
+          <button type="button" class="tp-add" data-addeq style="margin-top:8px">+ دستگاه</button></div>`;
+      }
       const C = D.ceo;
       h += `<div class="panel"><h2>${isCo ? "معرفی مدیرعامل" : "معرفی مدیر / مسئول فنی"} <small class="muted" style="font-weight:400">(اختیاری)</small></h2><div class="form-grid">
           <div class="form-field"><label>نام</label><input type="text" maxlength="80" data-ceo="name" value="${e(C.name || "")}"></div>
@@ -128,7 +143,7 @@ const EmpTalent = (() => {
       host.innerHTML = `
       <div class="panel"><div class="form-grid">
         <div class="form-field"><label>سازمانی که مدیریت می‌کنید</label>${TUI.picker({ options: A.orgs(), value: id, onChange: v => { A.setOrgId(+v); orgProfile(host); if (window.EmpProducts) EmpProducts(); } })}</div>
-        <div class="form-field"><label>نوع سازمان</label>${TUI.picker({ options: O.orgTypes(), value: D.orgType, onChange: v => { D.orgType = v; draw(); } })}</div>
+        <div class="form-field"><label>نوع سازمان</label><div class="ro-field">${D.orgType === "company" ? "شرکت" : "آزمایشگاه / مرکز"}</div></div>
         <div class="form-field full"><label>شعار / معرفی یک‌خطی</label><input type="text" maxlength="90" data-k="tagline" value="${e(D.tagline)}"></div>
         <div class="form-field full"><label>درباره سازمان</label><textarea rows="4" maxlength="1500" data-k="about">${e(D.about)}</textarea></div>
       </div></div>
@@ -171,6 +186,7 @@ const EmpTalent = (() => {
       if (t.dataset.gal) D.gallery[+t.dataset.gal].t = t.value;
       if (t.dataset.ceo) D.ceo[t.dataset.ceo] = t.value;
       if (t.dataset.rep) D.repairs[+t.dataset.rep].models = t.value;
+      if (t.dataset.eq) { const [i, k] = t.dataset.eq.split(":"); D.equipment[+i][k] = k === "count" ? (+t.value || 1) : t.value; }
       if (t.dataset.h) { D.hoursSpec[t.dataset.h] = +t.value; host.querySelector("[data-hours]").textContent = "نمایش: " + hours(D.hoursSpec); }
     };
     host.onchange = async ev => {
@@ -194,7 +210,9 @@ const EmpTalent = (() => {
       }
     };
     host.onclick = ev => {
-      const b = ev.target.closest("[data-day],[data-rmg],[data-mv],[data-save],[data-addrep],[data-rmrep],[data-rmfile],[data-rmceoimg]"); if (!b) return;
+      const b = ev.target.closest("[data-day],[data-rmg],[data-mv],[data-save],[data-addrep],[data-rmrep],[data-addeq],[data-rmeq],[data-rmfile],[data-rmceoimg]"); if (!b) return;
+      if (b.dataset.addeq !== undefined) { D.equipment.push({ group: (D.groups || [])[0] || "", item: "", brand: "", model: "", count: 1 }); draw(); return; }
+      if (b.dataset.rmeq) { D.equipment.splice(+b.dataset.rmeq, 1); draw(); return; }
       if (b.dataset.addrep !== undefined) { D.repairs.push({ group: (D.groups || [])[0] || "", item: "", brand: "", models: "" }); draw(); return; }
       if (b.dataset.rmrep) { D.repairs.splice(+b.dataset.rmrep, 1); draw(); return; }
       if (b.dataset.rmfile) { const [k, i] = b.dataset.rmfile.split(":"); D[k].splice(+i, 1); draw(); return; }
@@ -205,6 +223,7 @@ const EmpTalent = (() => {
       if (b.dataset.save !== undefined) {
         if (D.orgType === "company" && hasTax && !D.companyTypes.length) return toast("نوع شرکت را انتخاب کنید (تولیدی، وارداتی، توزیع یا خدماتی)");
         D.repairs = (D.repairs || []).filter(r => r.item && r.brand);
+        D.equipment = (D.equipment || []).filter(r => r.item);
         const urls = [D.website, D.video, D.ceo && D.ceo.linkedin, ...Object.values(D.socials || {})].filter(Boolean);
         if (urls.some(u => !/^https:\/\/[^\s<>"']+$/.test(u))) return toast("لینک‌ها باید با https:// شروع شوند");
         if (D.video && !videoOk(D.video)) return toast("لینک ویدئو فقط از این سایت‌ها پذیرفته می‌شود: " + videoHosts().join("، "));
@@ -213,7 +232,7 @@ const EmpTalent = (() => {
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(D.email || "")) return toast("ایمیل سازمان لازم است تا متقاضیان و اطلاع‌رسانی‌ها به آن برسند");
         D.phone = ph;
         const keep = ["orgType", "tagline", "about", "services", "accreditations", "hoursSpec", "phone", "email", "website", "socials", "video", "branches", "staff", "founded", "gallery",
-          "labType", "companyTypes", "groups", "represents", "repairs", "ceo", "catalogs", "documents"];
+          "labType", "companyTypes", "groups", "represents", "repairs", "equipment", "ceo", "catalogs", "documents"];
         const out = {}; keep.forEach(k => out[k] = D[k]); out.hours = hours(D.hoursSpec);
         b.classList.add("is-busy");
         A.saveOrg(id, out).then(() => toast("پروفایل سازمان ذخیره شد ✓ صفحه‌ی عمومی به‌روز است"), fail).finally(() => b.classList.remove("is-busy"));
@@ -232,11 +251,12 @@ const EmpTalent = (() => {
     }
     function form(d) {
       return `<div class="panel rb-form"><div class="form-grid">
-        <div class="form-field"><label>دسته *</label>${TUI.picker({ options: O.productCats(), value: d.cat || "", onChange: v => { d.cat = v; draw(); } })}</div>
         ${hasTax ? `<div class="form-field"><label>گروه (حوزه)</label>${TUI.picker({ options: Tax.list("groups").map(g => [g.id, g.name]), value: d.group || "", onChange: v => { d.group = v; d.item = ""; draw(); } })}</div>
+        <div class="form-field"><label>دسته *</label>${TUI.picker({ options: O.productCats(), value: d.cat || "", onChange: v => { d.cat = v; draw(); } })}</div>
         <div class="form-field"><label>تعریف محصول (مثلاً TSH، اتوآنالایزر)</label>${TUI.picker({ allowNew: true, placeholder: d.group ? "انتخاب یا افزودن" : "اول گروه را انتخاب کنید",
           options: [...Tax.itemsOf(d.group).map(i => [i.id, i.name]), ...(d.item && !Tax.find("items", d.item) ? [[d.item, d.item + " (پیشنهادی)"]] : [])], value: d.item || "",
-          onChange: v => d.item = v, onNew: v => Tax.propose("items", { id: v, name: v, group: d.group, kind: d.cat === "analyzer" || d.cat === "equipment" ? "device" : "test" }, (A.org(myOrgId()) || {}).name) })}</div>` : ""}
+          onChange: v => d.item = v, onNew: v => Tax.propose("items", { id: v, name: v, group: d.group, kind: d.cat === "analyzer" || d.cat === "equipment" ? "device" : "test" }, (A.org(myOrgId()) || {}).name) })}</div>`
+          : `<div class="form-field"><label>دسته *</label>${TUI.picker({ options: O.productCats(), value: d.cat || "", onChange: v => { d.cat = v; draw(); } })}</div>`}
         <div class="form-field"><label>نام محصول *</label><input type="text" maxlength="120" data-p="name" value="${e(d.name || "")}"></div>
         <div class="form-field"><label>برند / سازنده</label><input type="text" maxlength="60" data-p="brand" value="${e(d.brand || "")}" list="brand-list" placeholder="از فهرست انتخاب یا تایپ کنید">
           ${hasTax ? `<datalist id="brand-list">${Tax.list("brands").map(b => `<option value="${e(b.name)}">${e(b.country || "")}</option>`).join("")}</datalist>` : ""}</div>
@@ -329,23 +349,76 @@ const EmpTalent = (() => {
       r.role = D.role;
       return Object.assign({}, D, { req: r });
     }
+    /* بلوک‌های مهارت × دستگاه: هر ردیف سطح لازم (با نام سطح کنار نوار)، اهمیت (با عنوان کنار نوار) و «کلیدی» */
+    function reqRow(s, i, label) {
+      return `<div class="req-skill"><b class="rs-name">${label}</b>
+        <span class="rs-lv"><small>سطح لازم</small><span data-sklv="${i}">${TUI.levels({ value: s.lvl })}</span></span>
+        <span class="rs-w"><small>اهمیت</small><input type="range" min="1" max="10" data-sk="${i}:w" value="${s.w}" aria-label="اهمیت"><b data-wv="${i}">${fa(s.w)} · ${TUI.weightName(s.w)}</b></span>
+        <label class="check-item inline"><input type="checkbox" data-sk="${i}:must" ${s.must ? "checked" : ""}> کلیدی</label>
+        <button type="button" class="btn btn-sm btn-ghost danger" data-rmsk="${i}" aria-label="حذف">×</button></div>`;
+    }
+    function reqBlocks(R) {
+      const blocks = TUI.byDevice(R.skills);
+      if (!blocks.some(b => !b.device)) blocks.push({ device: "", base: null, items: [] });
+      return blocks.map(b => `<div class="sd-block${b.device ? "" : " sd-plain"}">
+        <div class="sd-head"><b>${b.device ? "🔧 دستگاه: " + e(name.skill(b.device)) : "مهارت‌های بدون دستگاه خاص"}</b>${b.device ? `<button type="button" class="btn btn-sm btn-ghost danger" data-rmdev="${e(b.device)}">حذف دستگاه</button>` : ""}</div>
+        ${b.base ? reqRow(b.base.s, b.base.i, "کار با دستگاه (کلی)") : ""}
+        ${b.items.map(({ s: x, i }) => reqRow(x, i, e(name.skill(x.id)))).join("") || (b.device ? "" : '<div class="empty-inline">موردی ندارد.</div>')}
+        <div class="sd-add">${TUI.picker({ multi: true, options: O.plainSkills().filter(o => !b.items.some(({ s: x }) => x.id === o[0])), value: [], addLabel: b.device ? "مهارت روی این دستگاه" : "مهارت",
+          onChange: v => { v.forEach(id => { if (!R.skills.some(x => x.id === id && (x.device || "") === b.device)) R.skills.push(Object.assign({ id, w: 5, lvl: 3, must: false }, b.device ? { device: b.device } : {})); }); draw(); } })}</div></div>`).join("");
+    }
+    /* پیش‌نمایش کامل آگهی قبل از ثبت — همان چیزی که کارجو می‌بیند */
+    function previewModal(job, org, onOk) {
+      const r = job.req || {};
+      const crit = [];
+      if (r.seniority) crit.push(["رده شغلی", name.seniority(r.seniority)]);
+      crit.push(["حداقل سابقه کل", r.minExp ? AioDate.durText(r.minExp) : "نیاز نیست"]);
+      if (r.expDept) crit.push(["سابقه در همین بخش", AioDate.durText(r.expDept)]);
+      if (r.degree) crit.push(["حداقل مدرک", name.degree(r.degree) + ((r.fields || []).length ? " — " + r.fields.join("، ") : "")]);
+      (r.licenses || []).forEach(l => crit.push(["مدرک الزامی", name.license(l)]));
+      (r.langs || []).forEach(l => crit.push(["زبان", name.lang(l.id) + " — حداقل " + name.langLevel(l.lvl)]));
+      if (r.age) crit.push(["بازه سنی", fa(r.age[0]) + " تا " + fa(r.age[1]) + " سال"]);
+      if (r.gender) crit.push(["جنسیت", r.gender]);
+      if ((r.military || []).length) crit.push(["نظام وظیفه (آقایان)", r.military.join("، ")]);
+      const box = document.createElement("div");
+      box.className = "jp-modal";
+      box.innerHTML = `<div class="jp-dialog" role="dialog" aria-modal="true" aria-label="پیش‌نمایش آگهی">
+        <div class="jp-bar"><b>پیش‌نمایش آگهی</b><span class="muted">آگهی دقیقاً همین‌طور به کارجوها نشان داده می‌شود</span></div>
+        <div class="jp-body">
+          <div class="jp-head"><div class="job-logo" style="background:${e(org.color || "#0d9488")}">${e((org.name || "؟").replace("آزمایشگاه ", "").replace("شرکت ", "").charAt(0))}</div>
+            <div><h2>${e(job.title)}</h2><p>${e(job.orgName || org.name || "")} · ${e(job.city || "")}${job.provinceId ? "، " + e(name.province ? name.province(job.provinceId) : "") : ""}</p></div></div>
+          <div class="job-meta"><span class="chip teal">${e(name.dept(job.dept))}</span><span class="chip">${e(job.type || "")}</span><span class="chip">شیفت ${e(job.shift || "")}</span>
+            <span class="chip">${e(job.salary)}</span>${job.remote ? '<span class="chip">امکان دورکاری</span>' : ""}<span class="chip">${e(name.role(job.role))}</span></div>
+          ${job.desc ? `<h3>شرح موقعیت شغلی</h3><p class="jp-desc">${e(job.desc)}</p>` : ""}
+          ${(job.benefits || []).length ? `<h3>مزایا</h3><div class="job-meta">${job.benefits.map(x => `<span class="chip teal">${e(x)}</span>`).join("")}</div>` : ""}
+          <h3>شرایط احراز</h3><div class="table-wrap"><table class="data spec-table"><tbody>${crit.map(([k, v]) => `<tr><td>${e(k)}</td><td>${e(v)}</td></tr>`).join("")}</tbody></table></div>
+          <h3>مهارت‌ها و دستگاه‌ها</h3>${TUI.reqSkillsHTML(r.skills || [])}
+        </div>
+        <div class="jp-foot"><button type="button" class="btn btn-ghost" data-back>ویرایش</button><button type="button" class="btn btn-primary" data-ok>تأیید و ${D.id ? "ذخیره تغییرات" : "ثبت آگهی"}</button></div></div>`;
+      document.body.appendChild(box);
+      const close = () => { box.remove(); document.removeEventListener("keydown", esc); };
+      const esc = ev => { if (ev.key === "Escape") close(); };
+      document.addEventListener("keydown", esc);
+      box.onclick = ev => {
+        if (ev.target === box || ev.target.closest("[data-back]")) return close();
+        const ok = ev.target.closest("[data-ok]");
+        if (ok) { ok.classList.add("is-busy"); onOk(close, ok); }
+      };
+      box.querySelector("[data-ok]").focus();
+    }
     function draw() {
       const R = D.req;
       host.innerHTML = `
       <div class="panel"><h2>اطلاعات پوزیشن</h2><div class="form-grid">
-        <div class="form-field full"><label>نمایش</label><div style="display:flex;gap:18px;flex-wrap:wrap">
-          <label class="check-item inline"><input type="radio" name="pf-vis" value="0" ${D.internal ? "" : "checked"}> آگهی عمومی در سایت</label>
-          <label class="check-item inline"><input type="radio" name="pf-vis" value="1" ${D.internal ? "checked" : ""}> پوزیشن داخلی (فقط تطبیق؛ مثلاً برای مشتری بیرون از سایت)</label></div></div>
-        ${D.internal ? `<div class="form-field full"><label>نام مشتری / سازمان مقصد</label><input type="text" maxlength="100" data-d="orgName" value="${e(D.orgName)}"></div>` : ""}
+        ${D.internal ? `<div class="form-field full"><label>نام مشتری / سازمان مقصد <small class="muted">(پوزیشن داخلی قدیمی)</small></label><input type="text" maxlength="100" data-d="orgName" value="${e(D.orgName)}"></div>` : ""}
         <div class="form-field"><label>عنوان شغلی استاندارد *</label>${TUI.picker({ options: O.roles(), value: D.role, onChange: v => { D.role = v; const r = AIO_ROLES.find(x => x.id === v); if (r) { if (!D.title) D.title = r.name; if (!D.dept) D.dept = r.dept; } draw(); } })}</div>
         <div class="form-field"><label>عنوان آگهی *</label><input type="text" maxlength="100" data-d="title" value="${e(D.title)}"></div>
-        <div class="form-field"><label>بخش *</label>${TUI.picker({ options: O.depts(), value: D.dept, onChange: v => { D.dept = v; preview(); } })}</div>
         <div class="form-field"><label>استان *</label>${TUI.picker({ options: O.provinces(), value: D.provinceId, onChange: v => { D.provinceId = v; D.city = ""; draw(); } })}</div>
         <div class="form-field"><label>شهر *</label>${TUI.picker({ options: O.cities(D.provinceId), value: D.city, placeholder: D.provinceId ? "انتخاب شهر" : "ابتدا استان", onChange: v => { D.city = v; preview(); } })}</div>
+        <div class="form-field"><label>بخش *</label>${TUI.picker({ options: O.depts(), value: D.dept, onChange: v => { D.dept = v; preview(); } })}</div>
         <div class="form-field"><label>نوع همکاری</label>${TUI.picker({ options: O.jobTypes(), value: D.type, onChange: v => D.type = v })}</div>
         <div class="form-field"><label>شیفت</label>${TUI.picker({ options: O.shifts(), value: D.shift, onChange: v => D.shift = v })}</div>
-        <div class="form-field"><label>حقوق از (میلیون تومان)</label><input type="number" min="0" data-d="salaryMin" data-num value="${e(D.salaryMin)}"></div>
-        <div class="form-field"><label>حقوق تا (میلیون تومان)</label><input type="number" min="0" data-d="salaryMax" data-num value="${e(D.salaryMax)}"></div>
+        <div class="form-field"><label>حقوق ماهانه (میلیون تومان)</label><div class="sal-pair"><span>از</span><input type="number" min="0" data-d="salaryMin" data-num value="${e(D.salaryMin)}" aria-label="حقوق از" placeholder="مثلاً ۲۰"><span>تا</span><input type="number" min="0" data-d="salaryMax" data-num value="${e(D.salaryMax)}" aria-label="حقوق تا" placeholder="مثلاً ۲۶"></div><small class="muted">خالی = توافقی</small></div>
         ${A.withDesc ? `<div class="form-field full"><label>شرح موقعیت شغلی ${D.internal ? "(اختیاری)" : "*"}</label><textarea rows="4" maxlength="5000" data-d="desc" placeholder="شرح وظایف، محیط کار و ساعات کاری">${e(D.desc || "")}</textarea></div>
         <div class="form-field full"><label>مزایا</label>${TUI.picker({ multi: true, options: AIO_BENEFITS.map(x => [x, x]), value: D.benefits || [], addLabel: "مزیت", onChange: v => D.benefits = v })}</div>
         <div class="form-field full"><label class="check-item inline"><input type="checkbox" data-remote ${D.remote ? "checked" : ""}> امکان دورکاری دارد</label></div>` : ""}
@@ -367,18 +440,14 @@ const EmpTalent = (() => {
           ${TUI.picker({ multi: true, options: O.langs().filter(o => !R.langs.some(l => l.id === o[0])), value: [], addLabel: "زبان", onChange: v => { v.forEach(id => { if (!R.langs.some(l => l.id === id)) R.langs.push({ id, lvl: 2 }); }); draw(); } })}</div>
       </div></div>
 
-      <div class="panel"><h2>مهارت‌ها، سطح لازم و وزن</h2>
-        <p class="muted" style="font-size:13px">وزن (۱ تا ۱۰) اهمیت هر مهارت در امتیاز نهایی است. «کلیدی» یعنی بدون آن (پوشش کمتر از ۵۰٪) نفر واجد شرایط نیست.</p>
-        ${R.skills.map((s, i) => `<div class="req-skill"><b style="font-size:13.5px">${e(name.skill(s.id))}</b>
-          <select data-sk="${i}:lvl">${AIO_SKILL_LEVELS.map(l => `<option value="${l.v}" ${+s.lvl === l.v ? "selected" : ""}>${l.name}</option>`).join("")}</select>
-          <span style="display:flex;align-items:center;gap:6px;min-width:150px"><input type="range" min="1" max="10" data-sk="${i}:w" value="${s.w}"><b data-wv="${i}">${fa(s.w)}</b></span>
-          <label class="check-item inline"><input type="checkbox" data-sk="${i}:must" ${s.must ? "checked" : ""}> کلیدی</label>
-          <button type="button" class="btn btn-sm btn-ghost danger" data-rmsk="${i}">×</button></div>`).join("") || '<div class="empty-inline">هنوز مهارتی تعریف نشده است.</div>'}
-        <div style="margin-top:12px">${TUI.picker({ multi: true, options: O.skills().filter(o => !R.skills.some(s => s.id === o[0])), value: [], addLabel: "افزودن مهارت/دستگاه", onChange: v => { v.forEach(id => { if (!R.skills.some(s => s.id === id)) R.skills.push({ id, w: 5, lvl: 3, must: false }); }); draw(); } })}</div>
+      <div class="panel"><h2>مهارت‌ها و دستگاه‌ها</h2>
+        <p class="muted" style="font-size:13px">برای هر دستگاه یک بلوک بسازید و بگویید روی آن دستگاه چه مهارت‌هایی با چه سطحی لازم است (مثلاً «تفسیر CBC روی Sysmex XN — پیشرفته»). «اهمیت» وزن هر مورد در امتیاز تطبیق است و «کلیدی» یعنی بدون آن (پوشش کمتر از ۵۰٪) نفر واجد شرایط نیست.</p>
+        ${reqBlocks(R)}
+        <div class="sd-newdev">${TUI.picker({ options: O.devices().filter(o => !TUI.byDevice(R.skills).some(b => b.device === o[0])), value: "", placeholder: "+ افزودن دستگاه", onChange: v => { if (v && !R.skills.some(x => x.id === v && !x.device)) R.skills.push({ id: v, w: 6, lvl: 3, must: false }); draw(); } })}</div>
       </div>
 
       <div class="notice-box info" data-preview style="margin-bottom:14px"></div>
-      <div style="display:flex;justify-content:flex-end;gap:10px">${D.id ? '<button type="button" class="btn btn-ghost" data-new>پوزیشن جدید</button>' : ""}<button type="button" class="btn btn-primary btn-lg" data-submit>${D.id ? "ذخیره تغییرات" : (D.internal ? "ثبت پوزیشن داخلی" : "ثبت و ارسال برای تأیید")}</button></div>`;
+      <div style="display:flex;justify-content:flex-end;gap:10px">${D.id ? '<button type="button" class="btn btn-ghost" data-new>پوزیشن جدید</button>' : ""}<button type="button" class="btn btn-primary btn-lg" data-submit>پیش‌نمایش و ${D.id ? "ذخیره تغییرات" : "ثبت آگهی"}</button></div>`;
       preview();
     }
     host.oninput = ev => {
@@ -386,19 +455,21 @@ const EmpTalent = (() => {
       if (t.dataset.d) { D[t.dataset.d] = t.dataset.num !== undefined ? (t.value === "" ? "" : +t.value) : t.value; }
       if (t.dataset.age) { D.req.age = D.req.age || [0, 0]; D.req.age[+t.dataset.age] = +t.value || 0; if (!D.req.age[0] && !D.req.age[1]) D.req.age = null; else { if (!D.req.age[1]) D.req.age[1] = 70; if (!D.req.age[0]) D.req.age[0] = 16; } preview(); }
       if (t.dataset.sk) { const [i, k] = t.dataset.sk.split(":"); const s = D.req.skills[+i];
-        if (k === "w") { s.w = +t.value; host.querySelector(`[data-wv="${i}"]`).textContent = fa(s.w); } else if (k === "lvl") s.lvl = +t.value; else s.must = t.checked; preview(); }
+        if (k === "w") { s.w = +t.value; host.querySelector(`[data-wv="${i}"]`).textContent = fa(s.w) + " · " + TUI.weightName(s.w); } else if (k === "lvl") s.lvl = +t.value; else s.must = t.checked; preview(); }
       if (t.dataset.lang) { D.req.langs[+t.dataset.lang].lvl = +t.value; preview(); }
       if (t.dataset.rq) { D.req[t.dataset.rq] = +t.value; preview(); }
     };
     host.onchange = ev => {
       const t = ev.target;
-      if (t.name === "pf-vis") { D.internal = t.value === "1"; draw(); return; }
+      const lv = t.closest && t.closest("[data-sklv]");
+      if (lv) { D.req.skills[+lv.dataset.sklv].lvl = +lv.querySelector(".tui-levels").dataset.value; preview(); return; }
       if (t.dataset.remote !== undefined) { D.remote = t.checked; return; }
       if (t.dataset.sk && t.type === "checkbox") host.oninput(ev);
     };
     host.onclick = ev => {
       const b = ev.target.closest("button"); if (!b) return;
       if (b.dataset.rmsk) { D.req.skills.splice(+b.dataset.rmsk, 1); draw(); }
+      if (b.dataset.rmdev) { const d = b.dataset.rmdev; D.req.skills = D.req.skills.filter(x => x.device !== d && !(x.id === d && !x.device)); draw(); }
       if (b.dataset.rmlang) { D.req.langs.splice(+b.dataset.rmlang, 1); draw(); }
       if (b.dataset.new !== undefined) load(null);
       if (b.dataset.submit !== undefined) {
@@ -415,12 +486,15 @@ const EmpTalent = (() => {
         Object.assign(job, { mine: true, labId: org.id, orgName: D.internal ? D.orgName : org.name,
           salary: D.salaryMin ? fa(D.salaryMin) + (D.salaryMax ? " تا " + fa(D.salaryMax) : "") + " میلیون تومان" : "توافقی",
           created: D.created || new Date().toISOString().slice(0, 10) });
-        b.classList.add("is-busy");
-        A.savePosition(job).then(saved => {
-          toast(D.internal ? "پوزیشن داخلی ثبت شد ✓ نیروهای مناسب را در «تطبیق هوشمند» ببینید" : (saved && saved.status === "publish" ? "آگهی منتشر شد ✓" : "آگهی ثبت شد و پس از تأیید منتشر می‌شود ✓"));
-          load(null);
-          if (onSaved) onSaved(saved || job);
-        }, fail).finally(() => b.classList.remove("is-busy"));
+        /* اول پیش‌نمایش کامل؛ فقط «تأیید» ذخیره می‌کند */
+        previewModal(job, org, (close, okBtn) => {
+          A.savePosition(job).then(saved => {
+            close();
+            toast(D.internal ? "پوزیشن داخلی ثبت شد ✓ نیروهای مناسب را در «تطبیق هوشمند» ببینید" : (saved && saved.status === "publish" ? "آگهی منتشر شد ✓" : "آگهی ثبت شد و پس از تأیید منتشر می‌شود ✓"));
+            load(null);
+            if (onSaved) onSaved(saved || job);
+          }, fail).finally(() => okBtn.classList.remove("is-busy"));
+        });
       }
     };
     load(null);
